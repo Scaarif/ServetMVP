@@ -1,6 +1,6 @@
 <template>
     <div class="bg-gray-50 min-h-screen relative">
-        <Navbar v-if="token"/>
+        <Navbar v-if="!isLanding"/>
         <main class="mx-4 top-16 relative flex flex-col items-center">
             <router-view />
         </main>
@@ -22,7 +22,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['token'])
+        ...mapState(['isLanding'])
     },
     methods: {
         toggleShowNotifications() {

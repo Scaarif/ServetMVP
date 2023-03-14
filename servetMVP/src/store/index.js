@@ -3,11 +3,12 @@ import { createStore } from 'vuex'
 const store = createStore({
     state: {
         token: false,
+        isLanding: true,
         // token: true,
         activeUser: '',
         isCustomer: true,
         isAdmin: false, // assuming that this' the only way an institution could be signed in
-        showDrafts: false,
+        showService: false,
     },
     getters: {
 
@@ -37,8 +38,12 @@ const store = createStore({
                     state.isAdmin = !state.isAdmin
             }
         },
-        toggleShowDrafts(state) {
-            state.showDrafts = !state.showDrafts
+        toggleIsLanding(state) {
+            state.isLanding = !state.isLanding
+            console.log(state.isLanding)
+        },
+        toggleShowService(state) {
+            state.showService = !state.showService
         },
     }
 })

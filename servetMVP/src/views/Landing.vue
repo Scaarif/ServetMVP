@@ -2,9 +2,9 @@
     <div class="flex flex-col items-center w-full">
        <div class="flex flex-col items-center space-y-2 py-4 space">
             <span class="text-[40px] font-medium max-w-xl w-full text-center">Welcome to Servet, the market place for services</span>
-            <span class="text-md max-w-lg text-center">Browse for the service you need and get connected to the provider instantly</span>
+            <span class="text-md max-w-md text-center">Browse for the service you need and get connected to the provider instantly</span>
        </div>
-       <div class="w-full px-32 flex items-center justify-between mt-32 mb-8">
+       <div class="w-full px-32 flex items-center justify-between mt-32 mb-16">
             <span class="text-lg py-2 border-b border-transparent transition-all hover:border-slate-900 cursor-pointer">
                 New to the site? Take an interactive tour
             </span>
@@ -15,6 +15,7 @@
                     v-model="location"
                     @change="setLocation"
                 >
+                    <option value="Country">Country</option>
                     <option value="kenya">Kenya</option>
                     <option value="Nigeria">Nigeria</option>
                 </select>
@@ -25,20 +26,28 @@
     </div>
 </template>
 <script>
+import { mapState, mapMutations } from 'vuex'
 
 export default {
     data() {
         return {
-            location: 'kenya',
+            location: 'Country',
             selectedLocation: '',
         }
     },
+    computed: {
+        ...mapState(['isLanding'])
+    },
     methods: {
+        ...mapMutations(['toggleIsLanding']),
         setLocation() {
-            this.selectedLocation = this.location
-            console.log('selectedLocation: ', this.selectedLocation)
-            // redirect to services page (read more on $router controls and guards)
-            this.$router.push({name: 'services'})
+            if (this.location !== 'Country') {
+                this.selectedLocation = this.location
+                console.log('selectedLocation: ', this.selectedLocation)
+                this.toggleIsLanding()
+                // redirect to services page (read more on route control/protection and guards)
+                this.$router.push({name: 'services'})
+            }
         }
     }
 }
