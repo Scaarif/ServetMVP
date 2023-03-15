@@ -29,8 +29,9 @@
                     class="w-16 h-16 rounded-full"
                 >
                 <span class="text-md capitalize py-2">jane doe</span>
-                <router-link :to="{name: 'login'}" class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
+                <router-link v-if="!token" :to="{name: 'login'}" class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
                 >contact service provider</router-link>
+                <span v-else class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer">+254 700 000000</span>
             </div>
         </div>
         <!-- Service Description -->
@@ -40,6 +41,28 @@
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dignissim ligula dolor, eget mattis dolor ultricies elementum.
             </span>
         </div>
+        <!-- Call to action (if logged in): Review Service -->
+        <form v-if="token" @submit.prevent="handleRateService" class="w-full flex flex-col items-center space-y-2 border-y border-slate-600 my-4 py-4">
+            <div class="self-start flex space-x-4 items-center ml-4">
+                <span class="text-md">Rating:</span>
+                <span class="flex">
+                    <svg v-for="idx in rating" :key="idx" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.60777 4.97077C8.19773 3.50002 8.4927 2.76465 8.99995 2.76465C9.50719 2.76465 9.80217 3.50002 10.3921 4.97077L10.4196 5.03926C10.7529 5.87016 10.9195 6.28561 11.2592 6.53813C11.5988 6.79064 12.0447 6.83057 12.9363 6.91043L13.0975 6.92487C14.5569 7.05556 15.2866 7.12091 15.4427 7.58515C15.5989 8.04939 15.057 8.5424 13.9732 9.52841L13.6115 9.85749C13.0628 10.3566 12.7885 10.6062 12.6607 10.9333C12.6368 10.9943 12.617 11.0568 12.6013 11.1204C12.5173 11.4614 12.5976 11.8235 12.7583 12.5476L12.8083 12.773C13.1035 14.1037 13.2511 14.7691 12.9934 15.0561C12.8971 15.1633 12.7719 15.2406 12.6328 15.2785C12.2607 15.38 11.7323 14.9495 10.6756 14.0884C9.98172 13.523 9.63478 13.2403 9.23646 13.1767C9.07978 13.1517 8.92012 13.1517 8.76344 13.1767C8.36511 13.2403 8.01817 13.523 7.32429 14.0884C6.26758 14.9495 5.73922 15.38 5.36707 15.2785C5.22801 15.2406 5.10283 15.1633 5.00651 15.0561C4.74875 14.7691 4.89638 14.1037 5.19163 12.773L5.24164 12.5476C5.4023 11.8235 5.48262 11.4614 5.39858 11.1204C5.38291 11.0568 5.36308 10.9943 5.33923 10.9333C5.21137 10.6062 4.93706 10.3566 4.38843 9.85749L4.02672 9.52841C2.94293 8.5424 2.40104 8.04939 2.55718 7.58515C2.71331 7.12091 3.44299 7.05556 4.90235 6.92487L5.06355 6.91043C5.95524 6.83057 6.40109 6.79064 6.74072 6.53813C7.08036 6.28561 7.24701 5.87016 7.5803 5.03926L7.60777 4.97077Z" fill="#7E869E" fill-opacity="0.25" stroke="#222222" stroke-width="1.4"/>
+                        </svg>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.60777 4.97077C8.19773 3.50002 8.4927 2.76465 8.99995 2.76465C9.50719 2.76465 9.80217 3.50002 10.3921 4.97077L10.4196 5.03926C10.7529 5.87016 10.9195 6.28561 11.2592 6.53813C11.5988 6.79064 12.0447 6.83057 12.9363 6.91043L13.0975 6.92487C14.5569 7.05556 15.2866 7.12091 15.4427 7.58515C15.5989 8.04939 15.057 8.5424 13.9732 9.52841L13.6115 9.85749C13.0628 10.3566 12.7885 10.6062 12.6607 10.9333C12.6368 10.9943 12.617 11.0568 12.6013 11.1204C12.5173 11.4614 12.5976 11.8235 12.7583 12.5476L12.8083 12.773C13.1035 14.1037 13.2511 14.7691 12.9934 15.0561C12.8971 15.1633 12.7719 15.2406 12.6328 15.2785C12.2607 15.38 11.7323 14.9495 10.6756 14.0884C9.98172 13.523 9.63478 13.2403 9.23646 13.1767C9.07978 13.1517 8.92012 13.1517 8.76344 13.1767C8.36511 13.2403 8.01817 13.523 7.32429 14.0884C6.26758 14.9495 5.73922 15.38 5.36707 15.2785C5.22801 15.2406 5.10283 15.1633 5.00651 15.0561C4.74875 14.7691 4.89638 14.1037 5.19163 12.773L5.24164 12.5476C5.4023 11.8235 5.48262 11.4614 5.39858 11.1204C5.38291 11.0568 5.36308 10.9943 5.33923 10.9333C5.21137 10.6062 4.93706 10.3566 4.38843 9.85749L4.02672 9.52841C2.94293 8.5424 2.40104 8.04939 2.55718 7.58515C2.71331 7.12091 3.44299 7.05556 4.90235 6.92487L5.06355 6.91043C5.95524 6.83057 6.40109 6.79064 6.74072 6.53813C7.08036 6.28561 7.24701 5.87016 7.5803 5.03926L7.60777 4.97077Z" fill="#7E869E" fill-opacity="0.25" stroke="#222222" stroke-width="1.4"/>
+                    </svg>
+                </span>
+            </div>
+            <div class="self-start flex space-x-2 items-center pb-8">
+                <textarea class="self-start ml-4 rounded-sm border-slate-300 focus:ring-0 focus:border-slate-400 bg-gray-100 text-center"
+                    name="comment" id="" cols="60" rows="4">
+                </textarea>
+                <button class=" self-end text-md capitalize py-2 px-12 bg-[#F3ECD1] rounded-sm
+                    cursor-pointer -ml-80 transition-all hover:bg-[#E9D89D]"
+                >Submit Review</button>
+            </div>         
+        </form>
         <!-- Customer Testimonials -->
         <div class="self-start flex flex-col w-full relative">
             <span class="text-lg font-medium mb-4">Customer Testimonials</span>
@@ -49,7 +72,7 @@
                 </svg>
             </span>
             <!-- testimonials -->
-            <div class="flex flex-wrap items-center space-y-2 mb-4 px-4">
+            <div v-show="showTestimonials || !token" class="flex flex-wrap items-center space-y-2 mb-4 px-4">
                 <!-- testimonial -->
                 <div class="flex flex-col space-y-4 p-4 border w-full mr-2 md:max-w-1/2 rounded-sm" v-for="name, idx in customers" :key="idx">
                     <div class="flex space-x-4 items-center">
@@ -68,18 +91,22 @@
                     </span>
                     <span class="self-end text-md font-medium text-slate-800">{{ name }}</span>
                 </div>
+                 <!-- see more -->
+                 <div class="w-full flex flex-col">
+                    <span class="self-end text-slate-600 text-md font-medium border-b border-transparent p-2
+                        mr-4 transition-all hover:border-slate-800 cursor-pointer">
+                        see more ...
+                    </span>
+                </div>
             </div>
-            <!-- see more -->
-            <span class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
-                mr-4 transition-all hover:border-slate-800 cursor-pointer">
-                see more ...
-            </span>
         </div>
         <!-- Call to action (rate the service) -->
-        <div class="w-full flex justify-between items-center">
-            <router-link :to="{name: 'login'}" class="text-md capitalize py-2 px-12 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D]
+        <div class="w-full flex justify-between items-center mt-8">
+            <span v-if="!token" class="text-md capitalize py-2 px-12 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D]
                 cursor-pointer"
-            >Rate the service</router-link>
+                @click="handleRateService"
+            >Rate the service</span>
+            <span v-else class=""></span>
             <span class="text-md capitalize py-2 px-12 border rounded-sm transition-all hover:bg-[#F3ECD1]
                 cursor-pointer"
                 @click="toggleShowService"
@@ -94,7 +121,7 @@ export default {
        return {
         rating: [1, 2, 3, 4],
         details: [{'location': 'CBD, Nairobi'}, {'price': '$25'}, {'available now': 'yes'}],
-        showTestimonials: true,
+        showTestimonials: false,
         customers: ['Lucy Johns', 'Bradley G'],
        }
     },
@@ -106,6 +133,12 @@ export default {
         toggleShowTestimonials() {
             // fold the testimonials if token (user logged in), they can unfold it - or simply rate the service and move on...
             this.showTestimonials = !this.showTestimonials
+        },
+        handleRateService() {
+            if (this.token)
+                console.log('submitting your review') // submit review (POST)
+            else
+                this.$router.push({name: 'login'}) // user not logged in, redirect to login page
         }
     }
 }

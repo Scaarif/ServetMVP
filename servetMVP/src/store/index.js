@@ -25,7 +25,7 @@ const store = createStore({
                 if (state.isAdmin)
                     state.isAdmin = !state.isAdmin
             }
-            else if (state.activeUser === 'doctor' && state.isCustomer) {
+            else if (state.activeUser === 'provider' && state.isCustomer) {
                 state.isCustomer = !state.isCustomer
                 if (state.isAdmin)
                     state.isAdmin = !state.isAdmin

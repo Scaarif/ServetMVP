@@ -1,16 +1,16 @@
 <template>
-    <div class="flex items-center">
-        <h1>Hello & welcome to Servet!</h1>
+    <div class="w-full flex flex-col items-center">
+        <ServicesTemplate />
     </div>
 </template>
 <script>
-// import AdminsDashBoard from '../components/AdminsDashBoard.vue';
+import ServicesTemplate from '../components/ServicesTemplate.vue'
 
 import { mapState } from 'vuex'
 
 export default {
     components: {
-    
+        ServicesTemplate,
     },
     data() {
         return {
