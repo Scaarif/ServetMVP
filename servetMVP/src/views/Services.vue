@@ -3,7 +3,6 @@
         <!-- header (slogan & filter bar) -->
         <div class="w-full flex items-center justify-between px-8 mb-8">
             <span class="text-md max-w-md text-center">
-                Browse for the service you need and get connected to the provider instantly
             </span>
             <span class="text-md font-medium">Filter services by
                 <select class="text-sm rounded-sm ring-0 border-none active:border-none active:ring-0 hover:ring-0

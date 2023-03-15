@@ -5,6 +5,9 @@ import Landing from '../views/Landing.vue'
 import TimelineView from '../views/TimelineView.vue'
 import ProfilePage from '../views/ProfilePage.vue'
 import Services from '../views/Services.vue'
+
+import Login from '../views/Login.vue'
+import SignUp from '../views/SignUp.vue'
 import PlayGround from '../views/PlayGround.vue'
 
 const router = createRouter({
@@ -35,6 +38,16 @@ const router = createRouter({
           component: Services
         },
         {
+          path: '/login',
+          name: 'login',
+          component: Login
+        },
+        {
+          path: '/signup',
+          name: 'signup',
+         component: SignUp
+        },
+        {
           path: '/play',
           name: 'play',
           component: PlayGround
@@ -42,9 +55,11 @@ const router = createRouter({
       ]
     },
     {
-      path: '/login', //or some other layout
-      name: 'login',
+      path: '/user', //or some other layout
       component: LoginLayout,
+      children: [
+        
+      ]
     }
   ]
 })

@@ -22,7 +22,8 @@
             </span>
        </div>
        <div class="self-end mr-64 text-slate-700 mb-16">optionally</div>
-       <div class="self-end mr-48 text-slate-700 mb-32 bg-[#F3ECD1] px-16 py-2 transition-all hover:bg-[#E9D89D]">Login</div>
+       <router-link :to="{name: 'login'}" class="self-end mr-48 text-slate-700 mb-32 bg-[#F3ECD1] px-16
+            py-2 font-medium transition-all hover:bg-[#E9D89D]">Login</router-link>
     </div>
 </template>
 <script>

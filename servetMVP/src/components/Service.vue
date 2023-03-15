@@ -29,13 +29,13 @@
                     class="w-16 h-16 rounded-full"
                 >
                 <span class="text-md capitalize py-2">jane doe</span>
-                <span class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
-                >contact service provider</span>
+                <router-link :to="{name: 'login'}" class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
+                >contact service provider</router-link>
             </div>
         </div>
         <!-- Service Description -->
         <div class="self-start flex flex-col w-full mb-4">
-            <span class="text-lg font-medium mb-2">Service Provider Details</span>
+            <span class="text-lg font-medium mb-2">Service Description</span>
             <span class="text-md px-4">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dignissim ligula dolor, eget mattis dolor ultricies elementum.
             </span>
@@ -77,9 +77,9 @@
         </div>
         <!-- Call to action (rate the service) -->
         <div class="w-full flex justify-between items-center">
-            <span class="text-md capitalize py-2 px-12 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D]
+            <router-link :to="{name: 'login'}" class="text-md capitalize py-2 px-12 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D]
                 cursor-pointer"
-            >Rate the service</span>
+            >Rate the service</router-link>
             <span class="text-md capitalize py-2 px-12 border rounded-sm transition-all hover:bg-[#F3ECD1]
                 cursor-pointer"
                 @click="toggleShowService"
@@ -99,11 +99,12 @@ export default {
        }
     },
     computed: {
-        ...mapState(['showService']),
+        ...mapState(['showService', 'token']),
     },
     methods: {
         ...mapMutations(['toggleShowService']),
         toggleShowTestimonials() {
+            // fold the testimonials if token (user logged in), they can unfold it - or simply rate the service and move on...
             this.showTestimonials = !this.showTestimonials
         }
     }

@@ -4,7 +4,6 @@ const store = createStore({
     state: {
         token: false,
         isLanding: true,
-        // token: true,
         activeUser: '',
         isCustomer: true,
         isAdmin: false, // assuming that this' the only way an institution could be signed in
@@ -44,6 +43,9 @@ const store = createStore({
         },
         toggleShowService(state) {
             state.showService = !state.showService
+        },
+        toggleToken(state) {
+            state.token = !state.token
         },
     }
 })
