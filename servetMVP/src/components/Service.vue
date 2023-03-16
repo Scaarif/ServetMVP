@@ -28,10 +28,18 @@
                 <img src="../assets/scaarif_a_young_kenyan_tomboy_full-body_portrait_light_skinned__0a68fc1a-c258-4865-a6fb-33c81878f822.png" alt=""
                     class="w-16 h-16 rounded-full"
                 >
-                <span class="text-md capitalize py-2">jane doe</span>
-                <router-link v-if="!token" :to="{name: 'login'}" class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
+                <span v-if="!token" class="text-md capitalize py-2 cursor-pointer">jane doe</span>
+                <router-link v-else :to="{name: 'profile'}" class="text-md capitalize py-2 cursor-pointer hover:text-slate-600">jane doe</router-link>
+                <router-link v-if="!token" :to="{name: 'login'}"
+                    class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
                 >contact service provider</router-link>
-                <span v-else class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer">+254 700 000000</span>
+                <!-- display whats app & call contacts -->
+                <div v-else class="flex flex-col space-y-2">
+                    <span class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
+                    >(call) +254 700 000000</span>
+                    <span class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
+                    >(whats app) +254 700 000000</span>
+                </div>
             </div>
         </div>
         <!-- Service Description -->

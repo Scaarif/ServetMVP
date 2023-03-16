@@ -57,7 +57,7 @@ export default {
     data() {
         return {
             do:'',
-            serviceName: 'some name'
+            serviceName: 'some service'
         }
     },
     methods: {
