@@ -4,7 +4,7 @@
        <div class="w-full flex flex-col space-y-2 border p-4 rounded">
             <div class="flex space-x-2 items-center relative mb-4">
                 <span class="text-lg font-medium">My Services</span>
-                <span class="absolute top-1 left-28" @click="toggleShowMyServices">
+                <span class="absolute top-1 left-28" @click="toggleshowPending">
                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18.5 9L12.5 15L6.5 9" stroke="black" stroke-width="2"/>
                     </svg>
@@ -14,7 +14,7 @@
                 >See all Services</span>
             </div>
             <!-- the services -->
-            <div v-show="showMyServices" class="flex flex-wrap">
+            <div v-show="showPending" class="flex flex-wrap">
                 <!-- a service -->
                 <div v-for="service, idx in services" :key="idx"
                     class="w-full md:w-1/2 flex items-center justify-between p-4 mb-2 mr-2 border rounded-sm bg-gray-100">
@@ -70,7 +70,7 @@ import { mapMutations } from 'vuex'
 export default {
     data() {
         return {
-            showMyServices: true,
+            showPending: true,
             services: ['some service', 'test service'],
             showModifyServiceModal: false,
             serviceId: '',
@@ -81,8 +81,8 @@ export default {
     },
     methods: {
         ...mapMutations(['setActiveUser',]),
-        toggleShowMyServices() {
-            this.showMyServices = !this.showMyServices
+        toggleshowPending() {
+            this.showPending = !this.showPending
         },
         toggleShowModal() {
             this.showModifyServiceModal = !this.showModifyServiceModal
