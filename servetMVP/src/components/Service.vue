@@ -55,8 +55,8 @@
                 </span>
             </div>
             <div class="self-start flex space-x-2 items-center pb-8">
-                <textarea class="self-start ml-4 rounded-sm border-slate-300 focus:ring-0 focus:border-slate-400 bg-gray-100 text-center"
-                    name="comment" id="" cols="60" rows="4">
+                <textarea class="self-start ml-4 rounded-sm border-slate-300 focus:ring-0 focus:border-slate-400 bg-gray-100 text-slate-700"
+                    name="comment" id="" cols="60" rows="4" v-model="comment">
                 </textarea>
                 <button class=" self-end text-md capitalize py-2 px-12 bg-[#F3ECD1] rounded-sm
                     cursor-pointer -ml-80 transition-all hover:bg-[#E9D89D]"
@@ -123,6 +123,8 @@ export default {
         details: [{'location': 'CBD, Nairobi'}, {'price': '$25'}, {'available now': 'yes'}],
         showTestimonials: false,
         customers: ['Lucy Johns', 'Bradley G'],
+        comment: '',
+        stars: '',
        }
     },
     computed: {
@@ -135,8 +137,10 @@ export default {
             this.showTestimonials = !this.showTestimonials
         },
         handleRateService() {
-            if (this.token)
+            if (this.token) {
                 console.log('submitting your review') // submit review (POST)
+                console.log(this.comment)
+            }
             else
                 this.$router.push({name: 'login'}) // user not logged in, redirect to login page
         }

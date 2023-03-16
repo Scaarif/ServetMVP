@@ -29,11 +29,13 @@
 import { mapMutations, mapState } from 'vuex';
 export default {
     computed: {
-        ...mapState(['token']),
+        ...mapState(['token', 'isLanding']),
     },
     methods: {
-        ...mapMutations(['toggleToken']),
+        ...mapMutations(['toggleToken', 'toggleIsLanding']),
         handleSubmit() {
+            if (this.isLanding)
+                this.toggleIsLanding()
             // handle data submission (POST)
             console.log('logged in!')
             if (!this.token) {

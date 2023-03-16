@@ -1,16 +1,22 @@
 <template>
     <div class="w-full flex flex-col items-center">
-        <ServicesTemplate />
+        <ServicesTemplate v-if="activeUser === 'customer' || !activeUser"/>
+        <ProvidersHome v-if="activeUser === 'provider'"/>
+        <AdminHome v-if="activeUser === 'admin'"/>
     </div>
 </template>
 <script>
 import ServicesTemplate from '../components/ServicesTemplate.vue'
+import ProvidersHome from '../components/ProvidersHome.vue'
+import AdminHome from '../components/AdminHome.vue'
 
 import { mapState } from 'vuex'
 
 export default {
     components: {
         ServicesTemplate,
+        ProvidersHome,
+        AdminHome,
     },
     data() {
         return {
@@ -18,7 +24,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['token']),
+        ...mapState(['token', 'activeUser']),
     },
     created() {
         this.checkIfLoggedIn()
