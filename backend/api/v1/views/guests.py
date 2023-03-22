@@ -3,7 +3,7 @@
 from flask import (
         request, render_template, redirect,
         url_for, flash, abort, session, Blueprint,
-        current_app
+        current_app, jsonify
         )
 # from models import db, Customers, is_safe_url
 from flask_login import (
@@ -39,25 +39,56 @@ def search_services():
 
         The selected services match the filters in the query string.
     '''
+    from api.v1.views import (
+            db, ServiceProviders, ServiceCategories,
+            ServiceProviderServices, Countries, States, Locations,
+            Reviews
+            )
     # Retrieve query arguments
-    country = request.args.get('country')
-    state = request.args.get('state')
-    location = request.args.get('location')
-    sc = request.args.get('service_category')
+    country_id = request.args.get('country')
+    state_id = request.args.get('state')
+    location_id = request.args.get('location')
+    sc_id = request.args.get('service_category')
 
     # Use filter parameters to fetch summary services data
-    if not location:
-        if not state:
-            # use country to filter
-            pass
+    if not location_id:
+        if not state_id:
+            # use country id to filter
+            stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).join(States).join(Countries).where(Countries.id==int(country_id), ServiceCategories.id==int(sc_id))
+            rows_list = db.session.execute(stmt).all()
+            '''
+            - returns a list of Row objects representing the result set
+            - since columns were selected, each row (a Python named tuple) in
+              the list will contain the column attributes requested
+            - as in a named tuple, these attributes can be
+              accessed using their column/attribute name e.g. row[0].name
+            '''
         else:
-            # use state to filter
-            pass
+            # use state id to filter
+            stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).join(States).where(States.id==int(state_id), ServiceCategories.id==int(sc_id))
+            rows_list = db.session.execute(stmt).all()
     else:
-        # use location to filter
-        pass
+        # use location id to filter
+        stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).where(Locations.id==int(location_id), ServiceCategories.id==int(sc_id))
+        rows_list = db.session.execute(stmt).all()
 
-    return "<h1>RESULTS</h1>"
+    json_list = []
+
+    for row in rows_list:
+        # Prepare the data in json_serializable forms
+        first_name = row.first_name
+        last_name = row.last_name
+        image_uri = row.image_uri
+        rating = float(row.rating)  # for serializability
+        description = row.service_description
+
+        # A dictionary representing a single unit of data
+        json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description)
+
+        # Append to list
+        json_list.append(json_data)
+
+    return jsonify(json_list)
 
 
 

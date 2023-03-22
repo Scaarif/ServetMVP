@@ -55,7 +55,7 @@
 				</select>
 				<!-- service categories -->
 				<label for="service_category">Service Category:</label>
-				<select name="service_category" id="service_category">
+				<select name="service_category" id="service_category" required>
 					<option value="">Select service category</option>
 					{% if service_categories %}
 					{% for service_category in service_categories %}
