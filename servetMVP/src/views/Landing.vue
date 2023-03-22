@@ -10,46 +10,151 @@
             </span>
             <span class="text-lg text-slate-700">or</span>
             <span class="text-lg">Choose your location to start
-                <select class="text-lg rounded-sm ring-0 border-none active:border-none active:ring-0 hover:ring-0
-                    hover:border-none select:ring-0 select:border-none"
+                <select class="w-[10rem] ring-0 border-slate-300 rounded focus:ring-0 focus:border-slate-400"
                     v-model="location"
                     @change="setLocation"
+                    v-if="location === 'Country'"
                 >
                     <option value="Country">Country</option>
                     <option value="kenya">Kenya</option>
                     <option value="Nigeria">Nigeria</option>
+                   
+                </select> 
+                <!-- select county/state -->
+                <select name="" id="" v-if="Object.values(regions).length && region === 'County'"
+                    v-model="region" @change="setRegion"
+                    class="w-[10rem] border-slate-300 rounded focus:border-slate-400 focus:ring-0 overflow-hidden"
+                    >
+                    <option value="County">County</option>
+                    <option v-for="region, idx in Object.values(regions)[0]" :key="idx" :value=region>{{ region.name }}</option>
+                </select>
+                <!-- select subcounty/locale -->
+                <select name="" id="" v-if="selectedState" v-model="locale" @change="setLocale"
+                    class="w-[10rem] border-slate-300 rounded focus:border-slate-400 focus:ring-0"
+                    >
+                    <option value="Sub County">Sub County</option>
+                    <option v-for="locale, idx in selectedState.sub_counties" :key="idx" :value=locale>{{ locale }}</option>
                 </select>
             </span>
        </div>
        <div class="self-end mr-64 text-slate-700 mb-16">optionally</div>
-       <router-link :to="{name: 'login'}" class="self-end mr-48 text-slate-700 mb-32 bg-[#F3ECD1] px-16
+       <router-link :to="{name: 'login'}" class="self-end mr-48 mb-32 bg-[#F3ECD1] px-16
             py-2 font-medium transition-all hover:bg-[#E9D89D]">Login</router-link>
     </div>
 </template>
 <script>
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations } from 'vuex';
+import axios from 'axios';
+import ke_counties from '../kenyan_counties.json'; 
 
 export default {
     data() {
         return {
             location: 'Country',
             selectedLocation: '',
+            queue: [],
+            regions: [],
+            done: false,
+            region: 'County',
+            selectedState: '',
+            locale: 'Sub County',
         }
     },
     computed: {
         ...mapState(['isLanding'])
     },
     methods: {
-        ...mapMutations(['toggleIsLanding']),
+        ...mapMutations(['toggleIsLanding', 'setCounties']),
         setLocation() {
             if (this.location !== 'Country') {
                 this.selectedLocation = this.location
                 console.log('selectedLocation: ', this.selectedLocation)
                 this.toggleIsLanding()
+                // create a queue
+                this.createQueue()
+                // get the regions (state/county) in country
+                this.allRegions()
                 // redirect to services page (read more on route control/protection and guards)
-                this.$router.push({name: 'services'})
+                if (this.done)
+                    this.$router.push({name: 'services'})
             }
-        }
-    }
+        },
+        createQueue() {
+            let reqs = this.selectedLocation === 'kenya' ? 5 : 4
+            for (let i = 0; i < reqs; i++)
+                this.queue.push((i * 10).toString())
+            console.log('created queue: ' + this.queue, this.queue.length)
+        },
+        setRegions(regions) {
+            // console.log(regions)
+            this.regions.push(regions);
+            console.log('so far: ', this.regions)
+            if (this.selectedLocation === 'nigeria')
+                console.log('first: ', Object.values(this.regions)[0][0], Object.values(this.regions)[0][0].uri)
+            else
+            console.log('first: ', Object.values(this.regions)[0][0])
+        },
+        setRegion() {
+            this.selectedState = this.region
+            // console.log(this.selectedState + 'with subcounties: ' + this.selectedState.sub_counties)
+        },
+        setLocale() {
+            console.log(this.locale)
+            this.$router.push({name: 'home'})
+        },
+        toggleDone() {
+            const len = this.selectedLocation === 'kenya' ? 47 : 36
+            if (this.selectedState && !this.done) {
+                this.done = !this.done
+            }
+        },
+        // get states/counties in country
+        async allRegions() {
+            // const countryCode = this.selectedLocation === 'kenya' ? 'KE' : 'NG';
+            // const options = {
+            // method: 'GET',
+            // url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode + '/regions',
+            // params: {limit: '50'},
+            // headers: {
+            //     'X-RapidAPI-Key': '080ce19c49msh6a7e158b86a77ebp11b231jsnc312862eade4',
+            //     'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com'
+            // }
+            // };
+
+            // options.params['offset'] = this.queue.shift()
+            // console.log('queue length' + this.queue.length, 'offset ->' + options.params.offset)
+            let res;
+            // res = await axios.request(options).then(function (response) {
+            //     // console.log(response.data.data);
+            //     return response.data.data;
+            // }).catch(function (error) {
+            //     console.error(error);
+            //     return {'status': 400}
+            // });
+            if (this.selectedLocation === 'nigeria') {
+                res = await axios.get('https://api.facts.ng/v1/states')
+                if (res !== null) {
+                    // console.log(res)
+                    this.setRegions(res.data)
+                }
+            }
+            else {
+                res = ke_counties
+                // console.log('ke_counties: ', ke_counties)
+                this.setRegions(res)
+            }
+            // if (res !== null) {
+            //     // console.log(res)
+            //     this.setRegions(res.data)
+            // }
+            // delay subsequent requests by 1 second
+            // if (this.queue.length > 0) {
+            //     setTimeout(this.allRegions, 2000)
+            // } else {
+            //     this.toggleDone()
+            //     this.setCounties(this.regions)
+            // }
+        },
+    },
 }
 </script>

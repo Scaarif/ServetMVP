@@ -1,10 +1,11 @@
 <template>
     <div class="flex flex-col items-center justify-center min-h-screen h-full bg-gray-50">
-        <form @submit.prevent="handleSubmit" class="flex flex-col items-center space-y-2 py-32 px-16 border rounded-md shadow-sm">
+        <form @submit.prevent="handleSubmit" class="flex flex-col items-center space-y-2 pb-32 pt-16 px-16 border rounded-md shadow-sm">
+            <span class="pb-16 text-lg">Welcome to <b>Servet</b></span>
             <!-- select user type -->
-            <div class="self-end flex items-center space-x-2 mb-16 border-b border-slate-300 pl-2 rounded-sm">
+            <div class="self-end flex items-center space-x-2 mb-16 pl-2 rounded-sm">
                <span class="text-lg font-medium"> Sign Up as a</span>
-               <select class="text-md bg-slate-50 border-slate-300 rounded-sm focus:border-slate-400 focus:ring-0"
+               <select class="text-sm bg-slate-50 ring-0 border-slate-300 rounded focus:border-slate-400 focus:ring-0"
                     v-model="user"
                     @change="setUser"
                >
@@ -16,14 +17,21 @@
                 class="w-full flex items-center space-x-4">
                 <span class="min-w-sm w-full text-md capitalize">{{ Object.keys(value)[0] }}:<b>*</b></span>
                 <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
-                    focus:ring-0 focus:border-slate-600 text-center" type="text" :placeholder="Object.values(value)[0]">
+                    focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50"
+                    :type="Object.keys(value)[0].includes('password') ? 'password' : 'text'" :placeholder="Object.values(value)[0]" required>
+            </div>
+            <div class="w-full flex items-center space-x-4">
+                <span class="min-w-sm w-full text-md capitalize">email address:<b>*</b></span>
+                <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
+                    focus:ring-0 focus:border-slate-600 text-center invalid:border-red-700"
+                    type="email" placeholder="email address" required>
             </div>
             <div class="flex flex-col items-center space-y-2" v-if="signUpUser === 'provider'">
                 <div v-for="value, idx in providerFields" :key="idx" 
-                    class="w-full flex items-center space-x-4">
+                    class="w-full flex items-center space-x-4 relative">
                     <span class="min-w-sm w-full text-md capitalize">{{ Object.keys(value)[0] }}:<b>*</b></span>
                     <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
-                        focus:ring-0 focus:border-slate-600 text-center" type="text" :placeholder="Object.values(value)[0]">
+                        focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50" type="text" :placeholder="Object.values(value)[0]">
                 </div>
             </div>
             <div class="self-end flex flex-col items-center">
@@ -48,7 +56,6 @@ export default {
             fields: [
                 {'full name': 'your full name'},
                 {'phone number': 'your phone number'},
-                {'email': 'your email'},
                 {'password': 'set a password'},
                 {'confirm password': 'confirm password'},
             ],
@@ -62,6 +69,7 @@ export default {
             ],
             user: 'customer',
             signUpUser: '',
+            showSelect: true,
         }
     },
     methods: {

@@ -8,6 +8,7 @@ const store = createStore({
         isCustomer: true,
         isAdmin: false, // assuming that this' the only way an institution could be signed in
         showService: false,
+        counties: []
     },
     getters: {
 
@@ -47,6 +48,11 @@ const store = createStore({
         toggleToken(state) {
             state.token = !state.token
         },
+        // testing axios
+        setCounties(state, counties) {
+            state.counties.push(...counties)
+            console.log('counties: ', state.counties)
+        }
     }
 })
 
