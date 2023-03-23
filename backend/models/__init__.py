@@ -113,7 +113,7 @@ def populate_db():
     rev4.customer = cus1
     rev4.serviceProvider_service = sps1
     with app.app_context():
-        db.session.add([rev1, rev2, rev3, rev4])
+        db.session.add_all([rev1, rev2, rev3, rev4])
         db.session.commit()
 
     # Persist data to database
