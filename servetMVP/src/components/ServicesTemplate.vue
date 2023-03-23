@@ -43,7 +43,7 @@ import ServiceCard from './ServiceCard.vue';
 import Service from './Service.vue';
 
 
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 
 export default {
     data() {
@@ -57,6 +57,7 @@ export default {
     },
     computed: {
         ...mapState(['showService', 'token', 'services']),
+        ...mapGetters(['getService']),
     },
     components: {
         ServiceCard,

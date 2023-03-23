@@ -5,7 +5,7 @@ import store from '../store/index'
 async function loggedOutGet(url) {
     let response;
     try {
-        response = axios.get(url)
+        response = await axios.get(url)
     } catch (error) {
         console.log(error)
         response = error
