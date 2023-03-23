@@ -196,7 +196,7 @@ def sp_profile_put(id):
 def sp_index():
     ''' Endpoint for site homepage.
     '''
-    return render_template('baseSP.html')
+    return render_template('baseSP.html', n=str(uuid4()))
 
 
 @sp_auth_views.route('/logout')
@@ -309,6 +309,7 @@ sp_apis = Blueprint(
         )
 
 @sp_apis.route('/<sp_id>/services')
+@login_required
 def one_service(sp_id):
     ''' Returns the IDs of a service-provider's services.
     '''
@@ -320,3 +321,51 @@ def one_service(sp_id):
     '''
 
     return jsonify(ids_list)
+
+
+@sp_apis.route('/<sp_id>/services/create', methods=['POST'])
+@login_required
+def service_create_post(sp_id):
+    ''' Process for data to create a new service-provider service.
+    '''
+    # Retrieve form data
+    service_description = request.form.get('service_description')
+    serviceCategory_id = request.form.get('service_category')  # for F.Key
+    image = request.files.get('profile_pic')
+
+    # Create new service-provider service object
+    new_sps = ServiceProviderServices(service_description=service_description, serviceProvider_id=sp_id, serviceCategory_id=serviceCategory_id)
+    ''' defer saving image_uri until ID is available.'''
+
+    # Commit to get ID before processing image
+    db.session.add(new_sps)
+    db.session.commit()
+
+    # Get new record's ID
+    new_id = new_sps.id
+
+    # Use the id to save the image and its URI
+    if image.filename:
+        # filename will be empty if no file selected
+        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) + '.jpg'
+        new_sps.image_uri = image_uri
+        # Persist to database
+        db.session.add(new_sps)
+        db.session.commit()
+        image.save(current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg')
+
+    json_data = {"sps_id": new_id}
+
+    return jsonify(json_data)
+
+
+@sp_apis.route('/<sp_id>/services/create')
+@login_required
+def service_create_get(sp_id):
+    ''' Returns the service-creation form.
+    '''
+    # get all service categories; for testing
+    stmt = db.select(ServiceCategories)
+    categories = db.session.scalars(stmt).all()
+
+    return render_template('sp_apis/service_create.html', categories=categories, n=str(uuid4()))

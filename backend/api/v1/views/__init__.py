@@ -64,7 +64,7 @@ def create_app():
             app.static_folder, 'service_provider_services/images/'
             )
     app.config["SPS_IMAGE_RPATH"] =\
-            '/static/service_provider_services/images/'
+            'static/service_provider_services/images/'
     app.config["EXPLAIN_TEMPLATE_LOADING"] = True
 
     # Init app with extension; ensure all app configs have been set already!
@@ -74,7 +74,8 @@ def create_app():
     login_manager = LoginManager()
     login_manager.blueprint_login_views = {
             'cus_auth_views': 'cus_auth_views.cus_login',
-            'sp_auth_views': 'sp_auth_views.sp_login'
+            'sp_auth_views': 'sp_auth_views.sp_login',
+            'sp_apis': 'sp_auth_views.sp_login',
             }
     login_manager.init_app(app)
 
