@@ -58,12 +58,14 @@
             <span class="text-lg font-medium mb-4">Comparative graphs</span>
             <div class="flex flex-col border py-12 px-4 bg-gray-100">
                 <span class="w-1/2 text-sm text-slate-600">This' the comparative graph section (not sure yet how to do it - maybe canva? Is it that time now?)</span>
+               <AnalyticsCopy />
             </div>
        </div>
     </div>
 </template>
 <script>
 import NewAndEditService from './NewAndEditService.vue'
+import AnalyticsCopy from './Analytics copy.vue'
 
 import { mapMutations } from 'vuex'
 
@@ -78,6 +80,7 @@ export default {
     },
     components: {
         NewAndEditService,
+        AnalyticsCopy,
     },
     methods: {
         ...mapMutations(['setActiveUser',]),
