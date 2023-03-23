@@ -1,6 +1,10 @@
 import { createStore } from 'vuex'
+import services from './services'
 
 const store = createStore({
+    modules: {
+        services,
+    },
     state: {
         token: false,
         isLanding: true,

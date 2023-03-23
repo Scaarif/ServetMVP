@@ -43,7 +43,7 @@
     </div>
 </template>
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapActions } from 'vuex';
 import axios from 'axios';
 import ke_counties from '../kenyan_counties.json'; 
 
@@ -65,6 +65,7 @@ export default {
     },
     methods: {
         ...mapMutations(['toggleIsLanding', 'setCounties']),
+        ...mapActions(['fetchServices']),
         setLocation() {
             if (this.location !== 'Country') {
                 this.selectedLocation = this.location
@@ -75,8 +76,8 @@ export default {
                 // get the regions (state/county) in country
                 this.allRegions()
                 // redirect to services page (read more on route control/protection and guards)
-                if (this.done)
-                    this.$router.push({name: 'services'})
+                // if (this.done)
+                //     this.$router.push({name: 'services'})
             }
         },
         createQueue() {
@@ -100,6 +101,13 @@ export default {
         },
         setLocale() {
             console.log(this.locale)
+            // fetch services based on location (& currently, service_category)
+            const country_id = this.selectedLocation === 'kenya' ? '1' : '2'
+            // const queryStr = '?country=' + country_id + '&service_category=1'
+            const queryStr = '?country=' + '2' + '&service_category=1'
+            console.log(queryStr)
+            this.fetchServices(queryStr)
+            // redirect to services page
             this.$router.push({name: 'services'})
         },
         toggleDone() {

@@ -26,11 +26,11 @@
         <span v-else class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
         <div class="w-full flex items-center mt-8 flex-wrap px-8">
-            <ServiceCard v-for="service, idx in services" :key="idx" @click="toggleShowService" />
+            <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService" />
         </div>
         <!-- see more -->
         <span class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
-            mr-8 transition-all hover:border-slate-800 cursor-pointer">
+            mr-8 transition-all hover:border-slate-800 cursor-pointer" @click="loadMore">
             see more ...
         </span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
@@ -52,11 +52,11 @@ export default {
             providerName: '',
             searchMetrics: '',
             location: {'county': 'Nairobi', 'locale': 'CBD'},
-            services: ['some service', 'some', 'test service', 'test wrapping', 'another', 'see'],
+            dummy_services: ['some service', 'some', 'test service', 'test wrapping', 'another', 'see'],
         }
     },
     computed: {
-        ...mapState(['showService', 'token']),
+        ...mapState(['showService', 'token', 'services']),
     },
     components: {
         ServiceCard,
@@ -70,6 +70,9 @@ export default {
         },
         searchServices() {
             console.log('Searching for services by ->', this.providerName)
+        },
+        loadMore() {
+            console.log('loaded services: ', this.services.services[0])
         }
     }
 }
