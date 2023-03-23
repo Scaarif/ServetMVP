@@ -42,6 +42,7 @@ export default {
             if (!this.token) {
                 this.toggleToken()
                 console.log('token -> ', this.token)
+                localStorage.setItem('token', true)
             }
             if (this.token)
                 this.$router.push({name: 'home'}) //redirect back home page -> user logged in!

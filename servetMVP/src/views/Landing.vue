@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col items-center w-full">
+    <div class="flex flex-col items-center w-full h-full">
        <div class="flex flex-col items-center space-y-2 py-4 space">
             <span class="text-[40px] font-medium max-w-xl w-full text-center">Welcome to Servet, the market place for services</span>
             <span class="text-md max-w-md text-center">Browse for the service you need and get connected to the provider instantly</span>
@@ -100,7 +100,7 @@ export default {
         },
         setLocale() {
             console.log(this.locale)
-            this.$router.push({name: 'home'})
+            this.$router.push({name: 'services'})
         },
         toggleDone() {
             const len = this.selectedLocation === 'kenya' ? 47 : 36

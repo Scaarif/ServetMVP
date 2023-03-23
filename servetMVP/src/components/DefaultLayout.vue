@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-50 min-h-screen relative">
+    <div class="bg-gray-50 min-h-screen h-full relative">
         <Navbar v-if="!isLanding"/>
         <main class="mx-4 top-16 relative flex flex-col items-center">
             <router-view />
@@ -18,16 +18,14 @@ export default {
     },
     data() {
         return {
-            showNotifications: true,
+          
         }
     },
     computed: {
         ...mapState(['isLanding'])
     },
     methods: {
-        toggleShowNotifications() {
-            this.showNotifications = !this.showNotifications
-        }
+        
     }
 }
 </script>

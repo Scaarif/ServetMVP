@@ -23,7 +23,7 @@
             <div class="w-full flex items-center space-x-4">
                 <span class="min-w-sm w-full text-md capitalize">email address:<b>*</b></span>
                 <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
-                    focus:ring-0 focus:border-slate-600 text-center invalid:border-red-700"
+                    focus:ring-0 focus:border-slate-600 text-center invalid:border-red-700 valid:bg-blue-50"
                     type="email" placeholder="email address" required>
             </div>
             <div class="flex flex-col items-center space-y-2" v-if="signUpUser === 'provider'">
@@ -31,7 +31,8 @@
                     class="w-full flex items-center space-x-4 relative">
                     <span class="min-w-sm w-full text-md capitalize">{{ Object.keys(value)[0] }}:<b>*</b></span>
                     <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
-                        focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50" type="text" :placeholder="Object.values(value)[0]">
+                        focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50" type="text"
+                        :placeholder="Object.values(value)[0]" required>
                 </div>
             </div>
             <div class="self-end flex flex-col items-center">
