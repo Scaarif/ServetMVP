@@ -16,10 +16,10 @@ module.exports = {
       // specify (define) custom colors (3 variants of blue) + white
       colors: {
         Primary: '#0D2F3F',
-        NormalBage:'F3ECD1',
-        ActiveBage: 'E9D89D',
-        CardGray: '7A7A7A',
-        CardBorderGray: 'B5B5B5',
+        NormalBage:'#F3ECD1',
+        ActiveBage: '#E9D89D',
+        CardGray: '#7A7A7A',
+        CardBorderGray: '#B5B5B5',
         // zenith features
         HeaderBlue: '#4D9DCA',
         ActiveBlue: '#52A4D2',

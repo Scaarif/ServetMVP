@@ -13,7 +13,7 @@
                 @change="toggleUser()"
                 >
                 <option v-for="user, idx in users" :key="idx"
-                    class="border-none outline-none ring-0 bg-CardGray focus:border-none focus:outline-none focus:ring-0 capitalize"
+                    class="border-none outline-none ring-0 focus:border-none focus:outline-none focus:ring-0 capitalize"
                     :value="user" >{{ user }}</option>
             </select>
         </div>

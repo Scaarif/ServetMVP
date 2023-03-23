@@ -9,8 +9,8 @@
                         <path d="M18.5 9L12.5 15L6.5 9" stroke="black" stroke-width="2"/>
                     </svg>
                 </span>
-                <span class="absolute right-0 px-8 py-2 rounded-sm text-sm font-medium bg-[#F3ECD1]
-                    transition-all hover:bg-[#E9D89D] cursor-pointer capitalize" @click="setActiveUser('customer')"
+                <span class="absolute right-0 px-8 py-2 rounded-sm text-sm font-medium bg-NormalBage
+                    transition-all hover:bg-ActiveBage cursor-pointer capitalize" @click="setActiveUser('customer')"
                 >See all Services</span>
             </div>
             <!-- the pending services -->
@@ -59,6 +59,7 @@
             <span class="text-lg font-medium mb-4">Comparative graphs</span>
             <div class="flex flex-col border py-12 px-4 bg-gray-100">
                 <span class="w-1/2 text-sm text-slate-600">This' the comparative graph section (not sure yet how to do it - maybe canva? Is it that time now?)</span>
+                <Analytics />
             </div>
        </div>
     </div>
@@ -66,8 +67,12 @@
 <script>
 
 import { mapMutations } from 'vuex'
+import Analytics from './Analytics.vue'
 
 export default {
+    components: {
+        Analytics,
+    },
     data() {
         return {
             showPending: true,
