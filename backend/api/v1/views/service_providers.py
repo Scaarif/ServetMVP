@@ -82,7 +82,11 @@ def sp_login_post():
 def sp_profile(id):
     ''' Service provider profile endpoint.
     '''
-    return render_template('sp_auth/profile.html')
+    # Retrieve all services offerred by the service provider
+    stmt = db.select(ServiceProviderServices).join(ServiceProviders).where(ServiceProviders.id==id)
+    services = db.session.scalars(stmt).all()
+
+    return render_template('sp_auth/profile.html', services=services)
 
 
 @sp_auth_views.route('/<id>/profile/edit')
@@ -97,7 +101,7 @@ def sp_profile_get(id):
     return render_template('sp_auth/profile_edit.html', id=id, n=str(uuid4()), locations=locations)
 
 
-@sp_auth_views.route('/<id>/profile/edit', methods=['POST'])
+@sp_auth_views.route('/<id>/profile/edit', methods=['POST', 'PUT'])
 def sp_profile_put(id):
     ''' Processes form data to update a service provider's record.
     '''
@@ -326,7 +330,7 @@ def one_service(sp_id):
 @sp_apis.route('/<sp_id>/services/create', methods=['POST'])
 @login_required
 def service_create_post(sp_id):
-    ''' Process for data to create a new service-provider service.
+    ''' Process for. data to create a new service-provider service.
     '''
     # Retrieve form data
     service_description = request.form.get('service_description')
@@ -369,3 +373,50 @@ def service_create_get(sp_id):
     categories = db.session.scalars(stmt).all()
 
     return render_template('sp_apis/service_create.html', categories=categories, n=str(uuid4()))
+
+
+@sp_apis.route('/<sp_id>/services/<int:sps_id>/edit', methods=['POST', 'PUT'])
+@login_required
+def service_edit_put(sp_id, sps_id):
+    ''' Process form data to update service-provider service.
+    '''
+    # Retrieve form data
+    service_description = request.form.get('service_description')
+    serviceCategory_id = request.form.get('service_category')  # for F.Key
+    image = request.files.get('profile_pic')
+
+    # Retrieve existing service-provider service object
+    stmt = db.select(ServiceProviderServices).where(ServiceProviderServices.id==sps_id)
+    existing_sps = db.session.scalars(stmt).one()  # expecting only one entity
+
+    if service_description:
+        existing_sps.service_description = service_description
+    if serviceCategory_id:
+        existing_sps.serviceCategory_id = int(serviceCategory_id)
+
+    # Use the id to save the image and its URI
+    if image.filename:
+        # new image; filename will be empty if not so
+        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) + '.jpg'
+        existing_sps.image_uri = image_uri
+        image.save(current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg')
+
+    # Persist to database
+    db.session.add(existing_sps)
+    db.session.commit()
+
+    json_data = {"status": 'OK'}
+
+    return jsonify(json_data)
+
+
+@sp_apis.route('/<sp_id>/services/<int:sps_id>/edit')
+@login_required
+def service_edit_get(sp_id, sps_id):
+    ''' Returns a service-editing form.
+    '''
+    # get all service categories; for testing
+    stmt = db.select(ServiceCategories)
+    categories = db.session.scalars(stmt).all()
+
+    return render_template('sp_apis/service_edit.html', categories=categories, sps_id=sps_id, n=str(uuid4()))
