@@ -15,7 +15,6 @@ module.exports = {
     extend: {
       // specify (define) custom colors (3 variants of blue) + white
       colors: {
-        Primary: '#0D2F3F',
         NormalBage:'#F3ECD1',
         ActiveBage: '#E9D89D',
         CardGray: '#7A7A7A',

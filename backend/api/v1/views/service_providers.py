@@ -3,12 +3,24 @@
 from flask import (
         request, render_template, redirect,
         url_for, flash, abort, session, Blueprint,
+<<<<<<< HEAD
         current_app
+=======
+        current_app, jsonify
+>>>>>>> coldplayz
         )
 # from models import db, Customers, is_safe_url
 from flask_login import (
         login_user, logout_user, login_required, current_user
         )
+<<<<<<< HEAD
+=======
+from api.v1.views import (
+        db, ServiceProviders, ServiceCategories,
+        ServiceProviderServices, Countries, States, Locations,
+        Reviews, Customers
+        )
+>>>>>>> coldplayz
 from werkzeug.security import check_password_hash
 from uuid import uuid4
 
@@ -191,7 +203,11 @@ def sp_profile_put(id):
 def sp_index():
     ''' Endpoint for site homepage.
     '''
+<<<<<<< HEAD
     return render_template('baseSP.html')
+=======
+    return render_template('baseSP.html', n=str(uuid4()))
+>>>>>>> coldplayz
 
 
 @sp_auth_views.route('/logout')
@@ -294,3 +310,76 @@ def sp_static(id, uri):
     ''' Endpoint for static file requests.
     '''
     return redirect(url_for('static', filename=uri))
+<<<<<<< HEAD
+=======
+
+
+################----JSON APIs----###############
+
+# Service provider API blueprint
+sp_apis = Blueprint(
+        'sp_apis', __name__, url_prefix='/api/v1/serviceProviders'
+        )
+
+@sp_apis.route('/<sp_id>/services')
+@login_required
+def one_service(sp_id):
+    ''' Returns the IDs of a service-provider's services.
+    '''
+    # Fetch service IDs
+    stmt = db.select(ServiceProviderServices.id).join(ServiceProviders).where(ServiceProviders.id==sp_id)
+    ids_list = db.session.scalars(stmt).all()
+    '''
+    since only one column is selected, use scalars() to fetch first items
+    '''
+
+    return jsonify(ids_list)
+
+
+@sp_apis.route('/<sp_id>/services/create', methods=['POST'])
+@login_required
+def service_create_post(sp_id):
+    ''' Process for data to create a new service-provider service.
+    '''
+    # Retrieve form data
+    service_description = request.form.get('service_description')
+    serviceCategory_id = request.form.get('service_category')  # for F.Key
+    image = request.files.get('profile_pic')
+
+    # Create new service-provider service object
+    new_sps = ServiceProviderServices(service_description=service_description, serviceProvider_id=sp_id, serviceCategory_id=serviceCategory_id)
+    ''' defer saving image_uri until ID is available.'''
+
+    # Commit to get ID before processing image
+    db.session.add(new_sps)
+    db.session.commit()
+
+    # Get new record's ID
+    new_id = new_sps.id
+
+    # Use the id to save the image and its URI
+    if image.filename:
+        # filename will be empty if no file selected
+        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) + '.jpg'
+        new_sps.image_uri = image_uri
+        # Persist to database
+        db.session.add(new_sps)
+        db.session.commit()
+        image.save(current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg')
+
+    json_data = {"sps_id": new_id}
+
+    return jsonify(json_data)
+
+
+@sp_apis.route('/<sp_id>/services/create')
+@login_required
+def service_create_get(sp_id):
+    ''' Returns the service-creation form.
+    '''
+    # get all service categories; for testing
+    stmt = db.select(ServiceCategories)
+    categories = db.session.scalars(stmt).all()
+
+    return render_template('sp_apis/service_create.html', categories=categories, n=str(uuid4()))
+>>>>>>> coldplayz
