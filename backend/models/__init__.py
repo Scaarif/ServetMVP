@@ -87,6 +87,35 @@ def populate_db():
         db.session.add_all([cus1, cus2])
         db.session.commit()
 
+
+    # Create four reviews
+    rev1 = Reviews(upvotes=3, total_votes=5)
+    review = 'Good service delivery'
+    rev1.review_content = review
+    rev1.customer = cus1
+    rev1.serviceProvider_service = sps2
+
+    rev2 = Reviews(upvotes=4, total_votes=5)
+    review = 'A very good service. Worth it!'
+    rev2.review_content = review
+    rev2.customer = cus2
+    rev2.serviceProvider_service = sps3
+
+    rev3 = Reviews(upvotes=2, total_votes=5)
+    review = 'Did not enjoy the service. Could do better'
+    rev3.review_content = review
+    rev3.customer = cus1
+    rev3.serviceProvider_service = sps2
+
+    rev4 = Reviews(upvotes=5, total_votes=5)
+    review = 'The best service ever!'
+    rev4.review_content = review
+    rev4.customer = cus1
+    rev4.serviceProvider_service = sps1
+    with app.app_context():
+        db.session.add([rev1, rev2, rev3, rev4])
+        db.session.commit()
+
     # Persist data to database
     with app.app_context():
         db.session.add_all([co1, co2])
