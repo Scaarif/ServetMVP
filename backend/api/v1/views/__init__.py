@@ -107,11 +107,12 @@ def create_app():
 
     # Import and register blueprints
     from api.v1.views.customers import cus_auth_views
-    from api.v1.views.service_providers import sp_auth_views
+    from api.v1.views.service_providers import sp_auth_views, sp_apis
     from api.v1.views.guests import guest_apis
     app.register_blueprint(cus_auth_views)
     app.register_blueprint(sp_auth_views)
     app.register_blueprint(guest_apis)
+    app.register_blueprint(sp_apis)
 
     return app
 

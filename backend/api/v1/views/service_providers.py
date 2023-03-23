@@ -3,11 +3,16 @@
 from flask import (
         request, render_template, redirect,
         url_for, flash, abort, session, Blueprint,
-        current_app
+        current_app, jsonify
         )
 # from models import db, Customers, is_safe_url
 from flask_login import (
         login_user, logout_user, login_required, current_user
+        )
+from api.v1.views import (
+        db, ServiceProviders, ServiceCategories,
+        ServiceProviderServices, Countries, States, Locations,
+        Reviews, Customers
         )
 from werkzeug.security import check_password_hash
 from uuid import uuid4
@@ -294,3 +299,24 @@ def sp_static(id, uri):
     ''' Endpoint for static file requests.
     '''
     return redirect(url_for('static', filename=uri))
+
+
+################----JSON APIs----###############
+
+# Service provider API blueprint
+sp_apis = Blueprint(
+        'sp_apis', __name__, url_prefix='/api/v1/serviceProviders'
+        )
+
+@sp_apis.route('/<sp_id>/services')
+def one_service(sp_id):
+    ''' Returns the IDs of a service-provider's services.
+    '''
+    # Fetch service IDs
+    stmt = db.select(ServiceProviderServices.id).join(ServiceProviders).where(ServiceProviders.id==sp_id)
+    ids_list = db.session.scalars(stmt).all()
+    '''
+    since only one column is selected, use scalars() to fetch first items
+    '''
+
+    return jsonify(ids_list)
