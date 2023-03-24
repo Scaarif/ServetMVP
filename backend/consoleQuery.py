@@ -6,4 +6,4 @@ stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, Servic
 
 stmt2 = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceCategories.name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).where(ServiceProviderServices.id==2)
 
-stmt3 = db.select(Reviews.review_content, Reviews.created_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==2)
+stmt3 = db.select(Reviews.review_content.label('mycontent'), Reviews.created_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==2)
