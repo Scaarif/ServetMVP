@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-''' Views and APIs for guest users.'''
+''' Default APIs.'''
 from flask import (
         request, render_template, redirect,
         url_for, flash, abort, session, Blueprint,
-        current_app, jsonify
+        current_app, make_response, jsonify
         )
 # from models import db, Customers, is_safe_url
 from flask_login import (
@@ -16,30 +16,34 @@ from api.v1.views import (
         )
 from werkzeug.security import check_password_hash
 from uuid import uuid4
+from os import getenv
 
-# Blueprint for guest views and apis
-guest_apis = Blueprint('guest_apis', __name__)
+# Blueprint for default apis
+default_apis = Blueprint('default_apis', __name__, url_prefix='/api/v1')
 
-
-@guest_apis.route('/')
-def guest_index():
-    ''' Homepage for guests.
-    '''
-    # for testing
-    from api.v1.views import Countries, States, Locations, ServiceCategories, db
-    stmt = db.select(Locations)
-    locations = db.session.scalars(stmt).all()
-    stmt = db.select(Countries)
-    countries = db.session.scalars(stmt).all()
-    stmt = db.select(States)
-    states = db.session.scalars(stmt).all()
-    stmt = db.select(ServiceCategories)
-    service_categories = db.session.scalars(stmt).all()
-    return render_template('base.html', countries=countries, states=states, locations=locations, service_categories=service_categories, n=str(uuid4()))
+testing = getenv('testing', '')
 
 
-@guest_apis.route('/services')
-def search_services():
+if testing:
+    @default_apis.route('/')
+    def index():
+        ''' Homepage for guests.
+        '''
+        # for testing
+        from api.v1.views import Countries, States, Locations, ServiceCategories, db
+        stmt = db.select(Locations)
+        locations = db.session.scalars(stmt).all()
+        stmt = db.select(Countries)
+        countries = db.session.scalars(stmt).all()
+        stmt = db.select(States)
+        states = db.session.scalars(stmt).all()
+        stmt = db.select(ServiceCategories)
+        service_categories = db.session.scalars(stmt).all()
+        return render_template('base.html', countries=countries, states=states, locations=locations, service_categories=service_categories, n=str(uuid4()))
+
+
+@default_apis.route('/services')
+def service_multi_post():
     ''' Returns summary data on seleted service-provider services.
 
         The selected services match the filters in the query string.
@@ -98,20 +102,21 @@ def search_services():
     return jsonify(json_list)
 
 
-@guest_apis.route('/services/<sps_id>')
-def one_service(sps_id):
+@default_apis.route('/services/<sps_id>')
+def service_one_get(sps_id):
     ''' Returns details about a specific service-provider service.
     '''
     # Fetch service details
     stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceCategories.name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).where(ServiceProviderServices.id==int(sps_id))
-    details_row = db.session.execute(stmt).one()
+    details_row = db.session.execute(stmt).first()
+    if not details_row:
+        # No such service
+        return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
 
     # Fetch all reviews for the specified service
     stmt = db.select(Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
     reviews_rows_list = db.session.execute(stmt).all()
     ''' returns list of reviews details rows.'''
-
-    # json_data =
 
     # Prepare the data in json_serializable forms
     first_name = details_row.first_name

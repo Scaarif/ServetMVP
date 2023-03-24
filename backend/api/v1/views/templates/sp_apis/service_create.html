@@ -1,4 +1,4 @@
-{% extends "baseSP.html" %}
+{% extends "base.html" %}
 {% block content %}
 <form method="POST" action="{{ url_for('sp_apis.service_create_post', sp_id=current_user.id, n=n) }}" enctype="multipart/form-data">
 	<!-- service description -->

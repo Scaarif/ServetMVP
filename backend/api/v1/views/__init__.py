@@ -20,6 +20,8 @@ from models.service_provider import ServiceProviders
 from models.state import States
 from models import populate_db
 
+testing = getenv('testing', '')
+
 
 def create_app():
     ''' Implements the app factory pattern of creating application object.
@@ -72,11 +74,13 @@ def create_app():
 
     # Create and configure the login manager object
     login_manager = LoginManager()
-    login_manager.blueprint_login_views = {
-            'cus_auth_views': 'cus_auth_views.cus_login',
-            'sp_auth_views': 'sp_auth_views.sp_login',
-            'sp_apis': 'sp_auth_views.sp_login',
-            }
+    if testing:
+        login_manager.blueprint_login_views = {
+                'cus_apis': 'cus_apis.login_get',
+                'sp_apis': 'sp_apis.login_get',
+                }
+    else:
+        login_manager.login_view = 'LOGIN_URL'
     login_manager.init_app(app)
 
     @login_manager.user_loader
@@ -107,13 +111,12 @@ def create_app():
     '''
 
     # Import and register blueprints
-    from api.v1.views.customers import cus_auth_views
-    from api.v1.views.service_providers import sp_auth_views, sp_apis
-    from api.v1.views.guests import guest_apis
-    app.register_blueprint(cus_auth_views)
-    app.register_blueprint(sp_auth_views)
-    app.register_blueprint(guest_apis)
+    from api.v1.views.customers import cus_apis
+    from api.v1.views.service_providers import sp_apis
+    from api.v1.views.default import default_apis
+    app.register_blueprint(cus_apis)
     app.register_blueprint(sp_apis)
+    app.register_blueprint(default_apis)
 
     return app
 

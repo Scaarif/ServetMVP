@@ -3,7 +3,7 @@
 from flask import (
         request, render_template, redirect,
         url_for, flash, abort, session, Blueprint,
-        current_app
+        current_app, jsonify, make_response
         )
 # from models import db, Customers, is_safe_url
 from flask_login import (
@@ -11,19 +11,23 @@ from flask_login import (
         )
 from werkzeug.security import check_password_hash
 from uuid import uuid4
+from os import getenv
 
-cus_auth_views = Blueprint(
-        'cus_auth_views', __name__, url_prefix='/customers')
+cus_apis = Blueprint(
+        'cus_apis', __name__, url_prefix='/api/v1/customers')
 
-
-@cus_auth_views.route('/login')
-def cus_login():
-    ''' Return the login form view.'''
-    return render_template('cus_auth/login.html')
+testing = getenv('testing', '')
 
 
-@cus_auth_views.route('/login', methods=['POST'])
-def cus_login_post():
+if testing:
+    @cus_apis.route('/login')
+    def login_get():
+        ''' Return the login form view.'''
+        return render_template('cus_apis/login.html')
+
+
+@cus_apis.route('/login', methods=['POST'])
+def login_post():
     ''' Authenticate posted login information, and log customer in.
     '''
     from api.v1.views import db, Customers, is_safe_url
@@ -45,8 +49,11 @@ def cus_login_post():
     if not cus or not check_password_hash(cus.password, password):
         # Flash an error message to display
         flash("Invalid username and/or password", "invalid_usr_pwd")
-        # Redirect to login page to try again
-        return redirect(url_for('cus_auth_views.cus_login'))
+        if testing:
+            # Redirect to login page to try again
+            # return redirect(url_for('cus_apis.login_get'))
+            pass
+        return make_response(jsonify({"login": False}), 401)
 
     # Customer exists and is authenticated
     session['account_type'] = 'customer'
@@ -67,27 +74,33 @@ def cus_login_post():
     if not is_safe_url(nextp):
         abort(400, description="`next` URL not safe")
 
-    return redirect(nextp or url_for('cus_auth_views.cus_profile', id=cus.id))
+    if testing:
+        # return redirect(nextp or url_for('cus_apis.profile', id=cus.id))
+        pass
+
+    return jsonify({"login": True})  # status code 200
 
 
-@cus_auth_views.route('/<id>/profile')
-@login_required
-def cus_profile(id):
-    ''' Customer profile endpoint.
-    '''
-    return render_template('cus_auth/profile.html')
+if testing:
+    @cus_apis.route('/<id>/profile')
+    @login_required
+    def profile(id):
+        ''' Customer profile endpoint.
+        '''
+        return render_template('cus_apis/profile.html')
 
 
-@cus_auth_views.route('/<id>/profile/edit')
-@login_required
-def cus_profile_get(id):
-    ''' Returns customer profile editing form.
-    '''
-    return render_template('cus_auth/profile_edit.html', id=id, n=str(uuid4()))
+if testing:
+    @cus_apis.route('/<id>/profile/edit')
+    @login_required
+    def profile_edit_get(id):
+        ''' Returns customer profile editing form.
+        '''
+        return render_template('cus_apis/profile_edit.html', id=id, n=str(uuid4()))
 
 
-@cus_auth_views.route('/<id>/profile/edit', methods=['POST'])
-def cus_profile_put(id):
+@cus_apis.route('/<id>/profile/edit', methods=['POST', 'PUT'])
+def profile_edit_put(id):
     ''' Processes form data to update a customer's record.
     '''
     from api.v1.views import db, Customers
@@ -115,7 +128,10 @@ def cus_profile_put(id):
                     'username already exists. Please try another',
                     'username_exists'
                     )  # include message category
-            return redirect(url_for('cus_auth_views.cus_profile_get', id=id, n=str(uuid4())))
+            if testing:
+                # return redirect(url_for('cus_apis.profile_edit_get', id=id, n=str(uuid4())))
+                pass
+            return make_response(jsonify({"profile_edited": False}), 400)
         existing_cus.username = username
 
     if not username:
@@ -142,7 +158,10 @@ def cus_profile_put(id):
         if not existing_cus.email==email and cus:
             # email already exists
             flash('email already exists. Please try another', 'email_exists')
-            return redirect(url_for('cus_auth_views.cus_profile_get', id=id, n=str(uuid4())))
+            if testing:
+                # return redirect(url_for('cus_apis.profile_edit_get', id=id, n=str(uuid4())))
+                pass
+            return make_response(jsonify({"profile_edited": False}), 400)
         existing_cus.email = email
 
     # Validate phone
@@ -152,7 +171,10 @@ def cus_profile_put(id):
         if not existing_cus.phone==phone and cus:
             # phone number already exists
             flash('phone already exists. Please try another', 'phone_exists')
-            return redirect(url_for('cus_auth_views.cus_profile_get', id=id, n=str(uuid4())))
+            if testing:
+                # return redirect(url_for('cus_apis.profile_edit_get', id=id, n=str(uuid4())))
+                pass
+            return make_response(jsonify({"profile_edited": False}), 400)
         existing_cus.phone = phone
 
     # Update customer record with validated data
@@ -172,33 +194,43 @@ def cus_profile_put(id):
                 current_app.config["CUS_IMAGE_PATH"] + username + '.jpg'
                 )  # VSFS
 
-    return redirect(url_for('cus_auth_views.cus_profile', id=id))
+    if testing:
+        # return redirect(url_for('cus_apis.profile', id=id))
+        pass
+
+    return make_response(jsonify({"profile_edited": True}))
 
 
-@cus_auth_views.route('/')
-def cus_index():
-    ''' Endpoint for site homepage.
-    '''
-    return render_template('baseCUS.html')
+if testing:
+    @cus_apis.route('/')
+    def index():
+        ''' Endpoint for site homepage.
+        '''
+        return render_template('base.html')
 
 
-@cus_auth_views.route('/logout')
+@cus_apis.route('/logout')
 @login_required
-def cus_logout():
+def logout():
     ''' Log a sign-in user out of the session.
     '''
     logout_user()
-    return redirect(url_for('cus_auth_views.cus_index'))
+    if testing:
+        # return redirect(url_for('cus_apis.index'))
+        pass
+
+    return make_response(jsonify({"logout": True}))
 
 
-@cus_auth_views.route('/signup')
-def cus_signup():
-    ''' Return signup form.'''
-    return render_template('cus_auth/signup.html', val=str(uuid4()))
+if testing:
+    @cus_apis.route('/signup')
+    def signup_get():
+        ''' Return signup form.'''
+        return render_template('cus_apis/signup.html', n=str(uuid4()))
 
 
-@cus_auth_views.route('/signup', methods=['POST'])
-def cus_signup_post():
+@cus_apis.route('/signup', methods=['POST', 'PUT'])
+def signup_post():
     ''' Process customer registration.
     '''
     from api.v1.views import db, Customers
@@ -222,7 +254,10 @@ def cus_signup_post():
                 'username already exists. Please try another',
                 'username_exists'
                 )  # include message category
-        return redirect(url_for('cus_auth_views.cus_signup', id=str(uuid4())))
+        if testing:
+            # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
+            pass
+        return make_response(jsonify({"signup": False}), 400)
     # else set image identifier
     if image.filename:
         # If the user does not select a file, the browser submits an...
@@ -237,7 +272,10 @@ def cus_signup_post():
     if cus:
         # username already exists
         flash('email already exists. Please try another', 'email_exists')
-        return redirect(url_for('cus_auth_views.cus_signup', id=str(uuid4())))
+        if testing:
+            # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
+            pass
+        return make_response(jsonify({"signup": False}), 400)
 
     # Validate phone
     stmt = db.select(Customers).where(Customers.phone==phone)
@@ -245,7 +283,10 @@ def cus_signup_post():
     if cus:
         # phone number already exists
         flash('phone already exists. Please try another', 'phone_exists')
-        return redirect(url_for('cus_auth_views.cus_signup', id=str(uuid4())))
+        if testing:
+            # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
+            pass
+        return make_response(jsonify({"signup": False}), 400)
 
     # Persist validated data to database
     new_cus = Customers(
@@ -266,11 +307,15 @@ def cus_signup_post():
                 current_app.config["CUS_IMAGE_PATH"] + username + '.jpg'
                 )  # VSFS
 
-    return redirect(url_for('cus_auth_views.cus_login'))
+    if testing:
+        # return redirect(url_for('cus_apis.login_get'))
+        pass
+
+    return make_response(jsonify({"signup": True}), 200)
 
 
-@cus_auth_views.route('<id>/static/<path:uri>')
-def cus_static(id, uri):
+@cus_apis.route('<id>/static/<path:uri>')
+def static_get(id, uri):
     ''' Endpoint for static file requests.
     '''
     return redirect(url_for('static', filename=uri))
