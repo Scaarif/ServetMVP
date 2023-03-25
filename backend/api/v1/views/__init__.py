@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from os import getenv, path
 from secrets import token_hex
 from urllib.parse import urlparse, urljoin
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 
 # Create the SQLAlchemy extension
 db = SQLAlchemy()
@@ -45,7 +46,6 @@ def create_app():
     host = getenv('SERVET_HOST')
     port = getenv('SERVET_PORT')
     dbase = getenv('SERVET_DB')
-    popdb = getenv('p', 'no')
 
     # Set necessary app configurations
     app.config["SQLALCHEMY_DATABASE_URI"] =\
@@ -68,6 +68,8 @@ def create_app():
     app.config["SPS_IMAGE_RPATH"] =\
             'static/service_provider_services/images/'
     app.config["EXPLAIN_TEMPLATE_LOADING"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["DEBUG"] = True
 
     # Init app with extension; ensure all app configs have been set already!
     db.init_app(app)
@@ -82,6 +84,9 @@ def create_app():
     else:
         login_manager.login_view = 'LOGIN_URL'
     login_manager.init_app(app)
+
+    # Protect against Cross Site Request Forgery
+    csrf = CSRFProtect(app)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -104,11 +109,6 @@ def create_app():
     # todo: import all models, then create tables with db.create_all() :done
     with app.app_context():
         db.create_all(bind_key=None)  # use default engine (URI above) as bind
-
-    '''
-    if popdb == 'yes':
-        populate_db()
-    '''
 
     # Import and register blueprints
     from api.v1.views.customers import cus_apis

@@ -17,11 +17,20 @@ from api.v1.views import (
 from werkzeug.security import check_password_hash
 from uuid import uuid4
 from os import getenv
+from flask_wtf.csrf import generate_csrf
 
 # Blueprint for default apis
 default_apis = Blueprint('default_apis', __name__, url_prefix='/api/v1')
 
 testing = getenv('testing', '')
+
+
+@default_apis.route("/getcsrf", methods=["GET"])
+def get_csrf():
+    token = generate_csrf()
+    response = jsonify({"detail": "CSRF cookie set"})
+    response.headers.set("X-CSRFToken", token)
+    return response
 
 
 if testing:
