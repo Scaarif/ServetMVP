@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-50 min-h-screen h-full relative">
+    <div class="bg-gray-50 min-h-screen h-full relative text-slate-800">
         <Navbar v-if="!isLanding"/>
         <main class="mx-4 top-16 relative flex flex-col items-center">
             <router-view />
