@@ -131,7 +131,7 @@ def service_one_get(sps_id):
         return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
 
     # Fetch all reviews for the specified service
-    stmt = db.select(Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
     reviews_rows_list = db.session.execute(stmt).all()
     ''' returns list of reviews details rows.'''
 
@@ -152,7 +152,8 @@ def service_one_get(sps_id):
         updated_at = reviews_row.updated_at.isoformat()  # make serializable
         first_name = reviews_row.first_name
         last_name = reviews_row.last_name
-        review_json = dict(content=content, customer_first_name=first_name, customer_last_name=last_name, updated_at=updated_at)
+        review_id = reviews_row.id
+        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, updated_at=updated_at)
         reviews.append(review_json)
 
     # Add reviews list to return data

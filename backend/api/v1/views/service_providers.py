@@ -353,7 +353,7 @@ def static_get(id, uri):
 
 @sp_apis.route('/<sp_id>/services')
 @login_required
-def service_one_get(sp_id):
+def service_multi_get(sp_id):
     ''' Returns the IDs of a service-provider's services.
     '''
     # Fetch service IDs

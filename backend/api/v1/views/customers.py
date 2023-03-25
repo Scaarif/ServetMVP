@@ -9,9 +9,15 @@ from flask import (
 from flask_login import (
         login_user, logout_user, login_required, current_user
         )
+from api.v1.views import (
+        db, ServiceProviders, ServiceCategories,
+        ServiceProviderServices, Countries, States, Locations,
+        Reviews, Customers
+        )
 from werkzeug.security import check_password_hash
 from uuid import uuid4
 from os import getenv
+from decimal import Decimal
 
 cus_apis = Blueprint(
         'cus_apis', __name__, url_prefix='/api/v1/customers')
@@ -319,3 +325,61 @@ def static_get(id, uri):
     ''' Endpoint for static file requests.
     '''
     return redirect(url_for('static', filename=uri))
+
+#################---Reviews---###################
+
+if testing:
+    @cus_apis.route('/<cus_id>/reviews')
+    def review_create_get(cus_id):
+        ''' Returns a form for creating a review for a particular service.
+
+        The request should include the ID of the particular service-provider
+        service being reviewd. At the moment, the ID is being
+        delivered in the query string of this request under the name `sps`.
+        '''
+        # Retrieve the sps ID
+        sps_id = request.args.get('sps')
+
+        ratings = ['Very Poor', 'Poor', 'Fair', 'Good', 'Very Good']
+        
+        return render_template('cus_apis/review_create_get.html', cus_id=cus_id, sps_id=sps_id, rng=range(1, 6), ratings=ratings, n=str(uuid4()))
+
+
+@cus_apis.route('/<cus_id>/reviews/create', methods=['POST'])
+def review_create_post(cus_id):
+    ''' Process form data to create a customer's review for a service.
+    '''
+    # Retrieve the sps ID
+    sps_id = request.args.get('sps')
+
+    # Retrieve the content and rating
+    content = request.form.get('review_content')
+    upvotes = request.form.get('upvotes')  # required if content?
+    total_votes = request.form.get('total_votes')  # make default?
+
+    # Persist the data
+    new_rev = Reviews(review_content=content, upvotes=int(upvotes), total_votes=int(total_votes), serviceProviderService_id=int(sps_id), customer_id=cus_id)
+    db.session.add(new_rev)
+    db.session.commit()
+
+    # Update the ratings in SPS table as new votes recorded
+    stmt = db.select(db.func.sum(Reviews.upvotes).label('ups'), db.func.sum(Reviews.total_votes).label('tvs')).where(Reviews.serviceProviderService_id==int(sps_id))
+    res_row = db.session.execute(stmt).one()
+    ''' expecting a only one row containing
+    the sum of values in the two selected columns.
+    '''
+
+    upvotes_sum = res_row.ups
+    total_votes_sum = res_row.tvs
+
+    # Calculate the rating
+    rating = (upvotes_sum / total_votes_sum) * 5
+    # Fetch the SPS object which has the rating
+    stmt = db.select(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
+    sps = db.session.scalars(stmt).one()
+    sps.rating = Decimal(rating)  # update rating
+    # Persist update
+    db.session.add(sps)
+    db.session.commit()
+
+    return jsonify({"rating": rating})
