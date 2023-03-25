@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 ''' Initialization for the application package.'''
-from flask import Flask, session, request
+from flask import Flask, session, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from os import getenv, path
 from secrets import token_hex
 from urllib.parse import urlparse, urljoin
+from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
 
 # Create the SQLAlchemy extension
 db = SQLAlchemy()
@@ -19,6 +20,8 @@ from models.service_category import ServiceCategories
 from models.service_provider import ServiceProviders
 from models.state import States
 from models import populate_db
+
+testing = getenv('testing', '')
 
 
 def create_app():
@@ -43,7 +46,6 @@ def create_app():
     host = getenv('SERVET_HOST')
     port = getenv('SERVET_PORT')
     dbase = getenv('SERVET_DB')
-    popdb = getenv('p', 'no')
 
     # Set necessary app configurations
     app.config["SQLALCHEMY_DATABASE_URI"] =\
@@ -66,18 +68,32 @@ def create_app():
     app.config["SPS_IMAGE_RPATH"] =\
             'static/service_provider_services/images/'
     app.config["EXPLAIN_TEMPLATE_LOADING"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["DEBUG"] = True
 
     # Init app with extension; ensure all app configs have been set already!
     db.init_app(app)
 
     # Create and configure the login manager object
     login_manager = LoginManager()
-    login_manager.blueprint_login_views = {
-            'cus_auth_views': 'cus_auth_views.cus_login',
-            'sp_auth_views': 'sp_auth_views.sp_login',
-            'sp_apis': 'sp_auth_views.sp_login',
-            }
+    if testing:
+        login_manager.blueprint_login_views = {
+                'cus_apis': 'cus_apis.login_get',
+                'sp_apis': 'sp_apis.login_get',
+                }
+    else:
+        login_manager.login_view = 'LOGIN_URL'
     login_manager.init_app(app)
+
+    # Protect against Cross Site Request Forgery
+    csrf = CSRFProtect(app)
+
+    # Define error handler for CSRF token validation error
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        ''' Send JSON data describing error.
+        '''
+        return make_response(jsonify({"status": "error", "message": e.description}), 400)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -101,19 +117,13 @@ def create_app():
     with app.app_context():
         db.create_all(bind_key=None)  # use default engine (URI above) as bind
 
-    '''
-    if popdb == 'yes':
-        populate_db()
-    '''
-
     # Import and register blueprints
-    from api.v1.views.customers import cus_auth_views
-    from api.v1.views.service_providers import sp_auth_views, sp_apis
-    from api.v1.views.guests import guest_apis
-    app.register_blueprint(cus_auth_views)
-    app.register_blueprint(sp_auth_views)
-    app.register_blueprint(guest_apis)
+    from api.v1.views.customers import cus_apis
+    from api.v1.views.service_providers import sp_apis
+    from api.v1.views.default import default_apis
+    app.register_blueprint(cus_apis)
     app.register_blueprint(sp_apis)
+    app.register_blueprint(default_apis)
 
     return app
 

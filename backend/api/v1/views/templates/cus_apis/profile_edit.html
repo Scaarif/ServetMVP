@@ -1,6 +1,6 @@
-{% extends "baseSP.html" %}
+{% extends "base.html" %}
 {% block content %}
-<form method="POST" action="{{ url_for('sp_auth_views.sp_profile_put', id=id, n=n) }}" enctype="multipart/form-data">
+<form method="POST" action="{{ url_for('cus_apis.profile_edit_put', id=id, n=n) }}" enctype="multipart/form-data">
 	<!-- first name -->
 	<label for="fname">Enter first name:</label>
 	<input type="text" id="fname" name="first_name" autocomplete="on" value="{{ current_user.first_name }}" /><br><br>
@@ -25,9 +25,6 @@
 	<div style="background-color:red; color:white">{{ messages[0] }}</div>
 	{% endif %}
 	{% endwith %}
-	<!-- whatsapp -->
-	<label for="whatsapp">Enter whatsapp number:</label>
-	<input type="tel" id="whatsapp" name="whatsapp" autocomplete="on" value="{{ current_user.whatsapp }}" /><br><br>
 	<!-- username -->
 	<label for="uname">Enter username:</label>
 	<input type="text" id="uname" name="username" autocomplete="on" value="{{ current_user.username }}" /><br><br>
@@ -41,14 +38,6 @@
 	<label for="pwd">Enter password:</label>
 	<input type="password" id="pwd" name="password" autocomplete="new-password"  /><br><br>
 	-->
-	<!-- location -->
-	<label for="location">Select location:</label>
-	<select name="location" id="location">
-		<option value="">Please select a location</option>
-		{% for location in locations %}
-		<option value="{{ location.id }}">{{ location.name }}</option>
-		{% endfor %}
-	</select>
 	<!-- profile picture -->
 	<label for="profile_pic">Upload a jpeg profile picture:</label>
 	<input type="file" id="profile_pic" name="profile_pic" accept="image/jpeg" /><br><br>
