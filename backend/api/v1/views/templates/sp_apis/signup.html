@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <form method="POST" action="{{ url_for('sp_apis.signup_post', n=n) }}" enctype="multipart/form-data">
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 	<!-- first name -->
 	<label for="fname">Enter first name:</label>
 	<input type="text" id="fname" name="first_name" autocomplete="on" required /><br><br>

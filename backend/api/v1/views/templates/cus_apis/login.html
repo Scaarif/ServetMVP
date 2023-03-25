@@ -8,6 +8,7 @@
 {% endwith %}
 </p>
 <form method="POST" action="{{ url_for('cus_apis.login_post') }}" enctype="multipart/form-data">
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 	<label for="uname">Enter username:</label>
 	<input type="text" id="uname" name="username" autocomplete="on" required /><br><br>
 	<label for="pwd">Enter password:</label>

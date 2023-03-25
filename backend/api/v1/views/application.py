@@ -9,7 +9,7 @@ app = create_app()
 # Enable Cross Origin Resource Sharing
 cors = CORS(
         app,
-        resources={r"*": {"origins": "http://localhost:3001"}},
+        resources={r"*": {"origins": "http://localhost:3000"}},
         expose_headers=["Content-Type", "X-CSRFToken"],
         supports_credentials=True,
         )

@@ -4,6 +4,7 @@
         <title>HELLO PAGE</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="utf-8">
+	<meta name="csrf-token" content="{{ csrf_token() }}" />
     </head>
         <body>
 		<div style="width: 100%; text-align: right; background-color: green">
@@ -37,6 +38,8 @@
 		</div>
 		<div>
 			<form action="{{ url_for('default_apis.service_multi_post', n=n) }}">
+				<!-- CSRF Protection -->
+				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 				<!-- countries -->
 				<label for="country">Country:</label>
 				<select name="country" id="country" required>

@@ -33,6 +33,14 @@ def get_csrf():
     return response
 
 
+@default_apis.route("/getsession", methods=["GET"])
+def check_session():
+    if current_user.is_authenticated:
+        return jsonify({"login": True})
+
+    return jsonify({"login": False})
+
+
 if testing:
     @default_apis.route('/')
     def index():

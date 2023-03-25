@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="POST" action="{{ url_for('cus_apis.signup_post', id=id) }}" enctype="multipart/form-data">
+<form method="POST" action="{{ url_for('cus_apis.signup_post', n=n) }}" enctype="multipart/form-data">
+	<!-- CSRF Protection -->
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 	<!-- first name -->
 	<label for="fname">Enter first name:</label>
 	<input type="text" id="fname" name="first_name" autocomplete="on" required /><br><br>

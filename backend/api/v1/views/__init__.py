@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 ''' Initialization for the application package.'''
-from flask import Flask, session, request
+from flask import Flask, session, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from os import getenv, path
 from secrets import token_hex
 from urllib.parse import urlparse, urljoin
-from flask_wtf.csrf import CSRFProtect, generate_csrf
+from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
 
 # Create the SQLAlchemy extension
 db = SQLAlchemy()
@@ -87,6 +87,13 @@ def create_app():
 
     # Protect against Cross Site Request Forgery
     csrf = CSRFProtect(app)
+
+    # Define error handler for CSRF token validation error
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        ''' Send JSON data describing error.
+        '''
+        return make_response(jsonify({"status": "error", "message": e.description}), 400)
 
     @login_manager.user_loader
     def load_user(user_id):
