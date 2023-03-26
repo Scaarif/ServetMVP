@@ -64,11 +64,7 @@ def create_app():
             app.static_folder, 'service_provider_services/images/'
             )
     app.config["SPS_IMAGE_RPATH"] =\
-<<<<<<< HEAD
-            '/static/service_provider_services/images/'
-=======
             'static/service_provider_services/images/'
->>>>>>> coldplayz
     app.config["EXPLAIN_TEMPLATE_LOADING"] = True
 
     # Init app with extension; ensure all app configs have been set already!
@@ -78,12 +74,8 @@ def create_app():
     login_manager = LoginManager()
     login_manager.blueprint_login_views = {
             'cus_auth_views': 'cus_auth_views.cus_login',
-<<<<<<< HEAD
-            'sp_auth_views': 'sp_auth_views.sp_login'
-=======
             'sp_auth_views': 'sp_auth_views.sp_login',
             'sp_apis': 'sp_auth_views.sp_login',
->>>>>>> coldplayz
             }
     login_manager.init_app(app)
 
@@ -116,19 +108,12 @@ def create_app():
 
     # Import and register blueprints
     from api.v1.views.customers import cus_auth_views
-<<<<<<< HEAD
-    from api.v1.views.service_providers import sp_auth_views
-=======
     from api.v1.views.service_providers import sp_auth_views, sp_apis
->>>>>>> coldplayz
     from api.v1.views.guests import guest_apis
     app.register_blueprint(cus_auth_views)
     app.register_blueprint(sp_auth_views)
     app.register_blueprint(guest_apis)
-<<<<<<< HEAD
-=======
     app.register_blueprint(sp_apis)
->>>>>>> coldplayz
 
     return app
 
