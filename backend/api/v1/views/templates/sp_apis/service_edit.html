@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="POST" action="{{ url_for('sp_apis.service_create_post', sp_id=current_user.id, n=n) }}" enctype="multipart/form-data">
+<form method="POST" action="{{ url_for('sp_apis.service_edit_put', sp_id=current_user.id, sps_id=sps_id, n=n) }}" enctype="multipart/form-data">
 	<!-- service description -->
 	<label for="service_description">Service Description:</label>
 	<input type="textarea" id="service_description" name="service_description" placeholder="Please describe what service you are offering" autocomplete="on" required /><br><br>

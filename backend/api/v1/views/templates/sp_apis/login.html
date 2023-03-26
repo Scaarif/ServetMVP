@@ -1,4 +1,4 @@
-{% extends "baseCUS.html" %}
+{% extends "base.html" %}
 {% block content %}
 <p style="background-color: red; color: white">
 {% with messages = get_flashed_messages() %}
@@ -7,7 +7,8 @@
 {% endif %}
 {% endwith %}
 </p>
-<form method="POST" action="{{ url_for('cus_auth_views.cus_login') }}" enctype="multipart/form-data">
+<form method="POST" action="{{ url_for('sp_apis.login_post') }}" enctype="multipart/form-data">
+	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 	<label for="uname">Enter username:</label>
 	<input type="text" id="uname" name="username" autocomplete="on" required /><br><br>
 	<label for="pwd">Enter password:</label>
