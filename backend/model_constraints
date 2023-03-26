@@ -89,6 +89,7 @@ password:
 
 location_id:
 	- an integer  # backend
+	- required
 
 
 ####--SERVICE PROVIDER SERVICES--####

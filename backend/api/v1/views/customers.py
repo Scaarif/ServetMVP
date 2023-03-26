@@ -137,7 +137,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('cus_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edited": False}), 400)
+            return make_response(jsonify({"profile_edited": False, "reason": "username already exists"}), 400)
         existing_cus.username = username
 
     if not username:
@@ -153,7 +153,8 @@ def profile_edit_put(id):
             # New profile pic but old username
             image_uri = current_app.config["CUS_IMAGE_RPATH"] + old_username + '.jpg'
         # todo: implement deleting image files...
-        # ...redundant as a result of a change of usernames
+        # ...redundant as a result of a change of usernames; or better still
+        # ...using IDs for the image name
     else:
         image_uri = None
 
@@ -167,7 +168,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('cus_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edited": False}), 400)
+            return make_response(jsonify({"profile_edited": False, "reason": "email already exists"}), 400)
         existing_cus.email = email
 
     # Validate phone
@@ -180,7 +181,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('cus_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edited": False}), 400)
+            return make_response(jsonify({"profile_edited": False, "reason": "phone already in use"}), 400)
         existing_cus.phone = phone
 
     # Update customer record with validated data
@@ -235,7 +236,7 @@ if testing:
         return render_template('cus_apis/signup.html', n=str(uuid4()))
 
 
-@cus_apis.route('/signup', methods=['POST', 'PUT'])
+@cus_apis.route('/signup', methods=['POST'])
 def signup_post():
     ''' Process customer registration.
     '''
@@ -263,7 +264,7 @@ def signup_post():
         if testing:
             # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False}), 400)
+        return make_response(jsonify({"signup": False, "reason": "username already exists"}), 400)
     # else set image identifier
     if image.filename:
         # If the user does not select a file, the browser submits an...
@@ -281,7 +282,7 @@ def signup_post():
         if testing:
             # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False}), 400)
+        return make_response(jsonify({"signup": False, "reason": "email already exists"}), 400)
 
     # Validate phone
     stmt = db.select(Customers).where(Customers.phone==phone)
@@ -292,7 +293,7 @@ def signup_post():
         if testing:
             # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False}), 400)
+        return make_response(jsonify({"signup": False, "reason": "phone already in use"}), 400)
 
     # Persist validated data to database
     new_cus = Customers(
@@ -348,6 +349,8 @@ if testing:
 @cus_apis.route('/<cus_id>/reviews/create', methods=['POST'])
 def review_create_post(cus_id):
     ''' Process form data to create a customer's review for a service.
+
+    SPS ID expected in query string
     '''
     # Retrieve the sps ID
     sps_id = request.args.get('sps')
