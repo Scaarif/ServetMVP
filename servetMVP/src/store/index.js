@@ -49,7 +49,7 @@ const store = createStore({
         toggleShowService(state) {
             state.showService = !state.showService
             if (state.showService)
-                this.dispatch('fetchService', 10) // call the action (fetchService)
+                this.dispatch('fetchService', 2) // call the action (fetchService)
         },
         toggleToken(state) {
             state.token = !state.token
