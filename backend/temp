@@ -1,115 +1,38 @@
-################----JSON APIs----###############
-
-# Service provider API blueprint
-sp_apis = Blueprint(
-        'sp_apis', __name__, url_prefix='/api/v1/serviceProviders'
-        )
-
-@sp_apis.route('/<sp_id>/services')
-@login_required
-def one_service(sp_id):
-    ''' Returns the IDs of a service-provider's services.
+@cus_apis.route('/<cus_id>/reviews/create', methods=['POST'])
+def review_create_post(cus_id):
+    ''' Process form data to create a customer's review for a service.
     '''
-    # Fetch service IDs
-    stmt = db.select(ServiceProviderServices.id).join(ServiceProviders).where(ServiceProviders.id==sp_id)
-    ids_list = db.session.scalars(stmt).all()
-    '''
-    since only one column is selected, use scalars() to fetch first items
-    '''
+    # Retrieve the sps ID
+    sps_id = request.args.get('sps')
 
-    return jsonify(ids_list)
+    # Retrieve the content and rating
+    content = request.form.get('review_content')
+    upvotes = request.form.get('upvotes')  # required if content?
+    total_votes = request.form.get('total_votes')  # make default?
 
-
-@sp_apis.route('/<sp_id>/services/create', methods=['POST'])
-@login_required
-def service_create_post(sp_id):
-    ''' Process for. data to create a new service-provider service.
-    '''
-    # Retrieve form data
-    service_description = request.form.get('service_description')
-    serviceCategory_id = request.form.get('service_category')  # for F.Key
-    image = request.files.get('profile_pic')
-
-    # Create new service-provider service object
-    new_sps = ServiceProviderServices(service_description=service_description, serviceProvider_id=sp_id, serviceCategory_id=serviceCategory_id)
-    ''' defer saving image_uri until ID is available.'''
-
-    # Commit to get ID before processing image
-    db.session.add(new_sps)
+    # Persist the data
+    new_rev = Reviews(review_content=content, upvotes=int(upvotes), total_votes=int(total_votes), serviceProviderService_id=int(sps_id), customer_id=cus_id)
+    db.session.add(new_rev)
     db.session.commit()
 
-    # Get new record's ID
-    new_id = new_sps.id
-
-    # Use the id to save the image and its URI
-    if image.filename:
-        # filename will be empty if no file selected
-        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) + '.jpg'
-        new_sps.image_uri = image_uri
-        # Persist to database
-        db.session.add(new_sps)
-        db.session.commit()
-        image.save(current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg')
-
-    json_data = {"sps_id": new_id}
-
-    return jsonify(json_data)
-
-
-@sp_apis.route('/<sp_id>/services/create')
-@login_required
-def service_create_get(sp_id):
-    ''' Returns the service-creation form.
+    # Update the ratings in SPS table as new votes recorded
+    stmt = db.select(db.func.sum(Reviews.upvotes).label('ups'), db.func.sum(Reviews.total_votes).label('tvs')).where(Reviews.serviceProviderService_id==int(sps_id))
+    res_row = db.session.execute(stmt).one()
+    ''' expecting only one row containing
+    the sum of values in the two selected columns.
     '''
-    # get all service categories; for testing
-    stmt = db.select(ServiceCategories)
-    categories = db.session.scalars(stmt).all()
 
-    return render_template('sp_apis/service_create.html', categories=categories, n=str(uuid4()))
+    upvotes_sum = res_row.ups
+    total_votes_sum = res_row.tvs
 
-
-@sp_apis.route('/<sp_id>/services/<int:sps_id>/edit', methods=['POST', 'PUT'])
-@login_required
-def service_edit_put(sp_id, sps_id):
-    ''' Process form data to update service-provider service.
-    '''
-    # Retrieve form data
-    service_description = request.form.get('service_description')
-    serviceCategory_id = request.form.get('service_category')  # for F.Key
-    image = request.files.get('profile_pic')
-
-    # Retrieve existing service-provider service object
-    stmt = db.select(ServiceProviderServices).where(ServiceProviderServices.id==sps_id)
-    existing_sps = db.session.scalars(stmt).one()  # expecting only one entity
-
-    if service_description:
-        existing_sps.service_description = service_description
-    if serviceCategory_id:
-        existing_sps.serviceCategory_id = int(serviceCategory_id)
-
-    # Use the id to save the image and its URI
-    if image.filename:
-        # new image; filename will be empty if not so
-        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) + '.jpg'
-        existing_sps.image_uri = image_uri
-        image.save(current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg')
-
-    # Persist to database
-    db.session.add(existing_sps)
+    # Calculate the rating
+    rating = (upvotes_sum / total_votes_sum) * 5
+    # Fetch the SPS object which has the rating
+    stmt = db.select(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
+    sps = db.session.scalars(stmt).one()
+    sps.rating = Decimal(rating)  # update rating
+    # Persist update
+    db.session.add(sps)
     db.session.commit()
 
-    json_data = {"status": 'OK'}
-
-    return jsonify(json_data)
-
-
-@sp_apis.route('/<sp_id>/services/<int:sps_id>/edit')
-@login_required
-def service_edit_get(sp_id, sps_id):
-    ''' Returns a service-editing form.
-    '''
-    # get all service categories; for testing
-    stmt = db.select(ServiceCategories)
-    categories = db.session.scalars(stmt).all()
-
-    return render_template('sp_apis/service_edit.html', categories=categories, sps_id=sps_id, n=str(uuid4()))
+    return jsonify({"rating": rating})

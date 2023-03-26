@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="POST" action="{{ url_for('cus_apis.review_create_post', cus_id=cus_id, sps=sps_id, n=n) }}" enctype="application/x-www-form-urlencoded">
+<form method="POST" action="{{ url_for('cus_apis.review_edit_put', rev_id=review.id, cus_id=cus_id, sps=sps_id, n=n) }}" enctype="application/x-www-form-urlencoded">
 	<!-- CSRF Protection -->
 	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 	<!-- Upvotes -->
@@ -8,13 +8,17 @@
 	<select id="upvotes" name="upvotes" required>
 		<option value="">Select a rating</option>
 		{% for num in rng %}
+		{% if num == review.upvotes %}
+		<option value="{{ num }}" selected>{{ ratings[num - 1] }}</option>
+		{% else %}
 		<option value="{{ num }}">{{ ratings[num - 1] }}</option>
+		{% endif %}
 		{% endfor %}
 	</select>
 	<br>
 	<!-- Review content -->
 	<label for="review_content">Review:</label><br>
-	<textarea id="review_content" name="review_content" placeholder="Please write a review for this service." autocomplete="on" rows="5" cols="10"></textarea>
+	<textarea id="review_content" name="review_content" placeholder="Please write a review for this service." autocomplete="on" rows="5" cols="10">{{ review.review_content }}</textarea>
 	<input type="hidden" name="total_votes" value="5" /><br>
 	<!-- submit -->
 	<input type="submit" value="Submit" />
