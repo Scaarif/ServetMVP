@@ -29,7 +29,7 @@ username:
 
 password:
 	- not more than 100 characters  # backend
-        - unique  # backend
+        - required  # frontend
 
 
 ####--REVIEWS--####
@@ -85,7 +85,7 @@ username:
 
 password:
 	- not more than 100 characters  # backend
-        - unique  # backend
+        - required  # frontend
 
 location_id:
 	- an integer  # backend
