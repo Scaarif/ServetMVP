@@ -12,7 +12,7 @@
         <Line :dataKeys="['name', 'avg']" :lineStyle="{ stroke: 'red' }" type="step" />
       </template>
   
-      <template #widgets>
+      <!-- <template #widgets>
         <Tooltip
           borderColor="#48CAE4"
           :config="{
@@ -22,7 +22,7 @@
             inc: { hide: true }
           }"
         />
-      </template>
+      </template> -->
   
     </Chart>
   </template>
