@@ -1,38 +1,30 @@
-@cus_apis.route('/<cus_id>/reviews/create', methods=['POST'])
-def review_create_post(cus_id):
-    ''' Process form data to create a customer's review for a service.
-    '''
-    # Retrieve the sps ID
-    sps_id = request.args.get('sps')
+####--CUSTOMERS--####
+first_name:
+	- not more than 15 characters  # frontend
+	- required  # frontend
 
-    # Retrieve the content and rating
-    content = request.form.get('review_content')
-    upvotes = request.form.get('upvotes')  # required if content?
-    total_votes = request.form.get('total_votes')  # make default?
+last_name:
+	- not more than 15 characters  # frontend
+        - required  # frontend
 
-    # Persist the data
-    new_rev = Reviews(review_content=content, upvotes=int(upvotes), total_votes=int(total_votes), serviceProviderService_id=int(sps_id), customer_id=cus_id)
-    db.session.add(new_rev)
-    db.session.commit()
+phone:
+	- not more than 15 characters  # frontend
+	- all digits (except for the '+' in country code; implement separately?)  # frontend
+        - unique  # backend
 
-    # Update the ratings in SPS table as new votes recorded
-    stmt = db.select(db.func.sum(Reviews.upvotes).label('ups'), db.func.sum(Reviews.total_votes).label('tvs')).where(Reviews.serviceProviderService_id==int(sps_id))
-    res_row = db.session.execute(stmt).one()
-    ''' expecting only one row containing
-    the sum of values in the two selected columns.
-    '''
+email:
+	- not more than 30 characters  # frontend
+        - required  # frontend
+	- unique  # backend
 
-    upvotes_sum = res_row.ups
-    total_votes_sum = res_row.tvs
+image_uri:
+	- not more than 100 characters  # backend
 
-    # Calculate the rating
-    rating = (upvotes_sum / total_votes_sum) * 5
-    # Fetch the SPS object which has the rating
-    stmt = db.select(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
-    sps = db.session.scalars(stmt).one()
-    sps.rating = Decimal(rating)  # update rating
-    # Persist update
-    db.session.add(sps)
-    db.session.commit()
+username:
+	- not more than 15 characters  # frontend
+        - required  # frontend
+	- unique  # backend
 
-    return jsonify({"rating": rating})
+password:
+	- not more than 100 characters  # backend
+        - unique  # backend

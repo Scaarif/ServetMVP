@@ -5,3 +5,5 @@
 
 - set reviews.total_votes to a default (5) in the model. Should improve
 performance if the app grows big, and, thus, handles a huge volume of requests.
+
+- validate/escape user inputs to be saved to database (e.g. reviews)
