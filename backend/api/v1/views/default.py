@@ -28,6 +28,10 @@ testing = getenv('testing', '')
 @default_apis.route("/getcsrf", methods=["GET"])
 def get_csrf():
     token = generate_csrf()
+
+    # see if it solves frontend issue
+    session['csrf_token'] = token
+
     response = jsonify({"detail": "CSRF cookie set"})
     response.headers.set("X-CSRFToken", token)
     return response

@@ -3,6 +3,7 @@
 '''
 from api.v1.views import create_app
 from flask_cors import CORS
+from flask_wtf.csrf import generate_csrf
 
 app = create_app()
 
@@ -13,6 +14,10 @@ cors = CORS(
         expose_headers=["Content-Type", "X-CSRFToken"],
         supports_credentials=True,
         )
+
+with app.test_request_context():
+    print("###########---->", generate_csrf())
+    print("$$$$$$$$$$$---->", generate_csrf())
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
