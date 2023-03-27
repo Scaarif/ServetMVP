@@ -5,12 +5,12 @@
             <div class="w-full flex items-center space-x-4">
                 <span class="min-w-sm w-full text-md capitalize">User name:<b>*</b></span>
                 <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
-                    focus:ring-0 focus:border-slate-600 valid:bg-blue-50" type="text" required v-model="userName">
+                    focus:ring-0 focus:border-slate-600 valid:bg-blue-50" type="text" required v-model="userName" :class="errorMsg && 'highlight'">
             </div>
             <div class="w-full flex items-center space-x-4">
                 <span class="min-w-sm w-full text-md capitalize">Password:<b>*</b></span>
                 <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100 focus:ring-0
-                    focus:border-slate-600 valid:bg-blue-50" type="password" required v-model="password">
+                    focus:border-slate-600 valid:bg-blue-50" type="password" required v-model="password" :class="errorMsg && 'highlight'">
             </div>
             <div class="self-end flex flex-col items-center">
                 <button class="md:min-w-[468px] w-full rounded-sm bg-[#F3ECD1] py-2 mt-8 transition-all
@@ -36,10 +36,11 @@ export default {
             // csrf: '',
             csrfToken: '',
             isAuthenticated: false,
+            errorMsg: '',
         }
     },
     computed: {
-        ...mapState(['token', 'isLanding']),
+        ...mapState(['token', 'isLanding', 'isAuthorized']),
     },
     mounted() {
         this.getSession()
@@ -47,21 +48,19 @@ export default {
     methods: {
         ...mapMutations(['toggleToken', 'toggleIsLanding', 'setCsrfToken']),
         handleSubmit() {
-          console.log('isAuth: ', this.isAuthenticated)
+          console.log('isAuth: ', this.isAuthenticated, this.isAuthorized)
             if (!this.isAuthenticated) {
               let data = {username: this.userName}
               data['password'] = this.password
               this.login(JSON.stringify(data))
-              // redirect to home page
-              this.$router.push({name: 'home'})
-
             }
-            else
+            else {
                 // set token to true
                 this.toggleToken()
                 this.toggleIsLanding() // make it false so the navbar shows
                 // redirect to home page
                 this.$router.push({name: 'home'})
+            }
         },
         getSession() {
             fetch("http://localhost:5000/api/v1/getsession", {
@@ -72,6 +71,8 @@ export default {
                             console.log(data);
                             if (data.login == true) {
                                 this.isAuthenticated = true;
+                                this.setCsrfToken(this.csrfToken)
+
                             } else {
                                 this.isAuthenticated = false;
                                 this.csrf();
@@ -116,10 +117,13 @@ export default {
                     this.toggleIsLanding()
                     // redirect to home page
                     this.$router.push({name: 'home'})
+                } else {
+                    this.errorMsg = data.message
+                    console.log('errorMsg!')
                 }
                 })
                 .catch((err) => {
-                console.log(err);
+                console.log('error: ', err);
                 });
         },
         logout() {
@@ -139,3 +143,8 @@ export default {
     
 }
 </script>
+<style>
+.highlight {
+    border: 1px solid rgb(237, 24, 24);
+}
+</style>

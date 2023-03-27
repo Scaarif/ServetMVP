@@ -6,7 +6,7 @@
         <div class="bg-gray-50 max-w-md w-full rounded-sm relative">
         </div>
         <!-- add a logout button -->
-        <div class="absolute z-10 border py-1 px-4 rounded right-8 bg-gray-50 hover:bg-NormalBage cursor-pointer" @click="handleLogout">Logout</div>
+        <div class="absolute z-10 border py-1 px-4 rounded right-8 bg-gray-50 hover:bg-NormalBage cursor-pointer" @click="logout">Logout</div>
         <!-- toggle User (for demonstration purposes) -->
         <div class="absolute top-50% right-32 flex items-center space-x-2">
             <select class="text-sm text-slate-800 font-medium border-none focus:border-none focus:outline-none
@@ -34,13 +34,19 @@ export default {
         }
     },
     computed: {
-        ...mapState(['isCustomer', 'isAdmin', 'searchName']),
+        ...mapState(['isCustomer', 'isAdmin', 'searchName', 'isAuthorized']),
     },
     methods: {
         ...mapMutations(['setActiveUser', 'handleLogout']),
         toggleUser() {
             // console.log('selected user:', this.user)
             this.setActiveUser(this.user)
+        },
+        logout() {
+            if (this.isAuthorized){
+                this.handleLogout()
+                this.$router.push({name: 'landing'})
+            }
         }
     }
 }

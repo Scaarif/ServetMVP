@@ -67,13 +67,8 @@ const store = createStore({
         },
         async handleLogout(state) {
             let res;
-            if (state.activeUser === 'provider') {
-                res = await fetch('http://localhost:5000/api/v1/serviceProviders/logout')
-                let data = await res.json()
-                console.log('provider logout: ', data)
-            }
-            else {
-                res = await fetch('http://localhost:5000/api/v1/customers/logout', {
+            let url = state.activeUser === 'provider' ? 'http://localhost:5000/api/v1/serviceProviders/logout' : 'http://localhost:5000/api/v1/customers/logout'
+            res = await fetch(url, {
                     headers: {
                         'Accept': 'application/json, text/javascript, */*; q=0.01',
                         "Content-Type": "application/json",
@@ -82,8 +77,10 @@ const store = createStore({
                     credentials: "include",
                 })
                 let data = await res.json()
-                console.log('customer logout: ', data)
-            }
+                let message = state.activeUser === 'provider' ? 'provider logout' : 'customer logout'
+                console.log(message, data)
+            // set isAuthorized to false
+            state.isAuthorized = false
         }
     }
 })
