@@ -259,14 +259,26 @@ def signup_post():
     '''
     from api.v1.views import db, ServiceProviders
     # Collect registration details
-    first_name = request.form.get('first_name')
-    last_name = request.form.get('last_name')
-    email = request.form.get('email')  # unique
-    phone = request.form.get('phone')  # unique
-    username = request.form.get('username') # must be unique in storage
-    password = request.form.get('password')
-    location_id = request.form.get('location')
-    whatsapp = request.form.get('whatsapp')
+    # first_name = request.form.get('first_name')
+    # last_name = request.form.get('last_name')
+    # email = request.form.get('email')  # unique
+    # phone = request.form.get('phone')  # unique
+    # username = request.form.get('username') # must be unique in storage
+    # password = request.form.get('password')
+    # location_id = request.form.get('location')
+    # whatsapp = request.form.get('whatsapp')
+    if not request.json:
+        print('no user data: required')
+    data = request.get_json()
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    email = data.get('email')  # unique
+    phone = data.get('phone')  # unique
+    username = data.get('username') # must be unique in storage
+    password = data.get('password')
+    location_id = data.get('location') # not quite sure ---> how do I get this???
+    whatsapp = data.get('whatsapp')
+
     # todo: validate and save image to file system :done VSFS
     image = request.files.get(
             'profile_pic')  # file object representing image data
@@ -285,7 +297,7 @@ def signup_post():
             pass
         return make_response(jsonify({"signup": False}), 400)
     # else set image identifier
-    if image.filename:
+    if image and image.filename:
         # If the user does not select a file, the browser submits an...
         # ...empty file without a filename ('').
         image_uri = current_app.config["SP_IMAGE_RPATH"] + username + '.jpg'
@@ -330,7 +342,7 @@ def signup_post():
     db.session.commit()
 
     # Save image to file system ONLY now
-    if image.filename:
+    if image and image.filename:
         image.save(
                 current_app.config["SP_IMAGE_PATH"] + username + '.jpg'
                 )  # VSFS

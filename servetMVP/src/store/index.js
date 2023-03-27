@@ -12,7 +12,8 @@ const store = createStore({
         isCustomer: true,
         isAdmin: false, // assuming that this' the only way an institution could be signed in
         showService: false,
-        counties: []
+        counties: [],
+        csrfToken: '',
     },
     getters: {
 
@@ -58,6 +59,29 @@ const store = createStore({
         setCounties(state, counties) {
             state.counties.push(...counties)
             console.log('counties: ', state.counties)
+        },
+        setCsrfToken(state, value) {
+            state.csrfToken = value;
+        },
+        async handleLogout(state) {
+            let res;
+            if (state.activeUser === 'provider') {
+                res = await fetch('http://localhost:5000/api/v1/serviceProviders/logout')
+                let data = await res.json()
+                console.log('provider logout: ', data)
+            }
+            else {
+                res = await fetch('http://localhost:5000/api/v1/customers/logout', {
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": state.csrfToken
+                    },
+                    credentials: "include",
+                })
+                let data = await res.json()
+                console.log('customer logout: ', data)
+            }
         }
     }
 })

@@ -45,7 +45,7 @@ export default {
         this.getSession()
     },
     methods: {
-        ...mapMutations(['toggleToken', 'toggleIsLanding']),
+        ...mapMutations(['toggleToken', 'toggleIsLanding', 'setCsrfToken']),
         handleSubmit() {
             // const formData = new FormData(form)
             // // add key-value pairs (to post)
