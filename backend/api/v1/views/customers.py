@@ -145,7 +145,7 @@ def profile_edit_put(id):
         # validate for SP table
         stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
         sp = db.session.scalars(stmt).first()
-        if not existing_sp.username==username and sp:
+        if not existing_cus.username==username and sp:
             # user not trying to reuse the same username,
             # ...and username already exists in SP table
             flash(
