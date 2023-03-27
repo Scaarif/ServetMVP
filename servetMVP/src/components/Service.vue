@@ -28,9 +28,9 @@
                 <img src="../assets/scaarif_a_young_kenyan_tomboy_full-body_portrait_light_skinned__0a68fc1a-c258-4865-a6fb-33c81878f822.png" alt=""
                     class="w-16 h-16 rounded-full"
                 >
-                <span v-if="!token" class="text-md capitalize py-2 cursor-pointer">jane doe</span>
+                <span v-if="!isAuthorized" class="text-md capitalize py-2 cursor-pointer">jane doe</span>
                 <router-link v-else :to="{name: 'profile'}" class="text-md capitalize py-2 cursor-pointer hover:text-slate-600">jane doe</router-link>
-                <router-link v-if="!token" :to="{name: 'login'}"
+                <router-link v-if="!isAuthorized" :to="{name: 'login'}"
                     class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
                 >contact service provider</router-link>
                 <!-- display whats app & call contacts -->
@@ -50,7 +50,7 @@
             </span>
         </div>
         <!-- Call to action (if logged in): Review Service -->
-        <form v-if="token" @submit.prevent="handleRateService" class="w-full flex flex-col items-center space-y-2 border-y border-slate-600 my-4 py-4">
+        <form v-if="isAuthorized" @submit.prevent="handleRateService" class="w-full flex flex-col items-center space-y-2 border-y border-slate-600 my-4 py-4">
             <div class="self-start flex space-x-4 items-center ml-4">
                 <span class="text-md">Rating:</span>
                 <span class="flex">
@@ -78,7 +78,7 @@
                 </svg>
             </span>
             <!-- testimonials -->
-            <div v-show="showTestimonials || !token" class="flex flex-wrap items-center space-y-2 mb-4 px-4">
+            <div v-show="showTestimonials || !isAuthorized" class="flex flex-wrap items-center space-y-2 mb-4 px-4">
                 <!-- testimonial -->
                 <div class="flex flex-col space-y-4 p-4 border w-full mr-2 md:max-w-1/2 rounded-sm" v-for="name, idx in customers" :key="idx">
                     <div class="flex space-x-4 items-center">
@@ -108,7 +108,7 @@
         </div>
         <!-- Call to action (rate the service) -->
         <div class="w-full flex justify-between items-center mt-8">
-            <span v-if="!token" class="text-md capitalize py-2 px-12 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D]
+            <span v-if="!isAuthorized" class="text-md capitalize py-2 px-12 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D]
                 cursor-pointer"
                 @click="handleRateService"
             >Rate the service</span>
@@ -121,7 +121,7 @@
     </div>
 </template>
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapGetters } from 'vuex';
 export default {
     data() {
        return {
@@ -133,19 +133,21 @@ export default {
         comment: '',
         stars: '',
         selected: [false, false, false, false, false],
+        service: null,
        }
     },
     computed: {
-        ...mapState(['showService', 'token']),
+        ...mapState(['showService', 'token', 'isAuthorized', 'location']),
+        ...mapGetters(['getService']),
     },
     methods: {
         ...mapMutations(['toggleShowService']),
         toggleShowTestimonials() {
-            // fold the testimonials if token (user logged in), they can unfold it - or simply rate the service and move on...
+            // fold the testimonials if isAuthorized (user logged in), they can unfold it - or simply rate the service and move on...
             this.showTestimonials = !this.showTestimonials
         },
         handleRateService() {
-            if (this.token) {
+            if (this.isAuthorized) {
                 console.log('submitting your review') // submit review (POST)
                 console.log(this.comment)
             }
@@ -154,6 +156,13 @@ export default {
         },
         toggleSelected(idx) {
             this.selected[idx] = !this.selected[idx]
+            this.setData()
+        },
+        setData() {
+            this.service = this.getService
+            console.log('service: ', this.service)
+            let data = []
+            
         },
     }
 }

@@ -15,6 +15,7 @@ const store = createStore({
         counties: [],
         csrfToken: '',
         isAuthorized: false,
+        location: '',
     },
     getters: {
 
@@ -49,6 +50,7 @@ const store = createStore({
             console.log(state.isLanding)
         },
         toggleShowService(state) {
+            // pass in the service's id to use to fetch the {id}'s details
             state.showService = !state.showService
             if (state.showService)
                 this.dispatch('fetchService', 2) // call the action (fetchService)
@@ -81,6 +83,10 @@ const store = createStore({
                 console.log(message, data)
             // set isAuthorized to false
             state.isAuthorized = false
+        },
+        setSelectedLocation(state, value) {
+            state.location = value
+            console.log(state.location)
         }
     }
 })

@@ -57,7 +57,7 @@ export default {
     },
     computed: {
         ...mapState(['showService', 'token', 'services']),
-        ...mapGetters(['getService']),
+        ...mapGetters(['getService', 'getServices']),
     },
     components: {
         ServiceCard,
@@ -73,7 +73,8 @@ export default {
             console.log('Searching for services by ->', this.providerName)
         },
         loadMore() {
-            console.log('loaded services: ', this.services.services[0])
+            // console.log('loaded services: ', this.services.services[0])
+            console.log('loaded services: ', this.getServices)
         }
     }
 }

@@ -66,7 +66,7 @@ export default {
         ...mapState(['isLanding'])
     }, 
     methods: {
-        ...mapMutations(['toggleIsLanding', 'setCounties']),
+        ...mapMutations(['toggleIsLanding', 'setCounties', 'setSelectedLocation']),
         ...mapActions(['fetchServices']),
         setLocation() {
             if (this.location !== 'Country') {
@@ -112,6 +112,7 @@ export default {
             this.fetchServices(queryStr)
             // redirect to services page
             this.$router.push({name: 'services'})
+            this.setSelectedLocation([this.selectedState.name, this.locale])
         },
         toggleDone() {
             const len = this.selectedLocation === 'kenya' ? 47 : 36

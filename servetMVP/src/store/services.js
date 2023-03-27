@@ -46,12 +46,12 @@ const mutations = {
     setServices(state, payload) {
         // extend the services array with response
         state.services.push(...payload)
-        console.log('state.services: ',state.services)
+        console.log('state.services: ', state.services, 'keys: ', Object.keys(state.services))
     },
     setService(state, payload) {
         // set service to response value (from API call)
         state.service = payload
-        console.log('state.service: ',state.service)
+        // console.log('state.service: ',state.service)
     },
     setLoaded(state, loaded) {
         state.loaded = loaded
