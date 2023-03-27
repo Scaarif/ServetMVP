@@ -25,6 +25,7 @@ cus_apis = Blueprint(
 testing = getenv('testing', '')
 
 
+"""
 if testing:
     @cus_apis.route('/login')
     def login_get():
@@ -85,6 +86,7 @@ def login_post():
         pass
 
     return jsonify({"login": True})  # status code 200
+"""
 
 
 if testing:
@@ -129,7 +131,8 @@ def profile_edit_put(id):
         stmt = db.select(Customers).where(Customers.username==username)
         cus = db.session.scalars(stmt).first()
         if not existing_cus.username==username and cus:
-            # username already exists
+            # user not trying to reuse the same username,
+            # ...and username already exists in customers table
             flash(
                     'username already exists. Please try another',
                     'username_exists'
@@ -138,6 +141,22 @@ def profile_edit_put(id):
                 # return redirect(url_for('cus_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
             return make_response(jsonify({"profile_edited": False, "reason": "username already exists"}), 400)
+
+        # validate for SP table
+        stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
+        sp = db.session.scalars(stmt).first()
+        if not existing_sp.username==username and sp:
+            # user not trying to reuse the same username,
+            # ...and username already exists in SP table
+            flash(
+                    'username already exists. Please try another',
+                    'username_exists'
+                    )  # include message category
+            if testing:
+                # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
+                pass
+            return make_response(jsonify({"profile_edit": False, "reason": "username already exists"}), 400)
+
         existing_cus.username = username
 
     if not username:
@@ -252,7 +271,7 @@ def signup_post():
     image = request.files.get(
             'profile_pic')  # file object representing image data
 
-    # Validate username
+    # Validate username for customers table
     stmt = db.select(Customers).where(Customers.username==username)
     cus = db.session.scalars(stmt).first()
     if cus:
@@ -263,6 +282,20 @@ def signup_post():
                 )  # include message category
         if testing:
             # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
+            pass
+        return make_response(jsonify({"signup": False, "reason": "username already exists"}), 400)
+
+    # Validate username for SP table
+    stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
+    sp = db.session.scalars(stmt).first()
+    if sp:
+        # username already exists
+        flash(
+                'username already exists. Please try another',
+                'username_exists'
+                )  # include message category
+        if testing:
+            # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
             pass
         return make_response(jsonify({"signup": False, "reason": "username already exists"}), 400)
     # else set image identifier
