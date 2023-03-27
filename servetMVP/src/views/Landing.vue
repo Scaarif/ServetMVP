@@ -17,7 +17,7 @@
                 >
                     <option value="Country">Country</option>
                     <option value="kenya">Kenya</option>
-                    <option value="Nigeria">Nigeria</option>
+                    <option value="nigeria">Nigeria</option>
                    
                 </select> 
                 <!-- select county/state -->
@@ -33,7 +33,8 @@
                     class="w-[10rem] border-slate-300 rounded focus:border-slate-400 focus:ring-0"
                     >
                     <option value="Sub County">Sub County</option>
-                    <option v-for="locale, idx in selectedState.sub_counties" :key="idx" :value=locale>{{ locale }}</option>
+                    <!-- <option v-for="locale, idx in selectedState.sub_counties" :key="idx" :value=locale>{{ locale }}</option> -->
+                    <option v-for="locale, idx in sub_counties" :key="idx" :value=locale>{{ locale }}</option>
                 </select>
             </span>
        </div>
@@ -57,12 +58,13 @@ export default {
             done: false,
             region: 'County',
             selectedState: '',
+            sub_counties: null,
             locale: 'Sub County',
         }
     },
     computed: {
         ...mapState(['isLanding'])
-    },
+    }, 
     methods: {
         ...mapMutations(['toggleIsLanding', 'setCounties']),
         ...mapActions(['fetchServices']),
@@ -72,7 +74,7 @@ export default {
                 console.log('selectedLocation: ', this.selectedLocation)
                 this.toggleIsLanding()
                 // create a queue
-                this.createQueue()
+                // this.createQueue()
                 // get the regions (state/county) in country
                 this.allRegions()
                 // redirect to services page (read more on route control/protection and guards)
@@ -95,16 +97,23 @@ export default {
             else
             console.log('first: ', Object.values(this.regions)[0][0])
         },
-        setRegion() {
+        async setRegion() {
             this.selectedState = this.region
+            if (this.selectedLocation === 'kenya')
+                this.sub_counties = this.selectedState.sub_counties
+            else {
+                const res = await axios.get(`https://api.facts.ng/v1/states/${this.selectedState}`)
+                this.sub_counties = res.data
+                console.log('sub_counties: ', this.sub_counties)
+            } 
             // console.log(this.selectedState + 'with subcounties: ' + this.selectedState.sub_counties)
         },
         setLocale() {
             console.log(this.locale)
             // fetch services based on location (& currently, service_category)
             const country_id = this.selectedLocation === 'kenya' ? '1' : '2'
-            // const queryStr = '?country=' + country_id + '&service_category=1'
-            const queryStr = '?country=' + '2' + '&service_category=1'
+            const queryStr = '?country=' + country_id + '&service_category=1'
+            // const queryStr = '?country=' + '2' + '&service_category=1'
             console.log(queryStr)
             this.fetchServices(queryStr)
             // redirect to services page
@@ -142,7 +151,7 @@ export default {
             if (this.selectedLocation === 'nigeria') {
                 res = await axios.get('https://api.facts.ng/v1/states')
                 if (res !== null) {
-                    // console.log(res)
+                    console.log('nigeria states: ', res)
                     this.setRegions(res.data)
                 }
             }

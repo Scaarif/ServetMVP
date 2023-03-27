@@ -31,10 +31,17 @@ def login_post():
     ''' Authenticate posted login information, and log customer in.
     '''
     from api.v1.views import db, Customers, is_safe_url
-    # Retrieve provided login information
-    username = request.form.get('username')
-    password = request.form.get('password')
-    remember = True if request.form.get('remember') else False
+    # try (get json data instead)
+    if not request.json:
+        print('no user data')
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    remember = True if data.get('remember') else False
+    # # Retrieve provided login information
+    # username = request.form.get('username')
+    # password = request.form.get('password')
+    # remember = True if request.form.get('remember') else False
 
     # Verify that customer is registered
     stmt = db.select(Customers).where(Customers.username==username)
@@ -53,7 +60,7 @@ def login_post():
             # Redirect to login page to try again
             # return redirect(url_for('cus_apis.login_get'))
             pass
-        return make_response(jsonify({"login": False}), 401)
+        return make_response(jsonify({"login": False, "message": 'invalid username/password', "body":data}), 401)
 
     # Customer exists and is authenticated
     session['account_type'] = 'customer'
@@ -235,12 +242,25 @@ def signup_post():
     '''
     from api.v1.views import db, Customers
     # Collect registration details
-    first_name = request.form.get('first_name')
-    last_name = request.form.get('last_name')
-    email = request.form.get('email')  # unique
-    phone = request.form.get('phone')  # unique
-    username = request.form.get('username') # must be unique in storage
-    password = request.form.get('password')
+    if not request.json:
+        print('no user data')
+    data = request.get_json()
+    print('data: ', data)
+    # first_name = request.form.get('first_name')
+    # last_name = request.form.get('last_name')
+    # email = request.form.get('email')  # unique
+    # phone = request.form.get('phone')  # unique
+    # username = request.form.get('username') # must be unique in storage
+    # password = request.form.get('password')
+
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    email = data.get('email')  # unique
+    phone = data.get('phone')  # unique
+    username = data.get('username') # must be unique in storage
+    password = data.get('password')
+
+    print('form first_name: ', first_name)
     # todo: validate and save image to file system :done VSFS
     image = request.files.get(
             'profile_pic')  # file object representing image data
@@ -257,9 +277,9 @@ def signup_post():
         if testing:
             # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False}), 400)
+        return make_response(jsonify({"signup": False, "message": 'username already exists'}), 400)
     # else set image identifier
-    if image.filename:
+    if image and image.filename:
         # If the user does not select a file, the browser submits an...
         # ...empty file without a filename ('').
         image_uri = current_app.config["CUS_IMAGE_RPATH"] + username + '.jpg'
@@ -275,18 +295,18 @@ def signup_post():
         if testing:
             # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False}), 400)
+        return make_response(jsonify({"signup": False,  "message": 'email already exists'}), 400)
 
-    # Validate phone
-    stmt = db.select(Customers).where(Customers.phone==phone)
-    cus = db.session.scalars(stmt).first()
-    if cus:
-        # phone number already exists
-        flash('phone already exists. Please try another', 'phone_exists')
-        if testing:
-            # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
-            pass
-        return make_response(jsonify({"signup": False}), 400)
+    # # Validate phone
+    # stmt = db.select(Customers).where(Customers.phone==phone)
+    # cus = db.session.scalars(stmt).first()
+    # if cus:
+    #     # phone number already exists
+    #     flash('phone already exists. Please try another', 'phone_exists')
+    #     if testing:
+    #         # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
+    #         pass
+    #     return make_response(jsonify({"signup": False, "message": 'phone already exists'}), 400)
 
     # Persist validated data to database
     new_cus = Customers(
@@ -302,7 +322,7 @@ def signup_post():
     db.session.commit()
 
     # Save image to file system ONLY now
-    if image.filename:
+    if image and image.filename:
         image.save(
                 current_app.config["CUS_IMAGE_PATH"] + username + '.jpg'
                 )  # VSFS

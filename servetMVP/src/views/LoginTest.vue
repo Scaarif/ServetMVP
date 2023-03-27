@@ -47,30 +47,32 @@ export default {
     methods: {
         ...mapMutations(['toggleToken', 'toggleIsLanding']),
         handleSubmit() {
-          console.log('isAuth: ', this.isAuthenticated)
-            if (!this.isAuthenticated) {
-              // let formData = new FormData();
-              // formData.append('first_name', 'John');
-              // formData.append('last_name', 'Doe');
-              // formData.append('email', 'john.doe@example.com');
-              // formData.append('phone', '555-1234');
-              // formData.append('username', 'johndoe');
-              // formData.append('password', 'mypassword');
-              // this.login(formData)
-              let data = {username: this.userName}
-              data['password'] = this.password
-              this.login(JSON.stringify(data))
-            }
-            else
-                // this.whoami()
-                // set token to true
-                this.toggleToken()
-                this.toggleIsLanding() // make it false so the navbar shows
-                // redirect to home page
-                this.$router.push({name: 'home'})
+            // const formData = new FormData(form)
+            // // add key-value pairs (to post)
+            // // formData.append('username', this.userName)
+            // // formData.append('password', this.password)
+            // // const values = [...formData.entries()]
+            // // console.log('formData: ', values)
+            // // test login endpoint
+            // this.login(formData)
+            // if (this.isLanding)
+            //     this.toggleIsLanding()
+            // // handle data submission (POST)
+            // console.log('logged in!')
+            // if (!this.token) {
+            //     this.toggleToken()
+            //     console.log('token -> ', this.token)
+            //     localStorage.setItem('token', true)
+            // }
+            // if (this.token)
+            //     this.$router.push({name: 'home'}) //redirect back home page -> user logged in!
+
+            // tests
+            this.login()
+
         },
         getSession() {
-            fetch("http://localhost:5000/api/v1/getsession", {
+            fetch("http://localhost:5000/api/getsession", {
                             credentials: "include",
                             })
                             .then((res) => res.json())
@@ -88,7 +90,16 @@ export default {
                             });
         },
         csrf() {
-            fetch("http://localhost:5000/api/v1/getcsrf", {
+        // async getCSRF() {
+            // let res = await fetch('http://localhost:5000/api/v1/getcsrf')
+            // // const data = await res.json()
+            // console.log('csrf: ', res.headers.get('x-csrftoken'))
+            // this.csrf = res.headers.get('x-csrftoken')
+            // // let ses = await fetch('http://localhost:5000/api/v1/getsession')
+            // // let sesdata = await ses.json()
+            // // console.log('session: ', sesdata)
+
+            fetch("http://localhost:5000/api/getcsrf", {
                     credentials: "include",
                     })
                     .then((res) => {
@@ -100,9 +111,21 @@ export default {
                     });
 
         },
-        login(data) {
-          console.log(data)
-            fetch("http://localhost:5000/api/v1/customers/login", {
+        // async login(data) {
+        //     await this.getCSRF()
+        //     // console.log('this: ', this.csrf)
+        //     data.append('csrf_token', this.csrf)
+        //     let res = await fetch('http://localhost:5000/api/v1/customers/login', {
+        //         method: 'POST',
+        //         headers: {'X-CSRFToken': this.csrf},
+        //         body: data,
+        //     })
+        //     console.log(...data)
+        //     const result = await res.json()
+        //     console.log('login res:', result)
+        // }
+        login() {
+            fetch("http://localhost:5000/api/login", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -110,15 +133,13 @@ export default {
                     "X-CSRFToken": this.csrfToken
                 },
                 credentials: "include",
-                body: data,
+                body: JSON.stringify({ username: this.userName, password: this.password }),
                 })
                 .then((res) => res.json())
                 .then((data) => {
                 console.log(data, 'login -> ', data.login);
                 if (data.login == true) {
-                    this.isAuthenticated = true;
-                     // redirect to home page
-                    this.$router.push({name: 'home'})
+                    isAuthenticated = true;
                 }
                 })
                 .catch((err) => {
@@ -130,7 +151,7 @@ export default {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": this.csrfToken,
+                    "X-CSRFToken": csrfToken,
                 },
                 credentials: "include",
                 })
@@ -149,7 +170,7 @@ export default {
                 credentials: "include",
                 })
                 .then(() => {
-                    this.isAuthenticated = false;
+                isAuthenticated = false;
                 })
                 .catch((err) => {
                 console.log(err);

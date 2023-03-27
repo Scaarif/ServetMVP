@@ -18,13 +18,14 @@
                 <span class="min-w-sm w-full text-md capitalize">{{ Object.keys(value)[0] }}:<b>*</b></span>
                 <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
                     focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50"
-                    :type="Object.keys(value)[0].includes('password') ? 'password' : 'text'" :placeholder="Object.values(value)[0]" required>
+                    :type="Object.keys(value)[0].includes('password') ? 'password' : 'text'"
+                    :placeholder="Object.values(value)[0]" required>
             </div>
             <div class="w-full flex items-center space-x-4">
                 <span class="min-w-sm w-full text-md capitalize">email address:<b>*</b></span>
                 <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
                     focus:ring-0 focus:border-slate-600 text-center invalid:border-red-700 valid:bg-blue-50"
-                    type="email" placeholder="email address" required>
+                    type="email" placeholder="email address" required v-model="email">
             </div>
             <div class="flex flex-col items-center space-y-2" v-if="signUpUser === 'provider'">
                 <div v-for="value, idx in providerFields" :key="idx" 
@@ -71,7 +72,17 @@ export default {
             user: 'customer',
             signUpUser: '',
             showSelect: true,
+            fullname: 'farah farah',
+            email: 'farah@starah',
+            password: 'test',
+            phone: '01242433',
+            csrfToken: '',
+            isAuthenticated: false,
         }
+    },
+    mounted() {
+        this.getSession()
+        // this.csrf()
     },
     methods: {
         setUser() {
@@ -80,8 +91,82 @@ export default {
         },
         handleSubmit() {
             // handle data submission (POST)
-            console.log('signed up!')
-        }
+            // console.log('signed up!')
+            let data = {}
+            data['first_name'] = this.fullname.split(' ')[0]
+            data['username'] = this.fullname.split(' ')[0]
+            data['last_name'] = this.fullname.split(' ')[1]
+            data['email'] = this.email
+            data['password'] = this.password
+            data['phone'] = this.phone
+            data['csrf_token'] = this.csrfToken
+            this.signup(JSON.stringify(data))
+        },
+        getSession() {
+            fetch("http://localhost:5000/api/v1/getsession", {
+                            credentials: "include",
+                            })
+                            .then((res) => res.json())
+                            .then((data) => {
+                            console.log(data);
+                            if (data.login == true) {
+                                this.isAuthenticated = true;
+                            } else {
+                                this.isAuthenticated = false;
+                                this.csrf();
+                            }
+                            })
+                            .catch((err) => {
+                            console.log(err);
+                            });
+        },
+        csrf() {
+        // async getCSRF() {
+            // let res = await fetch('http://localhost:5000/api/v1/getcsrf')
+            // // const data = await res.json()
+            // console.log('csrf: ', res.headers.get('x-csrftoken'))
+            // this.csrf = res.headers.get('x-csrftoken')
+            // // let ses = await fetch('http://localhost:5000/api/v1/getsession')
+            // // let sesdata = await ses.json()
+            // // console.log('session: ', sesdata)
+
+            fetch("http://localhost:5000/api/v1/getcsrf", {
+                    credentials: "include",
+                    })
+                    .then((res) => {
+                    this.csrfToken = res.headers.get(["X-CSRFToken"]);
+                    // console.log(csrfToken);
+                    })
+                    .catch((err) => {
+                    console.log(err);
+                    });
+
+        },
+        signup(data) {
+            console.log(data)
+            fetch("http://localhost:5000/api/v1/customers/signup", {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": this.csrfToken
+                },
+                credentials: "include",
+                // body: JSON.stringify({ username: this.userName, password: this.password }),
+                body: data
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                console.log(data);
+                // if (data.login == true) {
+                //     isAuthenticated = true;
+                // }
+                }
+                )
+                .catch((err) => {
+                console.log(err);
+                });
+        },
     }
 }
 </script>
