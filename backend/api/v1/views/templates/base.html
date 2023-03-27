@@ -33,7 +33,11 @@
 			{% endif %}
 			{% endif %}
 			{% if current_user.is_authenticated %}
+			{% if session['account_type'] == 'customer' %}
 			<a href={{ url_for('cus_apis.profile_edit_put', id=current_user.id) }}>Edit Profile</a>
+			{% else %}
+			<a href={{ url_for('sp_apis.profile_edit_put', id=current_user.id) }}>Edit Profile</a>
+			{% endif %}
 			{% endif %}
 		</div>
 		<div>

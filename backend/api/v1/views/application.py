@@ -15,9 +15,11 @@ cors = CORS(
         supports_credentials=True,
         )
 
+'''
 with app.test_request_context():
-    print("###########---->", generate_csrf())
+    print("###########---->", csrf_token())
     print("$$$$$$$$$$$---->", generate_csrf())
+'''
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
