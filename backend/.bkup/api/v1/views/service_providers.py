@@ -20,7 +20,7 @@ from os import getenv
 
 testing = getenv('testing', '')
 
-# Blueprint for service provider APIs
+# Blueprint for service provider authentication views
 sp_apis = Blueprint(
         'sp_apis', __name__, url_prefix='/api/v1/serviceProviders'
         )
@@ -28,14 +28,14 @@ sp_apis = Blueprint(
 
 if testing:
     @sp_apis.route('/login')
-    def login_get():
+    def login():
         ''' Return the login form view.'''
         return render_template('sp_apis/login.html')
 
 
-@sp_apis.route('/login', methods=['POST'])
+@sp_apis.route('/login', methods=['POST', 'PUT'])
 def login_post():
-    ''' Authenticate posted login information, and log service provider in.
+    ''' Authenticate posted login information, and log servuce provider in.
     '''
     from api.v1.views import db, ServiceProviders, is_safe_url
     # Retrieve provided login information
@@ -60,7 +60,7 @@ def login_post():
             # Redirect to login page to try again
             # return redirect(url_for('sp_auth_views.sp_login'))
             pass
-        return make_response(jsonify({"logout": False, "reason": "invalid username and/or password"}), 401)
+        return make_response(jsonify({"logout": False}), 401)
 
     # Service provider exists and is authenticated
     session['account_type'] = 'service_provider'
@@ -148,7 +148,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "username already exists"}), 400)
+            return make_response(jsonify({"profile_edit": False}), 400)
         existing_sp.username = username
 
     if not username:
@@ -178,7 +178,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "email already exists"}), 400)
+            return make_response(jsonify({"profile_edit": False}), 400)
         existing_sp.email = email
 
     # Validate phone
@@ -191,7 +191,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "phone already in use"}), 400)
+            return make_response(jsonify({"profile_edit": False}), 400)
         existing_sp.phone = phone
 
     # Update service provider record with validated data
@@ -243,15 +243,14 @@ def logout():
     return make_response(jsonify({"logout": True}))
 
 
-if testing:
-    @sp_apis.route('/signup')
-    def signup_get():
-        ''' Return signup form.'''
-        # Retrieve all locations; for testing and should later be removed
-        from api.v1.views import Locations, db
-        stmt = db.select(Locations)
-        locations = db.session.scalars(stmt).all()
-        return render_template('sp_apis/signup.html', n=str(uuid4()), locations=locations)
+@sp_apis.route('/signup')
+def signup_get():
+    ''' Return signup form.'''
+    # Retrieve all locations; for testing and should later be removed
+    from api.v1.views import Locations, db
+    stmt = db.select(Locations)
+    locations = db.session.scalars(stmt).all()
+    return render_template('sp_apis/signup.html', n=str(uuid4()), locations=locations)
 
 
 @sp_apis.route('/signup', methods=['POST'])
@@ -284,7 +283,7 @@ def signup_post():
         if testing:
             # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False, "reason": "username already exists"}), 400)
+        return make_response(jsonify({"signup": False}), 400)
     # else set image identifier
     if image.filename:
         # If the user does not select a file, the browser submits an...
@@ -302,7 +301,7 @@ def signup_post():
         if testing:
             # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False, "reason": "email already exists"}), 400)
+        return make_response(jsonify({"signup": False}), 400)
 
     # Validate phone
     stmt = db.select(ServiceProviders).where(ServiceProviders.phone==phone)
@@ -313,7 +312,7 @@ def signup_post():
         if testing:
             # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False, "reason": "phone already in use"}), 400)
+        return make_response(jsonify({"signup": False}), 400)
 
     # Persist validated data to database
     new_sp = ServiceProviders(
@@ -354,7 +353,7 @@ def static_get(id, uri):
 
 @sp_apis.route('/<sp_id>/services')
 @login_required
-def service_multi_get(sp_id):
+def service_one_get(sp_id):
     ''' Returns the IDs of a service-provider's services.
     '''
     # Fetch service IDs
@@ -367,51 +366,6 @@ def service_multi_get(sp_id):
     return jsonify(ids_list)
 
 
-@sp_apis.route('/<sp_id>/services/<sps_id>')
-def service_one_get(sp_id, sps_id):
-    ''' Returns details about a specific service-provider service.
-    '''
-    # Fetch service details
-    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceProviders.phone, ServiceProviders.whatsapp, ServiceCategories.name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).where(ServiceProviderServices.id==int(sps_id))
-    details_row = db.session.execute(stmt).first()
-    if not details_row:
-        # No such service
-        return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
-
-    # Fetch all reviews for the specified service
-    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
-    reviews_rows_list = db.session.execute(stmt).all()
-    ''' returns list of reviews details rows.'''
-
-    # Prepare the data in json_serializable forms
-    first_name = details_row.first_name
-    last_name = details_row.last_name
-    image_uri = details_row.image_uri
-    rating = float(details_row.rating)  # for serializability
-    description = details_row.service_description
-    sp_id = details_row.id
-    sp_phone = details_row.phone
-    sp_whatsapp = details_row.whatsapp
-
-    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id, sp_phone=sp_phone, sp_whatsapp=sp_whatsapp)
-
-    # Prepare list of reviews and associated details
-    reviews = []
-    for reviews_row in reviews_rows_list:
-        content = reviews_row.review_content
-        updated_at = reviews_row.updated_at.isoformat()  # make serializable
-        first_name = reviews_row.first_name
-        last_name = reviews_row.last_name
-        review_id = reviews_row.id
-        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, updated_at=updated_at)
-        reviews.append(review_json)
-
-    # Add reviews list to return data
-    json_data.update({"reviews": reviews})
-
-    return jsonify(json_data)
-
-
 @sp_apis.route('/<sp_id>/services/create', methods=['POST'])
 @login_required
 def service_create_post(sp_id):
@@ -419,11 +373,11 @@ def service_create_post(sp_id):
     '''
     # Retrieve form data
     service_description = request.form.get('service_description')
-    serviceCategory_id = request.form.get('service_category')  # an integer
+    serviceCategory_id = request.form.get('service_category')  # for F.Key
     image = request.files.get('profile_pic')
 
     # Create new service-provider service object
-    new_sps = ServiceProviderServices(service_description=service_description, serviceProvider_id=sp_id, serviceCategory_id=int(serviceCategory_id))
+    new_sps = ServiceProviderServices(service_description=service_description, serviceProvider_id=sp_id, serviceCategory_id=serviceCategory_id)
     ''' defer saving image_uri until ID is available.'''
 
     # Commit to get ID before processing image
@@ -468,7 +422,7 @@ def service_edit_put(sp_id, sps_id):
     '''
     # Retrieve form data
     service_description = request.form.get('service_description')
-    serviceCategory_id = request.form.get('service_category')  # an integer
+    serviceCategory_id = request.form.get('service_category')  # for F.Key
     image = request.files.get('profile_pic')
 
     # Retrieve existing service-provider service object
