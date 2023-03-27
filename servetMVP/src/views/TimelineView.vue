@@ -24,14 +24,14 @@ export default {
         }
     },
     computed: {
-        ...mapState(['token', 'activeUser']),
+        ...mapState(['token', 'activeUser', 'isAuthorized']),
     },
     created() {
         this.checkIfLoggedIn()
     },
     methods: {
         checkIfLoggedIn() {
-            if (!this.token)
+            if (!this.isAuthorized)
                 this.$router.push({name: 'landing'}) //redirect back landing page if user not logged
        }
     }

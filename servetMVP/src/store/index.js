@@ -14,6 +14,7 @@ const store = createStore({
         showService: false,
         counties: [],
         csrfToken: '',
+        isAuthorized: false,
     },
     getters: {
 
@@ -62,6 +63,7 @@ const store = createStore({
         },
         setCsrfToken(state, value) {
             state.csrfToken = value;
+            state.isAuthorized =  true
         },
         async handleLogout(state) {
             let res;

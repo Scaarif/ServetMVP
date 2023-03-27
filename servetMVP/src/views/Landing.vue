@@ -21,7 +21,7 @@
                    
                 </select> 
                 <!-- select county/state -->
-                <select name="" id="" v-if="Object.values(regions).length && region === 'County'"
+                <select name="" id="" v-if="selectedLocation && region === 'County'"
                     v-model="region" @change="setRegion"
                     class="w-[10rem] border-slate-300 rounded focus:border-slate-400 focus:ring-0 overflow-hidden"
                     >
@@ -73,13 +73,7 @@ export default {
                 this.selectedLocation = this.location
                 console.log('selectedLocation: ', this.selectedLocation)
                 this.toggleIsLanding()
-                // create a queue
-                // this.createQueue()
-                // get the regions (state/county) in country
                 this.allRegions()
-                // redirect to services page (read more on route control/protection and guards)
-                // if (this.done)
-                //     this.$router.push({name: 'services'})
             }
         },
         createQueue() {
@@ -102,9 +96,9 @@ export default {
             if (this.selectedLocation === 'kenya')
                 this.sub_counties = this.selectedState.sub_counties
             else {
-                const res = await axios.get(`https://api.facts.ng/v1/states/${this.selectedState}`)
-                this.sub_counties = res.data
-                console.log('sub_counties: ', this.sub_counties)
+                const res = await axios.get(this.selectedState.uri)
+                this.sub_counties = res.data.lgas
+                console.log('sub_counties: ', this.sub_counties, Object.keys(this.sub_counties))
             } 
             // console.log(this.selectedState + 'with subcounties: ' + this.selectedState.sub_counties)
         },
@@ -127,27 +121,7 @@ export default {
         },
         // get states/counties in country
         async allRegions() {
-            // const countryCode = this.selectedLocation === 'kenya' ? 'KE' : 'NG';
-            // const options = {
-            // method: 'GET',
-            // url: 'https://wft-geo-db.p.rapidapi.com/v1/geo/countries/' + countryCode + '/regions',
-            // params: {limit: '50'},
-            // headers: {
-            //     'X-RapidAPI-Key': '080ce19c49msh6a7e158b86a77ebp11b231jsnc312862eade4',
-            //     'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com'
-            // }
-            // };
-
-            // options.params['offset'] = this.queue.shift()
-            // console.log('queue length' + this.queue.length, 'offset ->' + options.params.offset)
             let res;
-            // res = await axios.request(options).then(function (response) {
-            //     // console.log(response.data.data);
-            //     return response.data.data;
-            // }).catch(function (error) {
-            //     console.error(error);
-            //     return {'status': 400}
-            // });
             if (this.selectedLocation === 'nigeria') {
                 res = await axios.get('https://api.facts.ng/v1/states')
                 if (res !== null) {
@@ -160,17 +134,6 @@ export default {
                 // console.log('ke_counties: ', ke_counties)
                 this.setRegions(res)
             }
-            // if (res !== null) {
-            //     // console.log(res)
-            //     this.setRegions(res.data)
-            // }
-            // delay subsequent requests by 1 second
-            // if (this.queue.length > 0) {
-            //     setTimeout(this.allRegions, 2000)
-            // } else {
-            //     this.toggleDone()
-            //     this.setCounties(this.regions)
-            // }
         },
     },
 }

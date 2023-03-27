@@ -12,7 +12,26 @@ async function loggedOutGet(url) {
     }
     return response
 }
+async function postWithToken(url, payload, csrfToken) {
+    let res;
+    try {
+        res = await axios.post(url, payload, {
+                headers: {
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": this.csrfToken
+                },
+                // credentials: "include",
+                withCredentials:true
+                })
+    } catch (error) {
+        console.log(error)
+        res = error
+    }
+    return res
+}
 // make available outside module
 export default {
     loggedOutGet,
+    postWithToken,
 }

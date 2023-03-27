@@ -49,20 +49,14 @@ export default {
         handleSubmit() {
           console.log('isAuth: ', this.isAuthenticated)
             if (!this.isAuthenticated) {
-              // let formData = new FormData();
-              // formData.append('first_name', 'John');
-              // formData.append('last_name', 'Doe');
-              // formData.append('email', 'john.doe@example.com');
-              // formData.append('phone', '555-1234');
-              // formData.append('username', 'johndoe');
-              // formData.append('password', 'mypassword');
-              // this.login(formData)
               let data = {username: this.userName}
               data['password'] = this.password
               this.login(JSON.stringify(data))
+              // redirect to home page
+              this.$router.push({name: 'home'})
+
             }
             else
-                // this.whoami()
                 // set token to true
                 this.toggleToken()
                 this.toggleIsLanding() // make it false so the navbar shows
@@ -120,7 +114,7 @@ export default {
                     // set global csrfToken
                     this.setCsrfToken(this.csrfToken)
                     this.toggleIsLanding()
-                     // redirect to home page
+                    // redirect to home page
                     this.$router.push({name: 'home'})
                 }
                 })
@@ -128,25 +122,6 @@ export default {
                 console.log(err);
                 });
         },
-        whoami() {
-            fetch("http://localhost:5000/api/data", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": this.csrfToken,
-                },
-                credentials: "include",
-                })
-                .then((res) => res.json())
-                .then((data) => {
-                console.log(data);
-                alert(`Welcome, ${data.username}!`);
-                })
-                .catch((err) => {
-                console.log(err);
-                });
-        },
-
         logout() {
             fetch("http://localhost:5000/api/logout", {
                 credentials: "include",
