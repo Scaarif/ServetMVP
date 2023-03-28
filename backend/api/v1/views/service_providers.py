@@ -411,14 +411,14 @@ def service_one_get(sp_id, sps_id):
     ''' Returns details about a specific service-provider service.
     '''
     # Fetch service details
-    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceProviders.phone, ServiceProviders.whatsapp, ServiceCategories.name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceProviders.phone, ServiceProviders.whatsapp, ServiceProviders.location_id, Locations.name.label('loc_name'), ServiceCategories.name, ServiceCategories.id.label('sc_id'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).where(ServiceProviderServices.id==int(sps_id))
     details_row = db.session.execute(stmt).first()
     if not details_row:
         # No such service
         return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
 
     # Fetch all reviews for the specified service
-    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.upvotes, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
     reviews_rows_list = db.session.execute(stmt).all()
     ''' returns list of reviews details rows.'''
 
@@ -431,8 +431,12 @@ def service_one_get(sp_id, sps_id):
     sp_id = details_row.id
     sp_phone = details_row.phone
     sp_whatsapp = details_row.whatsapp
+    sc_name = details_row.name
+    sc_id = details_row.sc_id
+    loc_id = details_row.location_id
+    loc_name = details_row.loc_name
 
-    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id, sp_phone=sp_phone, sp_whatsapp=sp_whatsapp)
+    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id, sp_phone=sp_phone, sp_whatsapp=sp_whatsapp, serviceCategory_name=sc_name, serviceCategory_id=sc_id, location_name=loc_name, location_id=loc_id)
 
     # Prepare list of reviews and associated details
     reviews = []
@@ -442,7 +446,8 @@ def service_one_get(sp_id, sps_id):
         first_name = reviews_row.first_name
         last_name = reviews_row.last_name
         review_id = reviews_row.id
-        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, updated_at=updated_at)
+        upvotes = reviews_row.upvotes
+        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, customer_upvotes=upvotes, updated_at=updated_at)
         reviews.append(review_json)
 
     # Add reviews list to return data

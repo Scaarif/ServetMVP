@@ -162,7 +162,7 @@ def service_multi_post():
     if not location_id:
         if not state_id:
             # use country id to filter
-            stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).join(States).join(Countries).where(Countries.id==int(country_id), ServiceCategories.id==int(sc_id))
+            stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviders.location_id, Locations.name.label('loc_name'), ServiceCategories.id.label('sc_id'), ServiceCategories.name.label('sc_name'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).join(States).join(Countries).where(Countries.id==int(country_id), ServiceCategories.id==int(sc_id))
             rows_list = db.session.execute(stmt).all()
             '''
             - returns a list of Row objects representing the result set
@@ -173,11 +173,11 @@ def service_multi_post():
             '''
         else:
             # use state id to filter
-            stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).join(States).where(States.id==int(state_id), ServiceCategories.id==int(sc_id))
+            stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviders.location_id, Locations.name.label('loc_name'), ServiceCategories.id.label('sc_id'), ServiceCategories.name.label('sc_name'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).join(States).where(States.id==int(state_id), ServiceCategories.id==int(sc_id))
             rows_list = db.session.execute(stmt).all()
     else:
         # use location id to filter
-        stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).where(Locations.id==int(location_id), ServiceCategories.id==int(sc_id))
+        stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviders.location_id, Locations.name.label('loc_name'), ServiceCategories.id.label('sc_id'), ServiceCategories.name.label('sc_name'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).where(Locations.id==int(location_id), ServiceCategories.id==int(sc_id))
         rows_list = db.session.execute(stmt).all()
 
     json_list = []
@@ -191,9 +191,13 @@ def service_multi_post():
         description = row.service_description
         sps_id = row.sps_id
         sp_id = row.sp_id
+        sc_name = row.sc_name
+        sc_id = row.sc_id
+        loc_name = row.loc_name
+        loc_id = row.location_id
 
         # A dictionary representing a single unit of data
-        json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, sps_id=sps_id, sp_id=sp_id)
+        json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, sps_id=sps_id, sp_id=sp_id, serviceCategory_name=sc_name, serviceCategory_id=sc_id, location_name=loc_name, location_id=loc_id)
 
         # Append to list
         json_list.append(json_data)
@@ -206,14 +210,14 @@ def service_one_get(sps_id):
     ''' Returns details about a specific service-provider service.
     '''
     # Fetch service details
-    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceCategories.name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceProviders.location_id, Locations.name.label('loc_name'), ServiceCategories.id.label('sc_id'), ServiceCategories.name.label('sc_name'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).where(ServiceProviderServices.id==int(sps_id))
     details_row = db.session.execute(stmt).first()
     if not details_row:
         # No such service
         return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
 
     # Fetch all reviews for the specified service
-    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.upvotes, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
     reviews_rows_list = db.session.execute(stmt).all()
     ''' returns list of reviews details rows.'''
 
@@ -224,8 +228,12 @@ def service_one_get(sps_id):
     rating = float(details_row.rating)  # for serializability
     description = details_row.service_description
     sp_id = details_row.id
+    sc_name = details_row.sc_name
+    sc_id = details_row.sc_id
+    loc_name = details_row.loc_name
+    loc_id = details_row.location_id
 
-    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id)
+    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id, serviceCategory_name=sc_name, serviceCategory_id=sc_id, location_name=loc_name, location_id=loc_id)
 
     # Prepare list of reviews and associated details
     reviews = []
@@ -235,7 +243,8 @@ def service_one_get(sps_id):
         first_name = reviews_row.first_name
         last_name = reviews_row.last_name
         review_id = reviews_row.id
-        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, updated_at=updated_at)
+        upvotes = reviews_row.upvotes
+        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, customer_upvotes=upvotes, updated_at=updated_at)
         reviews.append(review_json)
 
     # Add reviews list to return data
@@ -319,3 +328,22 @@ def country_state_locations(country_id, state_id):
     json_data.update(locations=locations_list)
 
     return jsonify(json_data)
+
+
+@default_apis.route('/serviceCategories')
+def service_categories():
+    ''' Returns all service category names and IDs.
+    '''
+    # Get all service category records
+    stmt = db.select(ServiceCategories)
+    SCs = db.session.scalars(stmt).all()
+
+    json_list = []
+
+    for sc in SCs:
+        name = sc.name
+        id = sc.id
+        sc_data = dict(id=id, name=name)
+        json_list.append(sc_data)
+
+    return jsonify(json_list)
