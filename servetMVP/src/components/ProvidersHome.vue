@@ -21,7 +21,7 @@
                     <span class="text-md font-medium">Some Service</span>
                     <div class="flex items-center">
                         <span class="text-sm px-3 py-1 border border-[#F3ECD1] bg-[#F3ECD1] cursor-pointer transition-all
-                            hover:bg-[#E9D89D] capitalize" @click="toggleShowModal(), setServiceId('sId')">edit</span>
+                            hover:bg-[#E9D89D] capitalize" @click="toggleShowModal(), setServiceId(4)">edit</span>
                         <span class="text-sm border-y border-r border-[#F3ECD1] px-2 py-1 cursor-pointer transition-all
                             hover:bg-[#E9D89D] capitalize">delete</span>
                     </div>
