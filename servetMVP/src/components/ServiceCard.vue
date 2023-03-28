@@ -5,13 +5,13 @@
             <img src="../assets/scaarif_a_young_kenyan_tomboy_full-body_portrait_light_skinned__0a68fc1a-c258-4865-a6fb-33c81878f822.png" alt="avatar"
                 class="mt-4 w-16 h-16 rounded-full overflow-hidden"
             >
-            <span class="text-sm font-medium text-slate-800 capitalize transition-all hover:underline cursor-pointer">Jane Doe</span>
+            <span class="text-sm font-medium text-slate-800 capitalize transition-all hover:underline cursor-pointer">{{  service.first_name }} {{ service.last_name }}</span>
         </div>
         <!-- Service Details -->
         <div class="flex flex-col items-center space-y-4">
             <span class="text-md font-medium p-1 border-b border-slate-800 text-slate-900 capitalize">Some Service</span>
             <span class="text-sm text-slate-800 px-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dignissim ligula dolor, eget mattis dolor ultricies elementum.
+               {{ service.description }}
             </span>
             <!-- Rating, Location & Pricing -->
             <div class="w-full px-4 flex items-center justify-between">
@@ -35,7 +35,8 @@
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M9.39767 13.3008C10.6216 12.6488 14.25 10.4075 14.25 6.75C14.25 3.85051 11.8995 1.5 9 1.5C6.10051 1.5 3.75 3.85051 3.75 6.75C3.75 10.4075 7.37836 12.6488 8.60232 13.3008C8.85373 13.4348 9.14627 13.4348 9.39767 13.3008ZM9 9C10.2426 9 11.25 7.99264 11.25 6.75C11.25 5.50736 10.2426 4.5 9 4.5C7.75736 4.5 6.75 5.50736 6.75 6.75C6.75 7.99264 7.75736 9 9 9Z" fill="#222222"/>
                             <path d="M13.5466 12.375C14.0074 12.717 14.25 13.105 14.25 13.5C14.25 13.895 14.0074 14.283 13.5466 14.625C13.0859 14.967 12.4231 15.2511 11.625 15.4486C10.8269 15.646 9.92157 15.75 9 15.75C8.07843 15.75 7.1731 15.646 6.375 15.4486C5.5769 15.2511 4.91415 14.967 4.45337 14.625C3.99258 14.283 3.75 13.895 3.75 13.5C3.75 13.105 3.99258 12.717 4.45337 12.375" stroke="#222222" stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        <span class="text-sm text-slate-800">CBD, Nairobi</span>
+                        <span v-if="location" class="text-sm text-slate-800 capitalize">{{location[1]}}, {{ location[1].length > 12 ? '' : location[0] }}</span>
+                        <span v-else class="text-sm text-slate-800">CBD, Nairobi</span>
                     </div>
                     <span class="hidden absolute top-4 left-2 transition-all peer-hover:block text-sm text-slate-500">Location</span>
                 </div>
@@ -57,11 +58,19 @@
     </div>
 </template>
 <script>
+import { mapState } from 'vuex'
 export default {
+    props: ['service'],
     data() {
        return {
         rating: [1, 2, 3, 4]
        }
+    },
+    mounted() {
+        console.log(this.service)
+    },
+    computed: {
+        ...mapState(['location'])
     }
 }
 </script>

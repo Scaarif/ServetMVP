@@ -26,10 +26,13 @@
         <span v-else class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
         <div class="w-full flex items-center mt-8 flex-wrap px-8">
-            <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService(2, csrfToken, '')" />
+            <!-- <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService(2, csrfToken, '')" /> -->
+            <ServiceCard v-for="service, idx in Object.values(getServices)" :key="idx" 
+                :service="service"
+                @click="toggleShowService(service.sps_id, csrfToken, '')" />
         </div>
         <!-- see more -->
-        <span class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
+        <span v-if="getServices.length > 6" class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
             mr-8 transition-all hover:border-slate-800 cursor-pointer" @click="loadMore">
             see more ...
         </span>
@@ -43,7 +46,7 @@ import ServiceCard from './ServiceCard.vue';
 import Service from './Service.vue';
 
 
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 
 export default {
     data() {
@@ -53,7 +56,8 @@ export default {
             searchMetrics: '',
             location: {'county': 'Nairobi', 'locale': 'CBD'},
             dummy_services: ['some service', 'some', 'test service', 'test wrapping', 'another', 'see'],
-            service: {'description': 'test description', 'first_name': 'test', 'last_name': 'testLast', 'reviews': [{'content': 'test review', 'customer_first_name': 'test', 'customer_last_name':'test'}]}
+            // services: '',
+            service: {'description': 'test description', 'first_name': 'test', 'last_name': 'testLast', 'rating': 2, 'reviews': [{'content': 'test review', 'customer_first_name': 'test', 'customer_last_name':'test'}]}
         }
     },
     computed: {
@@ -64,8 +68,12 @@ export default {
         ServiceCard,
         Service,
     },
+    // created() {
+    //     console.log('load services: ', this.getServices)
+    // },
     methods: {
         ...mapMutations(['toggleShowService']),
+        // ...mapActions(['fetchServices']),
         setFilterMetrics() {
             this.searchMetrics = this.metrics
            console.log('searchMetrics ->', this.searchMetrics)

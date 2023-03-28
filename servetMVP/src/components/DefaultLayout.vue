@@ -1,7 +1,7 @@
 <template>
     <div class="bg-gray-50 min-h-screen h-full relative text-slate-800">
         <Navbar v-if="isAuthorized"/>
-        <main class="mx-4 top-16 relative flex flex-col items-center">
+        <main class="mx-4 top-16 relative flex flex-col items-center w-full">
             <router-view />
         </main>
     </div>
