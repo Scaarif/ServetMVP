@@ -26,7 +26,7 @@
         <span v-else class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
         <div class="w-full flex items-center mt-8 flex-wrap px-8">
-            <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService" />
+            <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService(2, csrfToken, '')" />
         </div>
         <!-- see more -->
         <span class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
@@ -57,7 +57,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['showService', 'services', 'isAuthorized']),
+        ...mapState(['showService', 'services', 'isAuthorized', 'csrfToken']),
         ...mapGetters(['getService', 'getServices']),
     },
     components: {

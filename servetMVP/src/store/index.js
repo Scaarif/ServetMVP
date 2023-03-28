@@ -48,11 +48,11 @@ const store = createStore({
             state.isLanding = !state.isLanding
             console.log(state.isLanding)
         },
-        toggleShowService(state) {
+        toggleShowService(state, service_id, csrf='', provider_id) {
             // pass in the service's id to use to fetch the {id}'s details
             state.showService = !state.showService
             if (state.showService)
-                this.dispatch('fetchService', 2) // call the action (fetchService)
+                this.dispatch('fetchService', service_id, csrf='', provider_id) // call the action (fetchService)
         },
         // testing axios
         setCounties(state, counties) {
