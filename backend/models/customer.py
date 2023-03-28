@@ -39,16 +39,16 @@ class Customers(UserMixin, db.Model):
             )
 
     # Table constraints
-    __table_args__ = (
-            db.CheckConstraint('image_uri LIKE "%.jpg"', name='check_image_extention'),
-            )
+    __table_args__ = (db.CheckConstraint(
+        'image_uri LIKE "%.jpg"',
+        name='check_image_extention'),
+        )
 
     def __init__(self, *args, **kwargs):
         self.id = str(uuid4())
         self.created_at = datetime.utcnow()
         self.updated_at = self.created_at
         super().__init__(*args, **kwargs)
-
 
     def __setattr__(self, name, value):
         if name == 'password':

@@ -12,7 +12,7 @@ from flask_login import (
 from api.v1.views import (
         db, ServiceProviders, ServiceCategories,
         ServiceProviderServices, Countries, States, Locations,
-        Reviews, Customers
+        Reviews, Customers, is_safe_url, db
         )
 from werkzeug.security import check_password_hash
 from uuid import uuid4
@@ -51,7 +51,6 @@ if testing:
         ''' Homepage for guests.
         '''
         # for testing
-        from api.v1.views import Countries, States, Locations, ServiceCategories, db
         stmt = db.select(Locations)
         locations = db.session.scalars(stmt).all()
         stmt = db.select(Countries)
@@ -60,7 +59,14 @@ if testing:
         states = db.session.scalars(stmt).all()
         stmt = db.select(ServiceCategories)
         service_categories = db.session.scalars(stmt).all()
-        return render_template('base.html', countries=countries, states=states, locations=locations, service_categories=service_categories, n=str(uuid4()))
+        return render_template(
+                'base.html',
+                countries=countries,
+                states=states,
+                locations=locations,
+                service_categories=service_categories,
+                n=str(uuid4())
+                )
 
 
 if testing:
@@ -74,14 +80,14 @@ if testing:
 def login_post():
     ''' Authenticate posted login information for both customers and SPs.
     '''
-    from api.v1.views import db, ServiceProviders, is_safe_url
     # Retrieve provided login information
     username = request.form.get('username')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
 
     # Verify that service provider is registered
-    stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
+    stmt = db.select(
+            ServiceProviders).where(ServiceProviders.username == username)
     row = db.session.execute(stmt).first()  # returns Row object or None
     sp = ''
     cus = ''
@@ -90,7 +96,7 @@ def login_post():
         sp = row[0]
     else:
         # check customers table
-        stmt = db.select(Customers).where(Customers.username==username)
+        stmt = db.select(Customers).where(Customers.username == username)
         row = db.session.execute(stmt).first()  # return Row object or None
         if row:
             cus = row[0]
@@ -106,18 +112,22 @@ def login_post():
         sp = ''
 
     # Handle failed authentication
-    if not (cus if cus else sp) or not check_password_hash((sp.password if sp else cus.password), password):
+    if not (cus if cus else sp) or not check_password_hash(
+            (sp.password if sp else cus.password), password):
         # Flash an error message to display
         flash("Invalid username and/or password", "invalid_usr_pwd")
         if testing:
             # Redirect to login page to try again
             # return redirect(url_for('sp_auth_views.sp_login'))
             pass
-        return make_response(jsonify({"login": False, "reason": "invalid username and/or password"}), 401)
+        return make_response(jsonify({
+            "login": False,
+            "reason": "invalid username and/or password"
+            }), 401)
 
     # User exists and is authenticated
     session['account_type'] = 'service_provider' if sp else 'customer'
-    login_user((sp if sp else cus), remember=remember)  # log in the user into session
+    login_user((sp if sp else cus), remember=remember)  # log into session
 
     # flash('Logged in successfully.')
 
@@ -135,10 +145,19 @@ def login_post():
         abort(400, description="`next` URL not safe")
 
     if testing:
-        # return redirect(nextp or url_for('sp_apis.profile' if sp else 'cus_apis.profile', id=sp.id if sp else cus.id))
+        '''
+        return redirect(nextp or url_for(
+            ('sp_apis.profile' if sp else 'cus_apis.profile'),
+            id=sp.id if sp else cus.id
+            ))
+        '''
         pass
 
-    return make_response(jsonify({"login": True}), 200)
+    return make_response(jsonify(dict(
+        login=True,
+        user_type=('SP' if sp else 'CUS'),
+        user_id=(sp.id if sp else cus.id),
+        )), 200)
 
 
 @default_apis.route('/services')
@@ -147,11 +166,6 @@ def service_multi_post():
 
         The selected services match the filters in the query string.
     '''
-    from api.v1.views import (
-            db, ServiceProviders, ServiceCategories,
-            ServiceProviderServices, Countries, States, Locations,
-            Reviews
-            )
     # Retrieve query arguments
     country_id = request.args.get('country')  # required
     state_id = request.args.get('state')
@@ -162,7 +176,25 @@ def service_multi_post():
     if not location_id:
         if not state_id:
             # use country id to filter
-            stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).join(States).join(Countries).where(Countries.id==int(country_id), ServiceCategories.id==int(sc_id))
+            stmt = db.select(
+                    ServiceProviders.first_name,
+                    ServiceProviders.last_name,
+                    ServiceProviders.id.label('sp_id'),
+                    ServiceProviders.location_id,
+                    Locations.name.label('loc_name'),
+                    ServiceCategories.id.label('sc_id'),
+                    ServiceCategories.name.label('sc_name'),
+                    ServiceProviderServices.image_uri,
+                    ServiceProviderServices.rating,
+                    ServiceProviderServices.service_description,
+                    ServiceProviderServices.id.label('sps_id')
+                    ).select_from(ServiceProviderServices).join(
+                            ServiceCategories,
+                            ).join(ServiceProviders).join(Locations).join(
+                                    States).join(Countries).where(
+                                            Countries.id == int(country_id),
+                                            ServiceCategories.id == int(sc_id)
+                                            )
             rows_list = db.session.execute(stmt).all()
             '''
             - returns a list of Row objects representing the result set
@@ -173,11 +205,45 @@ def service_multi_post():
             '''
         else:
             # use state id to filter
-            stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).join(States).where(States.id==int(state_id), ServiceCategories.id==int(sc_id))
+            stmt = db.select(
+                    ServiceProviders.first_name,
+                    ServiceProviders.last_name,
+                    ServiceProviders.id.label('sp_id'),
+                    ServiceProviders.location_id,
+                    Locations.name.label('loc_name'),
+                    ServiceCategories.id.label('sc_id'),
+                    ServiceCategories.name.label('sc_name'),
+                    ServiceProviderServices.image_uri,
+                    ServiceProviderServices.rating,
+                    ServiceProviderServices.service_description,
+                    ServiceProviderServices.id.label('sps_id')).select_from(
+                            ServiceProviderServices).join(
+                                    ServiceCategories).join(
+                                            ServiceProviders).join(
+                                            Locations).join(States).where(
+                                            States.id == int(state_id),
+                                            ServiceCategories.id == int(sc_id)
+                                            )
             rows_list = db.session.execute(stmt).all()
     else:
         # use location id to filter
-        stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id.label('sp_id'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description, ServiceProviderServices.id.label('sps_id')).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).where(Locations.id==int(location_id), ServiceCategories.id==int(sc_id))
+        stmt = db.select(
+                ServiceProviders.first_name,
+                ServiceProviders.last_name,
+                ServiceProviders.id.label('sp_id'),
+                ServiceProviders.location_id,
+                Locations.name.label('loc_name'),
+                ServiceCategories.id.label('sc_id'),
+                ServiceCategories.name.label('sc_name'),
+                ServiceProviderServices.image_uri,
+                ServiceProviderServices.rating,
+                ServiceProviderServices.service_description,
+                ServiceProviderServices.id.label('sps_id')).select_from(
+                        ServiceProviderServices).join(ServiceCategories).join(
+                        ServiceProviders).join(Locations).where(
+                        Locations.id == int(location_id),
+                        ServiceCategories.id == int(sc_id)
+                        )
         rows_list = db.session.execute(stmt).all()
 
     json_list = []
@@ -191,9 +257,25 @@ def service_multi_post():
         description = row.service_description
         sps_id = row.sps_id
         sp_id = row.sp_id
+        sc_name = row.sc_name
+        sc_id = row.sc_id
+        loc_name = row.loc_name
+        loc_id = row.location_id
 
         # A dictionary representing a single unit of data
-        json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, sps_id=sps_id, sp_id=sp_id)
+        json_data = dict(
+                first_name=first_name,
+                last_name=last_name,
+                image_uri=image_uri,
+                rating=rating,
+                description=description,
+                sps_id=sps_id,
+                sp_id=sp_id,
+                serviceCategory_name=sc_name,
+                serviceCategory_id=sc_id,
+                location_name=loc_name,
+                location_id=loc_id
+                )
 
         # Append to list
         json_list.append(json_data)
@@ -206,14 +288,40 @@ def service_one_get(sps_id):
     ''' Returns details about a specific service-provider service.
     '''
     # Fetch service details
-    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceCategories.name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(
+            ServiceProviders.first_name,
+            ServiceProviders.last_name,
+            ServiceProviders.id,
+            ServiceProviders.location_id,
+            Locations.name.label('loc_name'),
+            ServiceCategories.id.label('sc_id'),
+            ServiceCategories.name.label('sc_name'),
+            ServiceProviderServices.image_uri,
+            ServiceProviderServices.rating,
+            ServiceProviderServices.service_description).select_from(
+                    ServiceProviderServices).join(ServiceCategories).join(
+                    ServiceProviders).join(Locations).where(
+                    ServiceProviderServices.id == int(sps_id)
+                    )
     details_row = db.session.execute(stmt).first()
     if not details_row:
         # No such service
-        return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
+        return make_response(
+                jsonify({"status": "error", "message": "invalid sps ID"}),
+                400,
+                )
 
     # Fetch all reviews for the specified service
-    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(
+            Reviews.id,
+            Reviews.review_content,
+            Reviews.upvotes,
+            Reviews.updated_at,
+            Customers.first_name,
+            Customers.last_name).join(Customers).join(
+                    ServiceProviderServices).where(
+                    ServiceProviderServices.id == int(sps_id)
+                    )
     reviews_rows_list = db.session.execute(stmt).all()
     ''' returns list of reviews details rows.'''
 
@@ -224,8 +332,23 @@ def service_one_get(sps_id):
     rating = float(details_row.rating)  # for serializability
     description = details_row.service_description
     sp_id = details_row.id
+    sc_name = details_row.sc_name
+    sc_id = details_row.sc_id
+    loc_name = details_row.loc_name
+    loc_id = details_row.location_id
 
-    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id)
+    json_data = dict(
+            first_name=first_name,
+            last_name=last_name,
+            image_uri=image_uri,
+            rating=rating,
+            description=description,
+            serviceProvider_id=sp_id,
+            serviceCategory_name=sc_name,
+            serviceCategory_id=sc_id,
+            location_name=loc_name,
+            location_id=loc_id
+            )
 
     # Prepare list of reviews and associated details
     reviews = []
@@ -235,7 +358,15 @@ def service_one_get(sps_id):
         first_name = reviews_row.first_name
         last_name = reviews_row.last_name
         review_id = reviews_row.id
-        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, updated_at=updated_at)
+        upvotes = reviews_row.upvotes
+        review_json = dict(
+                review_id=review_id,
+                content=content,
+                customer_first_name=first_name,
+                customer_last_name=last_name,
+                customer_upvotes=upvotes,
+                updated_at=updated_at
+                )
         reviews.append(review_json)
 
     # Add reviews list to return data
@@ -267,13 +398,16 @@ def country_states(country_id):
     # Retrieve the country object
     country = db.session.get(Countries, country_id)
     # Retrieve all country states
-    stmt = db.select(States).where(States.country_id==country_id)
+    stmt = db.select(States).where(States.country_id == country_id)
     states = db.session.scalars(stmt).all()
 
     if country:
         json_data = dict(country_name=country.name, country_id=country_id)
     else:
-        return make_response(jsonify({"status": "error", "reason": "invalid country ID"}), 400)
+        return make_response(
+                jsonify({"status": "error", "reason": "invalid country ID"}),
+                400,
+                )
 
     # Compose States objects
     states_list = []
@@ -298,16 +432,33 @@ def country_state_locations(country_id, state_id):
 
     # Validate country and state IDs
     if not country:
-        return make_response(jsonify({"status": "error", "reason": "invalid country ID"}), 400)
+        return make_response(
+                jsonify({"status": "error", "reason": "invalid country ID"}),
+                400,
+                )
     if not state:
-        return make_response(jsonify({"status": "error", "reason": "invalid state ID"}), 400)
-    if not state.country_id==country.id:
-        return make_response(jsonify({"status": "error", "reason": "not a state in country"}), 400)
+        return make_response(
+                jsonify({"status": "error", "reason": "invalid state ID"}),
+                400,
+                )
+    if not state.country_id == country.id:
+        return make_response(
+                jsonify({
+                    "status": "error",
+                    "reason": "not a state in country"
+                    }),
+                400,
+                )
 
-    json_data = dict(country_name=country.name, country_id=country.id, state_name=state.name, state_id=state.id)
+    json_data = dict(
+            country_name=country.name,
+            country_id=country.id,
+            state_name=state.name,
+            state_id=state.id
+            )
 
     # Retrieve all relevant locations
-    stmt = db.select(Locations).where(Locations.state_id==state_id)
+    stmt = db.select(Locations).where(Locations.state_id == state_id)
     locations = db.session.scalars(stmt).all()
 
     # Compose Locations
@@ -319,3 +470,22 @@ def country_state_locations(country_id, state_id):
     json_data.update(locations=locations_list)
 
     return jsonify(json_data)
+
+
+@default_apis.route('/serviceCategories')
+def service_categories():
+    ''' Returns all service category names and IDs.
+    '''
+    # Get all service category records
+    stmt = db.select(ServiceCategories)
+    SCs = db.session.scalars(stmt).all()
+
+    json_list = []
+
+    for sc in SCs:
+        name = sc.name
+        id = sc.id
+        sc_data = dict(id=id, name=name)
+        json_list.append(sc_data)
+
+    return jsonify(json_list)

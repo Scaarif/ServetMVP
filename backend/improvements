@@ -7,3 +7,5 @@
 performance if the app grows big, and, thus, handles a huge volume of requests.
 
 - validate/escape user inputs to be saved to database (e.g. reviews)
+
+- view_histories table for recording service pages viewed by customers.

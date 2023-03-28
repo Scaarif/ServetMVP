@@ -29,7 +29,6 @@ class Reviews(db.Model):
 
     # Relationships
 
-
     def __init__(self, *args, **kwargs):
         self.created_at = datetime.utcnow()
         self.updated_at = self.created_at

@@ -1,33 +1,18 @@
-Implemented single login and location APIs.
+Implemented API to return service categories.
 
-Modified: POST /api/v1/serviceProviders/signup
-- username now required to be unique across customer and service provider tables  #DONE
+Modified: GET /api/v1/services
+- include location name and ID for each service
+- include service category name and ID
 
-Modified: POST /api/v1/customers/signup
-- username now required to be unique across customer and service provider tables
+Modified: GET /api/v1/services/<service_id>
+- include upvotes in each service review
+- include location name and ID for each service
+- include service category name and ID
 
-Modified: POST | PUT /api/v1/customers/<cus_id>/profile/edit
-- username now required to be unique across customer and service provider tables  #DONE
+Modified: GET /api/v1/serviceProviders/<sp_id>/services/<service_id>
+- include upvotes in each service review
+- include location name and ID for each service
+- include service category name and ID
 
-Modified: POST | PUT /api/v1/serviceProviders/<sp_id>/profile/edit
-- username now required to be unique across customer and service provider tables  #DONE
-
-New API: POST /api/v1/login
-- implement a single login endpoint for both customers and service providers
-
-Deprecated:
-- POST api/v1/customers/login
-- POST /api/v1/serviceProviders/login
-- use POST /api/v1/login instead
-
-New API: GET /api/v1/countries
-- returns a list of all countries in the form:
- ```{"name": <country name>, "id": <country ID>}```
-
-New API: GET /api/v1/countries/<country_id>/states
-- returns a list of all states in the specified country in the form:
- ```{"name": <state name>, "id": <state ID>}, "country_name": <country name>, "country_id": <country ID>}```
-
-New API: GET /api/v1/countries/<country_id>/states/<state_id>/locations
-- returns a list of all locations in the specified state in the form:
- ```{"name": <location name>, "id": <location ID>}, "state_name": <state name>, "state_id": <state ID>, "country_name": <country name>, "country_id": <country ID>}```
+New API: GET /api/v1/serviceCategories
+- returns all available service category names and IDs

@@ -49,7 +49,7 @@ def create_app():
 
     # Set necessary app configurations
     app.config["SQLALCHEMY_DATABASE_URI"] =\
-            f'mysql+mysqldb://{user}:{pwd}@{host}/{dbase}'  # engine conn. str
+        f'mysql+mysqldb://{user}:{pwd}@{host}/{dbase}'  # engine conn. str
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
             "pool_pre_ping": True,
             }  # passed to sqlalchemy.create_engine()
@@ -66,7 +66,7 @@ def create_app():
             app.static_folder, 'service_provider_services/images/'
             )
     app.config["SPS_IMAGE_RPATH"] =\
-            'static/service_provider_services/images/'
+        'static/service_provider_services/images/'
     app.config["EXPLAIN_TEMPLATE_LOADING"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["DEBUG"] = True
@@ -93,11 +93,15 @@ def create_app():
     def handle_csrf_error(e):
         ''' Send JSON data describing error.
         '''
-        return make_response(jsonify({"status": "error", "message": e.description}), 400)
+        return make_response(jsonify({
+            "status": "error",
+            "message": e.description
+            }), 400)
 
     @login_manager.user_loader
     def load_user(user_id):
-        ''' Retrieves and returns a specific customer object for the login manager
+        ''' Retrieves and returns a specific
+        customer object for the login manager.
         '''
         with app.app_context():
             '''
@@ -133,17 +137,7 @@ def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
-            ref_url.netloc == test_url.netloc
-
-
-
-
-
-
-
-
-
-
+        ref_url.netloc == test_url.netloc
 
 
 '''
