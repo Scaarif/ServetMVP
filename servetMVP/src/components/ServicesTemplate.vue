@@ -44,6 +44,8 @@
 <script>
 import ServiceCard from './ServiceCard.vue';
 import Service from './Service.vue';
+import httpClient from '../httpClient';
+import config from '../config';
 
 
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
@@ -68,11 +70,11 @@ export default {
         ServiceCard,
         Service,
     },
-    // created() {
-    //     console.log('load services: ', this.getServices)
-    // },
+    created() {
+        console.log('load categories: ', this.getCategories())
+    },
     methods: {
-        ...mapMutations(['toggleShowService']),
+        ...mapMutations(['toggleShowService', 'setCategories']),
         // ...mapActions(['fetchServices']),
         setFilterMetrics() {
             this.searchMetrics = this.metrics
@@ -84,7 +86,13 @@ export default {
         loadMore() {
             // console.log('loaded services: ', this.services.services[0])
             console.log('loaded services: ', this.getServices)
-        }
+        },
+        async getCategories() {
+            const res = await httpClient.loggedOutGet(config.DEFAULT + '/serviceCategories')
+            // console.log(res.data)
+            if (res.data.length && res.status === 200)
+                this.setCategories(res.data)
+        },
     }
 }
 </script>

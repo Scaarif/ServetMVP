@@ -16,6 +16,7 @@ const store = createStore({
         isAuthorized: false,
         loggedInUser: null,
         location: 'CBD, Nairobi', // default
+        categories: null,
     },
     getters: {
 
@@ -93,6 +94,10 @@ const store = createStore({
         setSelectedLocation(state, value) {
             state.location = value
             console.log(state.location)
+        },
+        setCategories(state, payload) {
+            state.categories = payload // should be a list (array) of objects (id & name)
+            console.log('state.categories: ', state.categories)
         }
     }
 })
