@@ -115,7 +115,7 @@ export default {
                 if (data.login == true) {
                     this.isAuthenticated = true;
                     // set global csrfToken
-                    // this.setCsrfToken(this.csrfToken)
+                    this.setCsrfToken(this.csrfToken)
                     this.toggleIsLanding()
                     // redirect to home page
                     this.$router.push({name: 'home'})

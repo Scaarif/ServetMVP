@@ -34,7 +34,7 @@
             see more ...
         </span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
-            <Service :serviceDets="getService"/>
+            <Service :serviceDets="getService || service"/>
         </div>
     </div>
 </template>
@@ -53,6 +53,7 @@ export default {
             searchMetrics: '',
             location: {'county': 'Nairobi', 'locale': 'CBD'},
             dummy_services: ['some service', 'some', 'test service', 'test wrapping', 'another', 'see'],
+            service: {'description': 'test description', 'first_name': 'test', 'last_name': 'testLast', 'reviews': [{'content': 'test review', 'customer_first_name': 'test', 'customer_last_name':'test'}]}
         }
     },
     computed: {

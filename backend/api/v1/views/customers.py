@@ -418,7 +418,7 @@ def review_create_post(cus_id):
     SPS ID expected in query string
     '''
     # Retrieve the sps ID
-    sps_id = request.args.get('sps')
+    # sps_id = request.args.get('sps')
 
     # Retrieve the content and rating
     # content = request.form.get('review_content')
@@ -432,6 +432,7 @@ def review_create_post(cus_id):
     content = data.get('review_content')
     upvotes = data.get('upvotes')  # required if content?
     total_votes = data.get('total_votes')  # make default?
+    sps_id = data.get('s_id')
 
     # Persist the data
     new_rev = Reviews(review_content=content, upvotes=int(upvotes), total_votes=int(total_votes), serviceProviderService_id=int(sps_id), customer_id=cus_id)

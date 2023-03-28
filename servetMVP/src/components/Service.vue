@@ -137,6 +137,8 @@ export default {
         stars: '',
         selected: [false, false, false, false, false],
         service: null,
+        postedRating: '',
+        postedReview: {'content': this.comment, 'rating': null},
        }
     },
     created() {
@@ -160,9 +162,28 @@ export default {
                 // actually post the comment
                 let url = config.CUSTOMERS + 'ebd14aaa-6b04-4d32-a6d7-251ff0ff9506' + '/reviews/create'
                 // console.log(url)
-                let data = {content: this.comment, 'upvotes': 3, 'total_votes': 5}
-                let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
-                console.log('posting review: ', res)
+                let data = {content: this.comment, 'upvotes': 3, 'total_votes': 5, 's_id': 2}
+                // let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
+                fetch(url, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": this.csrfToken
+                },
+                credentials: "include",
+                body: JSON.stringify(data),
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log('review posted (rating):', data);
+                    this.postedRating = data.rating
+                    console.log(this.postedRating)
+                })
+                .catch((err) => {
+                console.log('error: ', err);
+                });
+                // console.log('posting review: ', res)
             }
             else
                 this.$router.push({name: 'login'}) // user not logged in, redirect to login page

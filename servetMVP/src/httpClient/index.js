@@ -19,7 +19,7 @@ async function postWithToken(url, payload, csrfToken) {
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
                     "Content-Type": "application/json",
-                    "X-CSRFToken": this.csrfToken
+                    "X-CSRFToken": csrfToken
                 },
                 // credentials: "include",
                 withCredentials:true
