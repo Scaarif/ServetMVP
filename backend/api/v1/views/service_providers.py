@@ -295,6 +295,7 @@ def signup_post():
     if not request.json:
         print('no user data: required')
     data = request.get_json()
+    print('data: ', data)
     first_name = data.get('first_name')
     last_name = data.get('last_name')
     email = data.get('email')  # unique

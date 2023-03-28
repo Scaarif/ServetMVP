@@ -57,6 +57,7 @@ export default {
             // field and its placeholder value
             fields: [
                 {'full name': 'your full name'},
+                {'username': 'preferred username'},
                 {'phone number': 'your phone number'},
                 {'password': 'set a password'},
                 {'confirm password': 'confirm password'},
@@ -72,17 +73,18 @@ export default {
             user: 'customer',
             signUpUser: '',
             showSelect: true,
-            fullname: 'farah farah',
-            email: 'farah@starah',
+            fullname: 'starah mei',
+            email: 'starah@mei',
             password: 'test',
-            phone: '01242433',
+            phone: '07xx xxxxxx',
+            whatsapp: '07xx xxxxxxx',
+            location: 1,
             csrfToken: '',
             isAuthenticated: false,
         }
     },
     mounted() {
         this.getSession()
-        // this.csrf()
     },
     methods: {
         setUser() {
@@ -91,15 +93,20 @@ export default {
         },
         handleSubmit() {
             // handle data submission (POST)
-            // console.log('signed up!')
             let data = {}
             data['first_name'] = this.fullname.split(' ')[0]
-            data['username'] = this.fullname.split(' ')[0]
+            data['username'] = this.fullname.split(' ')[1]
             data['last_name'] = this.fullname.split(' ')[1]
             data['email'] = this.email
             data['password'] = this.password
             data['phone'] = this.phone
             data['csrf_token'] = this.csrfToken
+
+            if (this.signUpUser === 'provider'){
+                // console.log('signing up as provider')
+                data['whatsapp'] = this.whatsapp
+                data['location'] = this.location
+            }
             this.signup(JSON.stringify(data))
         },
         getSession() {
@@ -121,15 +128,6 @@ export default {
                             });
         },
         csrf() {
-        // async getCSRF() {
-            // let res = await fetch('http://localhost:5000/api/v1/getcsrf')
-            // // const data = await res.json()
-            // console.log('csrf: ', res.headers.get('x-csrftoken'))
-            // this.csrf = res.headers.get('x-csrftoken')
-            // // let ses = await fetch('http://localhost:5000/api/v1/getsession')
-            // // let sesdata = await ses.json()
-            // // console.log('session: ', sesdata)
-
             fetch("http://localhost:5000/api/v1/getcsrf", {
                     credentials: "include",
                     })
@@ -144,7 +142,10 @@ export default {
         },
         signup(data) {
             console.log(data)
-            fetch("http://localhost:5000/api/v1/customers/signup", {
+            let url = 'http://localhost:5000/api/v1'
+            url += this.signUpUser === 'provider' ? '/serviceProviders/signup' : '/customers/signup'
+            // console.log('signup url: ', url)
+            fetch(url, {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
