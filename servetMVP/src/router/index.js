@@ -61,7 +61,22 @@ const router = createRouter({
         
       ]
     }
-  ]
+  ]  
+})
+
+// guard routes
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/login', '/signup', '/services', '/play', '/landing']
+  const authRequired = !publicPages.includes(to.path);
+  const token = localStorage.getItem('authToken');
+  console.log('authToken: ', token)
+
+  //if unauthorized, redirect to login
+  if (authRequired && !token) {
+    next('/landing')
+  } else {
+    next()
+  }
 })
 
 export default router

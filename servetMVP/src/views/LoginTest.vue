@@ -5,12 +5,12 @@
             <div class="w-full flex items-center space-x-4">
                 <span class="min-w-sm w-full text-md capitalize">User name:<b>*</b></span>
                 <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
-                    focus:ring-0 focus:border-slate-600 valid:bg-blue-50" type="text" required v-model="userName" :class="errorMsg && 'highlight'">
+                    focus:ring-0 focus:border-slate-600 valid:bg-blue-50" type="text" required v-model="userName">
             </div>
             <div class="w-full flex items-center space-x-4">
                 <span class="min-w-sm w-full text-md capitalize">Password:<b>*</b></span>
                 <input class="min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100 focus:ring-0
-                    focus:border-slate-600 valid:bg-blue-50" type="password" required v-model="password" :class="errorMsg && 'highlight'">
+                    focus:border-slate-600 valid:bg-blue-50" type="password" required v-model="password">
             </div>
             <div class="self-end flex flex-col items-center">
                 <button class="md:min-w-[468px] w-full rounded-sm bg-[#F3ECD1] py-2 mt-8 transition-all
@@ -36,34 +36,43 @@ export default {
             // csrf: '',
             csrfToken: '',
             isAuthenticated: false,
-            errorMsg: '',
         }
     },
     computed: {
-        ...mapState(['isLanding', 'isAuthorized']),
+        ...mapState(['token', 'isLanding']),
     },
     mounted() {
         this.getSession()
     },
     methods: {
-        ...mapMutations(['toggleIsLanding', 'setCsrfToken', 'toggleIsAuthorized']),
+        ...mapMutations(['toggleToken', 'toggleIsLanding', 'setCsrfToken']),
         handleSubmit() {
-          console.log('isAuth: ', this.isAuthenticated, this.isAuthorized)
-            if (!this.isAuthenticated) {
-              let data = {username: this.userName}
-              data['password'] = this.password
-              this.login(JSON.stringify(data))
-            }
-            else {
-                this.toggleIsLanding() // make it false so the navbar shows
-                if (!this.isAuthorized)
-                    this.toggleIsAuthorized()
-                // redirect to home page
-                this.$router.push({name: 'home'})
-            }
+            // const formData = new FormData(form)
+            // // add key-value pairs (to post)
+            // // formData.append('username', this.userName)
+            // // formData.append('password', this.password)
+            // // const values = [...formData.entries()]
+            // // console.log('formData: ', values)
+            // // test login endpoint
+            // this.login(formData)
+            // if (this.isLanding)
+            //     this.toggleIsLanding()
+            // // handle data submission (POST)
+            // console.log('logged in!')
+            // if (!this.token) {
+            //     this.toggleToken()
+            //     console.log('token -> ', this.token)
+            //     localStorage.setItem('token', true)
+            // }
+            // if (this.token)
+            //     this.$router.push({name: 'home'}) //redirect back home page -> user logged in!
+
+            // tests
+            this.login()
+
         },
         getSession() {
-            fetch("http://localhost:5000/api/v1/getsession", {
+            fetch("http://localhost:5000/api/getsession", {
                             credentials: "include",
                             })
                             .then((res) => res.json())
@@ -71,8 +80,6 @@ export default {
                             console.log(data);
                             if (data.login == true) {
                                 this.isAuthenticated = true;
-                                // this.setCsrfToken(this.csrfToken)
-
                             } else {
                                 this.isAuthenticated = false;
                                 this.csrf();
@@ -83,13 +90,20 @@ export default {
                             });
         },
         csrf() {
-            fetch("http://localhost:5000/api/v1/getcsrf", {
+        // async getCSRF() {
+            // let res = await fetch('http://localhost:5000/api/v1/getcsrf')
+            // // const data = await res.json()
+            // console.log('csrf: ', res.headers.get('x-csrftoken'))
+            // this.csrf = res.headers.get('x-csrftoken')
+            // // let ses = await fetch('http://localhost:5000/api/v1/getsession')
+            // // let sesdata = await ses.json()
+            // // console.log('session: ', sesdata)
+
+            fetch("http://localhost:5000/api/getcsrf", {
                     credentials: "include",
                     })
                     .then((res) => {
                     this.csrfToken = res.headers.get(["X-CSRFToken"]);
-                    // set global csrfToken
-                    this.setCsrfToken(this.csrfToken)
                     // console.log(csrfToken);
                     })
                     .catch((err) => {
@@ -97,9 +111,21 @@ export default {
                     });
 
         },
-        login(data) {
-          console.log(data)
-            fetch("http://localhost:5000/api/v1/login", {
+        // async login(data) {
+        //     await this.getCSRF()
+        //     // console.log('this: ', this.csrf)
+        //     data.append('csrf_token', this.csrf)
+        //     let res = await fetch('http://localhost:5000/api/v1/customers/login', {
+        //         method: 'POST',
+        //         headers: {'X-CSRFToken': this.csrf},
+        //         body: data,
+        //     })
+        //     console.log(...data)
+        //     const result = await res.json()
+        //     console.log('login res:', result)
+        // }
+        login() {
+            fetch("http://localhost:5000/api/login", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -107,35 +133,44 @@ export default {
                     "X-CSRFToken": this.csrfToken
                 },
                 credentials: "include",
-                body: data,
+                body: JSON.stringify({ username: this.userName, password: this.password }),
                 })
                 .then((res) => res.json())
                 .then((data) => {
                 console.log(data, 'login -> ', data.login);
                 if (data.login == true) {
-                    this.isAuthenticated = true;
-                    // set global csrfToken
-                    this.setCsrfToken(this.csrfToken)
-                    this.toggleIsLanding()
-                    // redirect to home page
-                    this.$router.push({name: 'home'})
-                    // set authToken in localStorage
-                    localStorage.setItem('authToken', true)
-                } else {
-                    this.errorMsg = data.message
-                    console.log('errorMsg!')
+                    isAuthenticated = true;
                 }
                 })
                 .catch((err) => {
-                console.log('error: ', err);
+                console.log(err);
                 });
         },
+        whoami() {
+            fetch("http://localhost:5000/api/data", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                credentials: "include",
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                console.log(data);
+                alert(`Welcome, ${data.username}!`);
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
+
         logout() {
             fetch("http://localhost:5000/api/logout", {
                 credentials: "include",
                 })
                 .then(() => {
-                    this.isAuthenticated = false;
+                isAuthenticated = false;
                 })
                 .catch((err) => {
                 console.log(err);
@@ -147,8 +182,3 @@ export default {
     
 }
 </script>
-<style>
-.highlight {
-    border: 1px solid rgb(237, 24, 24);
-}
-</style>

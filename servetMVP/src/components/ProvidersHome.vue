@@ -21,7 +21,7 @@
                     <span class="text-md font-medium">Some Service</span>
                     <div class="flex items-center">
                         <span class="text-sm px-3 py-1 border border-[#F3ECD1] bg-[#F3ECD1] cursor-pointer transition-all
-                            hover:bg-[#E9D89D] capitalize" @click="toggleShowModal(), setServiceId('sId')">edit</span>
+                            hover:bg-[#E9D89D] capitalize" @click="toggleShowModal(), setServiceId(4)">edit</span>
                         <span class="text-sm border-y border-r border-[#F3ECD1] px-2 py-1 cursor-pointer transition-all
                             hover:bg-[#E9D89D] capitalize">delete</span>
                     </div>
@@ -67,7 +67,7 @@
 import NewAndEditService from './NewAndEditService.vue'
 import AnalyticsCopy from './Analytics copy.vue'
 
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
     data() {
@@ -82,8 +82,15 @@ export default {
         NewAndEditService,
         AnalyticsCopy,
     },
+    created() {
+        console.log('loading my services')
+        this.loadMyServices()
+    },
+    computed: {
+        ...mapState(['csrfToken']),
+    },
     methods: {
-        ...mapMutations(['setActiveUser',]),
+        ...mapMutations(['setActiveUser']),
         toggleshowPending() {
             this.showPending = !this.showPending
         },
@@ -94,6 +101,29 @@ export default {
         setServiceId(id) {
             this.serviceId = id
             console.log(this.serviceId)
+        },
+        loadMyServices() {
+            let provider_id = '40338897-3dfe-4cb6-8931-fdb6057a2187'
+            let url = 'http://localhost:5000/api/v1/serviceProviders/' + provider_id + '/services'
+            fetch(url, {
+                method: "GET",
+                headers: {
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": this.csrfToken
+                },
+                credentials: "include",
+                // body: JSON.stringify(data),
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log('my services: ', data);
+                    // set services to the fetched data
+                })
+                .catch((err) => {
+                    console.log('error: ', err);
+                    // res = err
+                });
         }
     }
 }

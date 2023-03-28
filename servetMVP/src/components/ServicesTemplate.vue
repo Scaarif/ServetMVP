@@ -2,7 +2,7 @@
     <div class="w-full flex flex-col items-center">
         <!-- header (slogan & filter bar) -->
         <div class="w-full flex items-center justify-between px-8 mb-8">
-            <input v-if="token"
+            <input v-if="isAuthorized"
                 class="w-full text-sm max-w-md text-center border-slate-300 rounded-md focus:ring-0 focus:border-slate-400"
                 type="text" placeholder="Search for service by provider username"
                 v-model="providerName" @keypress.enter="searchServices">
@@ -21,20 +21,23 @@
             </span>
         </div>
         <!-- services display -->
-        <span v-if="!token" class="self-start text-slate-900 text-lg font-bold ml-4"
+        <span v-if="!isAuthorized" class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular at {{ location.locale }}, {{ location.county }}</span>
         <span v-else class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
         <div class="w-full flex items-center mt-8 flex-wrap px-8">
-            <ServiceCard v-for="service, idx in services" :key="idx" @click="toggleShowService" />
+            <!-- <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService(2, csrfToken, '')" /> -->
+            <ServiceCard v-for="service, idx in Object.values(getServices)" :key="idx" 
+                :service="service"
+                @click="toggleShowService(service.sps_id, csrfToken, '')" />
         </div>
         <!-- see more -->
-        <span class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
-            mr-8 transition-all hover:border-slate-800 cursor-pointer">
+        <span v-if="getServices.length > 6" class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
+            mr-8 transition-all hover:border-slate-800 cursor-pointer" @click="loadMore">
             see more ...
         </span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
-            <Service />
+            <Service :serviceDets="getService || service"/>
         </div>
     </div>
 </template>
@@ -43,7 +46,7 @@ import ServiceCard from './ServiceCard.vue';
 import Service from './Service.vue';
 
 
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 
 export default {
     data() {
@@ -52,24 +55,35 @@ export default {
             providerName: '',
             searchMetrics: '',
             location: {'county': 'Nairobi', 'locale': 'CBD'},
-            services: ['some service', 'some', 'test service', 'test wrapping', 'another', 'see'],
+            dummy_services: ['some service', 'some', 'test service', 'test wrapping', 'another', 'see'],
+            // services: '',
+            service: {'description': 'test description', 'first_name': 'test', 'last_name': 'testLast', 'rating': 2, 'reviews': [{'content': 'test review', 'customer_first_name': 'test', 'customer_last_name':'test'}]}
         }
     },
     computed: {
-        ...mapState(['showService', 'token']),
+        ...mapState(['showService', 'services', 'isAuthorized', 'csrfToken']),
+        ...mapGetters(['getService', 'getServices']),
     },
     components: {
         ServiceCard,
         Service,
     },
+    // created() {
+    //     console.log('load services: ', this.getServices)
+    // },
     methods: {
         ...mapMutations(['toggleShowService']),
+        // ...mapActions(['fetchServices']),
         setFilterMetrics() {
             this.searchMetrics = this.metrics
            console.log('searchMetrics ->', this.searchMetrics)
         },
         searchServices() {
             console.log('Searching for services by ->', this.providerName)
+        },
+        loadMore() {
+            // console.log('loaded services: ', this.services.services[0])
+            console.log('loaded services: ', this.getServices)
         }
     }
 }

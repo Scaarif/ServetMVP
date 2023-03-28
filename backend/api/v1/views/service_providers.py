@@ -275,14 +275,27 @@ def signup_post():
     '''
     from api.v1.views import db, ServiceProviders
     # Collect registration details
-    first_name = request.form.get('first_name')
-    last_name = request.form.get('last_name')
-    email = request.form.get('email')  # unique
-    phone = request.form.get('phone')  # unique
-    username = request.form.get('username')  # must be unique in storage
-    password = request.form.get('password')
-    location_id = request.form.get('location')
-    whatsapp = request.form.get('whatsapp')
+    # first_name = request.form.get('first_name')
+    # last_name = request.form.get('last_name')
+    # email = request.form.get('email')  # unique
+    # phone = request.form.get('phone')  # unique
+    # username = request.form.get('username') # must be unique in storage
+    # password = request.form.get('password')
+    # location_id = request.form.get('location')
+    # whatsapp = request.form.get('whatsapp')
+    if not request.json:
+        print('no user data: required')
+    data = request.get_json()
+    print('data: ', data)
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    email = data.get('email')  # unique
+    phone = data.get('phone')  # unique
+    username = data.get('username') # must be unique in storage
+    password = data.get('password')
+    location_id = data.get('location') # not quite sure ---> how do I get this???
+    whatsapp = data.get('whatsapp')
+
     # todo: validate and save image to file system :done VSFS
     image = request.files.get(
             'profile_pic')  # file object representing image data
@@ -334,7 +347,7 @@ def signup_post():
             }), 400)
 
     # else set image identifier
-    if image.filename:
+    if image and image.filename:
         # If the user does not select a file, the browser submits an...
         # ...empty file without a filename ('').
         image_uri = current_app.config["SP_IMAGE_RPATH"] + username + '.jpg'
@@ -395,7 +408,7 @@ def signup_post():
     db.session.commit()
 
     # Save image to file system ONLY now
-    if image.filename:
+    if image and image.filename:
         image.save(
                 current_app.config["SP_IMAGE_PATH"] + username + '.jpg'
                 )  # VSFS
@@ -429,7 +442,6 @@ def service_multi_get(sp_id):
     '''
     since only one column is selected, use scalars() to fetch first items
     '''
-
     return jsonify(ids_list)
 
 
@@ -535,9 +547,15 @@ def service_create_post(sp_id):
     ''' Process form data to create a new service-provider service.
     '''
     # Retrieve form data
-    service_description = request.form.get('service_description')
-    serviceCategory_id = request.form.get('service_category')  # an integer
-    image = request.files.get('profile_pic')
+    # service_description = request.form.get('service_description')
+    # serviceCategory_id = request.form.get('service_category')  # an integer
+    # image = request.files.get('profile_pic')
+    if not request.json:
+        print('service data missing')
+    data = request.get_json()
+    service_description = data.get('service_description')
+    serviceCategory_id = data.get('service_category')  # an integer
+    image = data.get('profile_pic')
 
     # Create new service-provider service object
     new_sps = ServiceProviderServices(
@@ -555,7 +573,7 @@ def service_create_post(sp_id):
     new_id = new_sps.id
 
     # Use the id to save the image and its URI
-    if image.filename:
+    if image and image.filename:
         # filename will be empty if no file selected
         image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) +\
                 '.jpg'
@@ -594,9 +612,16 @@ def service_edit_put(sp_id, sps_id):
     ''' Process form data to update service-provider service.
     '''
     # Retrieve form data
-    service_description = request.form.get('service_description')
-    serviceCategory_id = request.form.get('service_category')  # an integer
-    image = request.files.get('profile_pic')
+    # service_description = request.form.get('service_description')
+    # serviceCategory_id = request.form.get('service_category')  # an integer
+    # image = request.files.get('profile_pic')
+    if not request.json:
+        print('service edit_data missing')
+    data = request.get_json()
+    print('data:', data)
+    service_description = data.get('service_description')
+    serviceCategory_id = data.get('service_category')  # an integer
+    image = data.get('profile_pic')
 
     # Retrieve existing service-provider service object
     stmt = db.select(ServiceProviderServices).where(
@@ -610,7 +635,7 @@ def service_edit_put(sp_id, sps_id):
         existing_sps.serviceCategory_id = int(serviceCategory_id)
 
     # Use the id to save the image and its URI
-    if image.filename:
+    if image and image.filename:
         # new image; filename will be empty if not so
         image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) +\
                 '.jpg'

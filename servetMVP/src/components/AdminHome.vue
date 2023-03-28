@@ -27,7 +27,7 @@
                             <!-- this bit needs work (how to mark as verified/ vetted??? default to No and provide a Yes option) -->
                             <tr v-for="i in (1, 4)" :key="i">
                                 <td class="border pl-4 py-1">Some Service</td>
-                                <td class="border pl-4 py-1">{{ (i + 1) % 2 === 0 ? 'No' : 'Yes'  }}</td>
+                                <td class="border pl-4 py-1">{{ (i + 1) % 2 === 0 ? 'No' : 'Yes' }}</td>
                                 <td class="border pl-4 py-1">No</td>
                             </tr>
                         </tbody>

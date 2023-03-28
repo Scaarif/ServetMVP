@@ -239,12 +239,25 @@ def signup_post():
     '''
     from api.v1.views import db, Customers
     # Collect registration details
-    first_name = request.form.get('first_name')
-    last_name = request.form.get('last_name')
-    email = request.form.get('email')  # unique
-    phone = request.form.get('phone')  # unique
-    username = request.form.get('username')  # must be unique in storage
-    password = request.form.get('password')
+    if not request.json:
+        print('no user data')
+    data = request.get_json()
+    print('data: ', data)
+    # first_name = request.form.get('first_name')
+    # last_name = request.form.get('last_name')
+    # email = request.form.get('email')  # unique
+    # phone = request.form.get('phone')  # unique
+    # username = request.form.get('username') # must be unique in storage
+    # password = request.form.get('password')
+
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    email = data.get('email')  # unique
+    phone = data.get('phone')  # unique
+    username = data.get('username') # must be unique in storage
+    password = data.get('password')
+
+    print('form first_name: ', first_name)
     # todo: validate and save image to file system :done VSFS
     image = request.files.get(
             'profile_pic')  # file object representing image data
@@ -295,7 +308,7 @@ def signup_post():
             "reason": "username already exists"
             }), 400)
     # else set image identifier
-    if image.filename:
+    if image and image.filename:
         # If the user does not select a file, the browser submits an...
         # ...empty file without a filename ('').
         image_uri = current_app.config["CUS_IMAGE_RPATH"] + username + '.jpg'
@@ -354,7 +367,7 @@ def signup_post():
     db.session.commit()
 
     # Save image to file system ONLY now
-    if image.filename:
+    if image and image.filename:
         image.save(
                 current_app.config["CUS_IMAGE_PATH"] + username + '.jpg'
                 )  # VSFS
@@ -406,12 +419,21 @@ def review_create_post(cus_id):
     SPS ID expected in query string
     '''
     # Retrieve the sps ID
-    sps_id = request.args.get('sps')
+    # sps_id = request.args.get('sps')
 
     # Retrieve the content and rating
-    content = request.form.get('review_content')
-    upvotes = request.form.get('upvotes')  # required if content?
-    total_votes = request.form.get('total_votes')  # make default?
+    # content = request.form.get('review_content')
+    # upvotes = request.form.get('upvotes')  # required if content?
+    # total_votes = request.form.get('total_votes')  # make default?
+
+    if not request.json:
+        print('review data missing')
+    data = request.get_json()
+    print('data: ', data)
+    content = data.get('review_content')
+    upvotes = data.get('upvotes')  # required if content?
+    total_votes = data.get('total_votes')  # make default?
+    sps_id = data.get('s_id')
 
     # Persist the data
     new_rev = Reviews(

@@ -1,6 +1,6 @@
 <template>
-    <div class="absolute -top-4 bg-gray-50 h-full w-full flex flex-col space-y-16 p-4">
-        <span class="self-end px-8 py-2 rounded-sm text-sm font-medium bg-[#F3ECD1]
+    <div class="absolute -top-4 bg-gray-50 h-full w-full flex flex-col space-y-16 p-4 border">
+        <span class="self-end mr-8 px-8 py-2 rounded-sm text-sm font-medium bg-[#F3ECD1]
             transition-all hover:bg-[#E9D89D] cursor-pointer capitalize" @click="toggle"
         >Go back</span>
         <!-- Action Modal -->
@@ -36,7 +36,7 @@
              <div class="flex space-x-2 w-full items-center">
                 <span class="w-1/3 text-md capitalize">description</span>
                 <input class="border rounded-sm w-full border-slate-300 ring-0 focus:ring-0 focus:border-slate-400 text-md
-                    capitalize bg-gray-100 py-2" type="text">  
+                    capitalize bg-gray-100 py-2" type="text" v-model="description">  
             </div>
             <div class="flex space-x-2 w-full items-center pt-16">
                 <div class="flex justify-between w-full items-center">
@@ -44,21 +44,27 @@
                         class="border border-[#F3ECD1] rounded-sm transition-all hover:bg-[#E9D89D] px-10 py-2 text-md capitalize">
                     <input type="submit" @click="setDo('save')" value="save"
                         class="rounded-sm bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] px-12 py-2 text-md capitalize">
-                </div>
-                    
+                </div>                 
             </div>
 
         </form>
     </div>
 </template>
 <script>
+import { mapState } from 'vuex'
+
 export default {
     props: ['toggle', 'id', 'setServiceId'],
     data() {
         return {
             do:'',
-            serviceName: 'some service'
+            serviceName: 'some service',
+            description: '',
+            category: 2, //hair dressing
         }
+    },
+    computed: {
+        ...mapState(['csrfToken'])
     },
     methods: {
         setDo(val) {
@@ -71,6 +77,33 @@ export default {
             this.setServiceId('')
             // wait a second then (return to home page) - How?
             this.toggle()
+            console.log(this.description, this.csrfToken)
+            let data = {'service_description': this.description};
+            data['service_category'] = this.category
+
+            if (this.do === 'save'){
+                let provider_id = '40338897-3dfe-4cb6-8931-fdb6057a2187'
+                let url = "http://localhost:5000/api/v1/serviceProviders/" + provider_id + "/services/"
+                url += this.id ? this.id + '/edit' : 'create'
+                console.log(url)
+                fetch(url, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": this.csrfToken
+                },
+                credentials: "include",
+                body: JSON.stringify(data),
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                console.log('created a post: ', data);
+                })
+                .catch((err) => {
+                console.log('error: ', err);
+                });
+            }
         },
         checkServiceId() {
             console.log('clicked ->', this.id)

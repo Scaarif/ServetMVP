@@ -81,9 +81,15 @@ def login_post():
     ''' Authenticate posted login information for both customers and SPs.
     '''
     # Retrieve provided login information
-    username = request.form.get('username')
-    password = request.form.get('password')
-    remember = True if request.form.get('remember') else False
+    # username = request.form.get('username')
+    # password = request.form.get('password')
+    # remember = True if request.form.get('remember') else False
+    if not request.json:
+        print ('user login data required')
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    remember = True if data.get('remember') else False
 
     # Verify that service provider is registered
     stmt = db.select(
