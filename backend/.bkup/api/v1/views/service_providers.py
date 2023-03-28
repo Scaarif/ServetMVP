@@ -20,7 +20,7 @@ from os import getenv
 
 testing = getenv('testing', '')
 
-# Blueprint for service provider APIs
+# Blueprint for service provider authentication views
 sp_apis = Blueprint(
         'sp_apis', __name__, url_prefix='/api/v1/serviceProviders'
         )
@@ -28,15 +28,14 @@ sp_apis = Blueprint(
 
 if testing:
     @sp_apis.route('/login')
-    def login_get():
+    def login():
         ''' Return the login form view.'''
         return render_template('sp_apis/login.html')
 
 
-"""
-@sp_apis.route('/login', methods=['POST'])
+@sp_apis.route('/login', methods=['POST', 'PUT'])
 def login_post():
-    ''' Authenticate posted login information, and log service provider in.
+    ''' Authenticate posted login information, and log servuce provider in.
     '''
     from api.v1.views import db, ServiceProviders, is_safe_url
     # Retrieve provided login information
@@ -51,23 +50,17 @@ def login_post():
         # Valid username
         sp = row[0]
     else:
-        # check customers table
-        stmt = db.select(Customers).where(Customers.username==username)
-        row = db.session.execute(stmt).one()  # return Row object or error
-        if row:
-            cus = row[0]
-        else:
-            cus = None
+        sp = None
 
     # Handle failed authentication
-    if not cus or not check_password_hash(sp.password if sp else cus.password, password):
+    if not sp or not check_password_hash(sp.password, password):
         # Flash an error message to display
         flash("Invalid username and/or password", "invalid_usr_pwd")
         if testing:
             # Redirect to login page to try again
             # return redirect(url_for('sp_auth_views.sp_login'))
             pass
-        return make_response(jsonify({"logout": False, "reason": "invalid username and/or password"}), 401)
+        return make_response(jsonify({"logout": False}), 401)
 
     # Service provider exists and is authenticated
     session['account_type'] = 'service_provider'
@@ -89,11 +82,10 @@ def login_post():
         abort(400, description="`next` URL not safe")
 
     if testing:
-        # return redirect(nextp or url_for('sp_apis.profile' if sp else 'cus_apis.profile', id=sp.id of sp else cus.id))
+        # return redirect(nextp or url_for('sp_apis.profile', id=sp.id))
         pass
 
     return make_response(jsonify({"login": True}), 200)
-"""
 
 
 if testing:
@@ -148,8 +140,7 @@ def profile_edit_put(id):
         stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
         sp = db.session.scalars(stmt).first()
         if not existing_sp.username==username and sp:
-            # user not trying to reuse the same username,
-            # ...and username already exists in SP table
+            # username already exists
             flash(
                     'username already exists. Please try another',
                     'username_exists'
@@ -157,22 +148,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "username already exists"}), 400)
-        # validate for customers table
-        stmt = db.select(Customers).where(Customers.username==username)
-        cus = db.session.scalars(stmt).first()
-        if not existing_sp.username==username and cus:
-            # user not trying to reuse the same username,
-            # ...and username already exists in customer table
-            flash(
-                    'username already exists. Please try another',
-                    'username_exists'
-                    )  # include message category
-            if testing:
-                # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
-                pass
-            return make_response(jsonify({"profile_edit": False, "reason": "username already exists"}), 400)
-
+            return make_response(jsonify({"profile_edit": False}), 400)
         existing_sp.username = username
 
     if not username:
@@ -202,7 +178,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "email already exists"}), 400)
+            return make_response(jsonify({"profile_edit": False}), 400)
         existing_sp.email = email
 
     # Validate phone
@@ -215,7 +191,7 @@ def profile_edit_put(id):
             if testing:
                 # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "phone already in use"}), 400)
+            return make_response(jsonify({"profile_edit": False}), 400)
         existing_sp.phone = phone
 
     # Update service provider record with validated data
@@ -257,7 +233,7 @@ if testing:
 @sp_apis.route('/logout')
 @login_required
 def logout():
-    ''' Log a signed-in user out of the session.
+    ''' Log a sign-in user out of the session.
     '''
     logout_user()
     if testing:
@@ -267,15 +243,14 @@ def logout():
     return make_response(jsonify({"logout": True}))
 
 
-if testing:
-    @sp_apis.route('/signup')
-    def signup_get():
-        ''' Return signup form.'''
-        # Retrieve all locations; for testing and should later be removed
-        from api.v1.views import Locations, db
-        stmt = db.select(Locations)
-        locations = db.session.scalars(stmt).all()
-        return render_template('sp_apis/signup.html', n=str(uuid4()), locations=locations)
+@sp_apis.route('/signup')
+def signup_get():
+    ''' Return signup form.'''
+    # Retrieve all locations; for testing and should later be removed
+    from api.v1.views import Locations, db
+    stmt = db.select(Locations)
+    locations = db.session.scalars(stmt).all()
+    return render_template('sp_apis/signup.html', n=str(uuid4()), locations=locations)
 
 
 @sp_apis.route('/signup', methods=['POST'])
@@ -284,31 +259,19 @@ def signup_post():
     '''
     from api.v1.views import db, ServiceProviders
     # Collect registration details
-    # first_name = request.form.get('first_name')
-    # last_name = request.form.get('last_name')
-    # email = request.form.get('email')  # unique
-    # phone = request.form.get('phone')  # unique
-    # username = request.form.get('username') # must be unique in storage
-    # password = request.form.get('password')
-    # location_id = request.form.get('location')
-    # whatsapp = request.form.get('whatsapp')
-    if not request.json:
-        print('no user data: required')
-    data = request.get_json()
-    first_name = data.get('first_name')
-    last_name = data.get('last_name')
-    email = data.get('email')  # unique
-    phone = data.get('phone')  # unique
-    username = data.get('username') # must be unique in storage
-    password = data.get('password')
-    location_id = data.get('location') # not quite sure ---> how do I get this???
-    whatsapp = data.get('whatsapp')
-
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
+    email = request.form.get('email')  # unique
+    phone = request.form.get('phone')  # unique
+    username = request.form.get('username') # must be unique in storage
+    password = request.form.get('password')
+    location_id = request.form.get('location')
+    whatsapp = request.form.get('whatsapp')
     # todo: validate and save image to file system :done VSFS
     image = request.files.get(
             'profile_pic')  # file object representing image data
 
-    # Validate username for SP table
+    # Validate username
     stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
     sp = db.session.scalars(stmt).first()
     if sp:
@@ -320,24 +283,9 @@ def signup_post():
         if testing:
             # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False, "reason": "username already exists"}), 400)
-
-    # Validate username for customers table
-    stmt = db.select(Customers).where(Customers.username==username)
-    cus = db.session.scalars(stmt).first()
-    if cus:
-        # username already exists in customers table
-        flash(
-                'username already exists. Please try another',
-                'username_exists'
-                )  # include message category
-        if testing:
-            # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
-            pass
-        return make_response(jsonify({"signup": False, "reason": "username already exists"}), 400)
-
+        return make_response(jsonify({"signup": False}), 400)
     # else set image identifier
-    if image and image.filename:
+    if image.filename:
         # If the user does not select a file, the browser submits an...
         # ...empty file without a filename ('').
         image_uri = current_app.config["SP_IMAGE_RPATH"] + username + '.jpg'
@@ -353,7 +301,7 @@ def signup_post():
         if testing:
             # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False, "reason": "email already exists"}), 400)
+        return make_response(jsonify({"signup": False}), 400)
 
     # Validate phone
     stmt = db.select(ServiceProviders).where(ServiceProviders.phone==phone)
@@ -364,7 +312,7 @@ def signup_post():
         if testing:
             # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
             pass
-        return make_response(jsonify({"signup": False, "reason": "phone already in use"}), 400)
+        return make_response(jsonify({"signup": False}), 400)
 
     # Persist validated data to database
     new_sp = ServiceProviders(
@@ -382,7 +330,7 @@ def signup_post():
     db.session.commit()
 
     # Save image to file system ONLY now
-    if image and image.filename:
+    if image.filename:
         image.save(
                 current_app.config["SP_IMAGE_PATH"] + username + '.jpg'
                 )  # VSFS
@@ -405,7 +353,7 @@ def static_get(id, uri):
 
 @sp_apis.route('/<sp_id>/services')
 @login_required
-def service_multi_get(sp_id):
+def service_one_get(sp_id):
     ''' Returns the IDs of a service-provider's services.
     '''
     # Fetch service IDs
@@ -415,52 +363,7 @@ def service_multi_get(sp_id):
     since only one column is selected, use scalars() to fetch first items
     '''
 
-#     return jsonify(ids_list)
-
-
-@sp_apis.route('/<sp_id>/services/<sps_id>')
-def service_one_get(sp_id, sps_id):
-    ''' Returns details about a specific service-provider service.
-    '''
-    # Fetch service details
-    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceProviders.phone, ServiceProviders.whatsapp, ServiceCategories.name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).where(ServiceProviderServices.id==int(sps_id))
-    details_row = db.session.execute(stmt).first()
-    if not details_row:
-        # No such service
-        return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
-
-    # Fetch all reviews for the specified service
-    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
-    reviews_rows_list = db.session.execute(stmt).all()
-    ''' returns list of reviews details rows.'''
-
-    # Prepare the data in json_serializable forms
-    first_name = details_row.first_name
-    last_name = details_row.last_name
-    image_uri = details_row.image_uri
-    rating = float(details_row.rating)  # for serializability
-    description = details_row.service_description
-    sp_id = details_row.id
-    sp_phone = details_row.phone
-    sp_whatsapp = details_row.whatsapp
-
-    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id, sp_phone=sp_phone, sp_whatsapp=sp_whatsapp)
-
-    # Prepare list of reviews and associated details
-    reviews = []
-    for reviews_row in reviews_rows_list:
-        content = reviews_row.review_content
-        updated_at = reviews_row.updated_at.isoformat()  # make serializable
-        first_name = reviews_row.first_name
-        last_name = reviews_row.last_name
-        review_id = reviews_row.id
-        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, updated_at=updated_at)
-        reviews.append(review_json)
-
-    # Add reviews list to return data
-    json_data.update({"reviews": reviews})
-
-    return jsonify(json_data)
+    return jsonify(ids_list)
 
 
 @sp_apis.route('/<sp_id>/services/create', methods=['POST'])
@@ -470,11 +373,11 @@ def service_create_post(sp_id):
     '''
     # Retrieve form data
     service_description = request.form.get('service_description')
-    serviceCategory_id = request.form.get('service_category')  # an integer
+    serviceCategory_id = request.form.get('service_category')  # for F.Key
     image = request.files.get('profile_pic')
 
     # Create new service-provider service object
-    new_sps = ServiceProviderServices(service_description=service_description, serviceProvider_id=sp_id, serviceCategory_id=int(serviceCategory_id))
+    new_sps = ServiceProviderServices(service_description=service_description, serviceProvider_id=sp_id, serviceCategory_id=serviceCategory_id)
     ''' defer saving image_uri until ID is available.'''
 
     # Commit to get ID before processing image
@@ -519,7 +422,7 @@ def service_edit_put(sp_id, sps_id):
     '''
     # Retrieve form data
     service_description = request.form.get('service_description')
-    serviceCategory_id = request.form.get('service_category')  # an integer
+    serviceCategory_id = request.form.get('service_category')  # for F.Key
     image = request.files.get('profile_pic')
 
     # Retrieve existing service-provider service object
@@ -558,49 +461,3 @@ if testing:
         categories = db.session.scalars(stmt).all()
 
         return render_template('sp_apis/service_edit.html', categories=categories, sps_id=sps_id, n=str(uuid4()))
-
-
-# ADDED LAST (service based on a service provider (id) and its id)
-@sp_apis.route('/<sp_id>/services/<sps_id>')
-def service_one_get(sp_id, sps_id):
-    ''' Returns details about a specific service-provider service.
-    '''
-    # Fetch service details
-    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceProviders.phone, ServiceProviders.whatsapp, ServiceCategories.name, ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).where(ServiceProviderServices.id==int(sps_id))
-    details_row = db.session.execute(stmt).first()
-    if not details_row:
-        # No such service
-        return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
-
-    # Fetch all reviews for the specified service
-    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
-    reviews_rows_list = db.session.execute(stmt).all()
-    ''' returns list of reviews details rows.'''
-
-    # Prepare the data in json_serializable forms
-    first_name = details_row.first_name
-    last_name = details_row.last_name
-    image_uri = details_row.image_uri
-    rating = float(details_row.rating)  # for serializability
-    description = details_row.service_description
-    sp_id = details_row.id
-    sp_phone = details_row.phone
-    sp_whatsapp = details_row.whatsapp
-
-    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id, sp_phone=sp_phone, sp_whatsapp=sp_whatsapp)
-
-    # Prepare list of reviews and associated details
-    reviews = []
-    for reviews_row in reviews_rows_list:
-        content = reviews_row.review_content
-        updated_at = reviews_row.updated_at.isoformat()  # make serializable
-        first_name = reviews_row.first_name
-        last_name = reviews_row.last_name
-        review_id = reviews_row.id
-        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, updated_at=updated_at)
-        reviews.append(review_json)
-
-    # Add reviews list to return data
-    json_data.update({"reviews": reviews})
-
-    return jsonify(json_data)

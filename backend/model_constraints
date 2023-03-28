@@ -1,0 +1,123 @@
+# Summarize constraints that apply to database table attributes
+
+####--CUSTOMERS--####
+first_name:
+	- not more than 15 characters  # frontend
+	- required  # frontend
+
+last_name:
+	- not more than 15 characters  # frontend
+        - required  # frontend
+
+phone:
+	- not more than 15 characters  # frontend
+	- all digits (except for the '+' in country code; implement separately?)  # frontend
+        - unique  # backend
+
+email:
+	- not more than 30 characters  # frontend
+        - required  # frontend
+	- unique  # backend
+
+image_uri:
+	- not more than 100 characters  # backend
+
+username:
+	- not more than 15 characters  # frontend
+        - required  # frontend
+	- unique  # backend
+
+password:
+	- not more than 100 characters  # backend
+        - required  # frontend
+
+
+####--REVIEWS--####
+review_content:
+	- not more than 500 characters  # frontend
+
+upvotes:
+	- an integer  # frontend
+
+total_votes:
+	- an integer  # frontend (for now, thinking of setting default for it)
+
+serviceProviderService_id:
+	- an integer  # backend
+	- required  # backend
+
+customer_id:
+	- a UUID string  # backend
+	- required  # backend
+
+
+####--SERVICE PROVIDERS--####
+first_name:
+	- not more than 15 characters  # frontend
+	- required  # frontend
+
+last_name:
+	- not more than 15 characters  # frontend
+        - required  # frontend
+
+phone:
+	- not more than 15 characters  # frontend
+	- all digits (except for the '+' in country code; implement separately?)  # frontend
+	- required  # frontend
+        - unique  # backend
+
+whatsapp:
+	- not more than 15 characters  # frontend
+	- all digits (exception as for `phone`)  # frontend
+
+email:
+	- not more than 30 characters  # frontend
+        - required  # frontend
+	- unique  # backend
+
+image_uri:
+	- not more than 100 characters  # backend
+
+username:
+	- not more than 15 characters  # frontend
+        - required  # frontend
+	- unique  # backend
+
+password:
+	- not more than 100 characters  # backend
+        - required  # frontend
+
+location_id:
+	- an integer  # backend
+	- required
+
+
+####--SERVICE PROVIDER SERVICES--####
+service_description:
+	- not more than 500 characters  # frontend
+	- required  # frontend
+
+rating:
+	- a decimal.Decimal  # backend
+
+image_uri:
+	- not more than 100 characters  # backend
+
+serviceCaregory_id:
+	- an integer  # backend
+	- required  # backend
+
+serviceProvider_id:
+	- a UUID string  # backend
+	- required  # backend
+
+####--GENERAL CONSTRAINTS--####
+- all service categories are to be pre-populated in the database by the developers, at the moment
+
+- all countries are to be pre-populated in the database by the developers, at the moment
+
+- all states are to be pre-populated in the database by the developers, at the moment
+
+- all locations are to be pre-populated in the database by the developers, at the moment
+
+- in other words, for the time being (pending a better implementation), the database has to be aware of all service provider, country, state, and location records before the users select them in the frontend.

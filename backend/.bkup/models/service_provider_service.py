@@ -11,7 +11,7 @@ class ServiceProviderServices(db.Model):
     '''
     # auto_increment implemented implicitly for integer ids
     id = db.mapped_column(db.Integer, primary_key=True)
-    service_description = db.mapped_column(db.Text(500), nullable=False)
+    service_description = db.mapped_column(db.Text(), nullable=False)
     rating = db.mapped_column(db.Numeric(2, 1), default=Decimal(0.0))
     image_uri = db.mapped_column(db.String(100))
     # Foreign keys

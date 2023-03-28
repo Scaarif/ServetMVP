@@ -63,6 +63,84 @@ if testing:
         return render_template('base.html', countries=countries, states=states, locations=locations, service_categories=service_categories, n=str(uuid4()))
 
 
+if testing:
+    @default_apis.route('/login')
+    def login_get():
+        ''' Return the login form view.'''
+        return render_template('login.html')
+
+
+@default_apis.route('/login', methods=['POST'])
+def login_post():
+    ''' Authenticate posted login information for both customers and SPs.
+    '''
+    from api.v1.views import db, ServiceProviders, is_safe_url
+    # Retrieve provided login information
+    username = request.form.get('username')
+    password = request.form.get('password')
+    remember = True if request.form.get('remember') else False
+
+    # Verify that service provider is registered
+    stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
+    row = db.session.execute(stmt).first()  # returns Row object or None
+    sp = ''
+    cus = ''
+    if row:
+        # Valid username
+        sp = row[0]
+    else:
+        # check customers table
+        stmt = db.select(Customers).where(Customers.username==username)
+        row = db.session.execute(stmt).first()  # return Row object or None
+        if row:
+            cus = row[0]
+        else:
+            cus = ''
+
+    if sp:
+        cus = ''  # check_password_hash expects a countable object
+    elif cus:
+        sp = ''
+    else:
+        cus = ''
+        sp = ''
+
+    # Handle failed authentication
+    if not (cus if cus else sp) or not check_password_hash((sp.password if sp else cus.password), password):
+        # Flash an error message to display
+        flash("Invalid username and/or password", "invalid_usr_pwd")
+        if testing:
+            # Redirect to login page to try again
+            # return redirect(url_for('sp_auth_views.sp_login'))
+            pass
+        return make_response(jsonify({"login": False, "reason": "invalid username and/or password"}), 401)
+
+    # User exists and is authenticated
+    session['account_type'] = 'service_provider' if sp else 'customer'
+    login_user((sp if sp else cus), remember=remember)  # log in the user into session
+
+    # flash('Logged in successfully.')
+
+    # Retrieve next URL, if available
+    nextp = request.args.get('next')
+    '''
+    When a logged-out user tries to access a protected page (login_required),
+    they get redirected to login, and a `next` query string parameter is
+    attached to the URL of the POST login link. The value of this parameter is
+    the URL the user attempted to visit before redirection.
+    '''
+
+    # Protect against Open Redirect attacks
+    if not is_safe_url(nextp):
+        abort(400, description="`next` URL not safe")
+
+    if testing:
+        # return redirect(nextp or url_for('sp_apis.profile' if sp else 'cus_apis.profile', id=sp.id if sp else cus.id))
+        pass
+
+    return make_response(jsonify({"login": True}), 200)
+
+
 @default_apis.route('/services')
 def service_multi_post():
     ''' Returns summary data on seleted service-provider services.
@@ -162,5 +240,82 @@ def service_one_get(sps_id):
 
     # Add reviews list to return data
     json_data.update({"reviews": reviews})
+
+    return jsonify(json_data)
+
+
+@default_apis.route('/countries')
+def countries():
+    ''' Returns info on all countries recorded in the database.
+    '''
+    # Retrieve all countries
+    stmt = db.select(Countries)
+    countries = db.session.scalars(stmt).all()
+
+    countries_list = []
+    for country in countries:
+        country_json = dict(id=country.id, name=country.name)
+        countries_list.append(country_json)
+
+    return jsonify(countries_list)
+
+
+@default_apis.route('/countries/<int:country_id>/states')
+def country_states(country_id):
+    ''' Returns all states/counties in the specified country.
+    '''
+    # Retrieve the country object
+    country = db.session.get(Countries, country_id)
+    # Retrieve all country states
+    stmt = db.select(States).where(States.country_id==country_id)
+    states = db.session.scalars(stmt).all()
+
+    if country:
+        json_data = dict(country_name=country.name, country_id=country_id)
+    else:
+        return make_response(jsonify({"status": "error", "reason": "invalid country ID"}), 400)
+
+    # Compose States objects
+    states_list = []
+    for state in states:
+        state_json = dict(id=state.id, name=state.name)
+        states_list.append(state_json)
+
+    json_data.update(states=states_list)
+
+    return jsonify(json_data)
+
+
+@default_apis.route(
+        '/countries/<int:country_id>/states/<int:state_id>/locations')
+def country_state_locations(country_id, state_id):
+    ''' Returns all locations in the specified country and state/county.
+    '''
+    # Retrieve country
+    country = db.session.get(Countries, country_id)
+    # Fetch state
+    state = db.session.get(States, state_id)
+
+    # Validate country and state IDs
+    if not country:
+        return make_response(jsonify({"status": "error", "reason": "invalid country ID"}), 400)
+    if not state:
+        return make_response(jsonify({"status": "error", "reason": "invalid state ID"}), 400)
+    if not state.country_id==country.id:
+        return make_response(jsonify({"status": "error", "reason": "not a state in country"}), 400)
+
+    json_data = dict(country_name=country.name, country_id=country.id, state_name=state.name, state_id=state.id)
+
+    # Retrieve all relevant locations
+    stmt = db.select(Locations).where(Locations.state_id==state_id)
+    locations = db.session.scalars(stmt).all()
+
+    # Compose Locations
+    locations_list = []
+    for location in locations:
+        location_json = dict(id=location.id, name=location.name)
+        locations_list.append(location_json)
+
+    json_data.update(locations=locations_list)
 
     return jsonify(json_data)

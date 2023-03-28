@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 <form method="POST" action="{{ url_for('sp_apis.profile_edit_put', id=id, n=n) }}" enctype="multipart/form-data">
-	<!-- CSRF Protection -->
-	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 	<!-- first name -->
 	<label for="fname">Enter first name:</label>
 	<input type="text" id="fname" name="first_name" autocomplete="on" value="{{ current_user.first_name }}" /><br><br>
