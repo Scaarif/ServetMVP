@@ -41,13 +41,11 @@ class ServiceProviders(UserMixin, db.Model):
             cascade="all, delete-orphan"
             )
 
-
     def __init__(self, *args, **kwargs):
         self.id = str(uuid4())
         self.created_at = datetime.utcnow()
         self.updated_at = self.created_at
         super(ServiceProviders, self).__init__(*args, **kwargs)
-
 
     def __setattr__(self, name, value):
         if name == 'password':

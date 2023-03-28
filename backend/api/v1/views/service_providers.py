@@ -33,69 +33,6 @@ if testing:
         return render_template('sp_apis/login.html')
 
 
-"""
-@sp_apis.route('/login', methods=['POST'])
-def login_post():
-    ''' Authenticate posted login information, and log service provider in.
-    '''
-    from api.v1.views import db, ServiceProviders, is_safe_url
-    # Retrieve provided login information
-    username = request.form.get('username')
-    password = request.form.get('password')
-    remember = True if request.form.get('remember') else False
-
-    # Verify that service provider is registered
-    stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
-    row = db.session.execute(stmt).first()  # returns Row object or None
-    if row:
-        # Valid username
-        sp = row[0]
-    else:
-        # check customers table
-        stmt = db.select(Customers).where(Customers.username==username)
-        row = db.session.execute(stmt).one()  # return Row object or error
-        if row:
-            cus = row[0]
-        else:
-            cus = None
-
-    # Handle failed authentication
-    if not cus or not check_password_hash(sp.password if sp else cus.password, password):
-        # Flash an error message to display
-        flash("Invalid username and/or password", "invalid_usr_pwd")
-        if testing:
-            # Redirect to login page to try again
-            # return redirect(url_for('sp_auth_views.sp_login'))
-            pass
-        return make_response(jsonify({"logout": False, "reason": "invalid username and/or password"}), 401)
-
-    # Service provider exists and is authenticated
-    session['account_type'] = 'service_provider'
-    login_user(sp, remember=remember)  # log in the user into session
-
-    # flash('Logged in successfully.')
-
-    # Retrieve next URL, if available
-    nextp = request.args.get('next')
-    '''
-    When a logged-out user tries to access a protected page (login_required),
-    they get redirected to login, and a `next` query string parameter is
-    attached to the URL of the POST login link. The value of this parameter is
-    the URL the user attempted to visit before redirection.
-    '''
-
-    # Protect against Open Redirect attacks
-    if not is_safe_url(nextp):
-        abort(400, description="`next` URL not safe")
-
-    if testing:
-        # return redirect(nextp or url_for('sp_apis.profile' if sp else 'cus_apis.profile', id=sp.id of sp else cus.id))
-        pass
-
-    return make_response(jsonify({"login": True}), 200)
-"""
-
-
 if testing:
     @sp_apis.route('/<id>/profile')
     @login_required
@@ -103,7 +40,8 @@ if testing:
         ''' Service provider profile endpoint.
         '''
         # Retrieve all services offerred by the service provider
-        stmt = db.select(ServiceProviderServices).join(ServiceProviders).where(ServiceProviders.id==id)
+        stmt = db.select(ServiceProviderServices).join(
+                ServiceProviders).where(ServiceProviders.id == id)
         services = db.session.scalars(stmt).all()
 
         return render_template('sp_apis/profile.html', services=services)
@@ -119,7 +57,12 @@ if testing:
         from api.v1.views import Locations, db
         stmt = db.select(Locations)
         locations = db.session.scalars(stmt).all()
-        return render_template('sp_apis/profile_edit.html', id=id, n=str(uuid4()), locations=locations)
+        return render_template(
+                'sp_apis/profile_edit.html',
+                id=id,
+                n=str(uuid4()),
+                locations=locations
+                )
 
 
 @sp_apis.route('/<id>/profile/edit', methods=['POST', 'PUT'])
@@ -132,7 +75,7 @@ def profile_edit_put(id):
     last_name = request.form.get('last_name')
     email = request.form.get('email')  # unique
     phone = request.form.get('phone')  # unique
-    username = request.form.get('username') # must be unique in storage
+    username = request.form.get('username')  # must be unique in storage
     location_id = request.form.get('location')
     whatsapp = request.form.get('whatsapp')
     # todo: validate and save image to file system :done VSFS
@@ -140,14 +83,16 @@ def profile_edit_put(id):
             'profile_pic')  # file object representing image data
 
     # Retrieve service provider object from database
-    stmt = db.select(ServiceProviders).where(ServiceProviders.id==id)
+    stmt = db.select(ServiceProviders).where(ServiceProviders.id == id)
     existing_sp = db.session.scalars(stmt).first()
 
     # Validate username
     if username:
-        stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
+        stmt = db.select(ServiceProviders).where(
+                ServiceProviders.username == username
+                )
         sp = db.session.scalars(stmt).first()
-        if not existing_sp.username==username and sp:
+        if not existing_sp.username == username and sp:
             # user not trying to reuse the same username,
             # ...and username already exists in SP table
             flash(
@@ -155,13 +100,22 @@ def profile_edit_put(id):
                     'username_exists'
                     )  # include message category
             if testing:
-                # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
+                '''
+                return redirect(url_for(
+                    'sp_apis.profile_edit_get',
+                    id=id,
+                    n=str(uuid4()),
+                    ))
+                '''
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "username already exists"}), 400)
+            return make_response(jsonify({
+                "profile_edit": False,
+                "reason": "username already exists"
+                }), 400)
         # validate for customers table
-        stmt = db.select(Customers).where(Customers.username==username)
+        stmt = db.select(Customers).where(Customers.username == username)
         cus = db.session.scalars(stmt).first()
-        if not existing_sp.username==username and cus:
+        if not existing_sp.username == username and cus:
             # user not trying to reuse the same username,
             # ...and username already exists in customer table
             flash(
@@ -169,9 +123,18 @@ def profile_edit_put(id):
                     'username_exists'
                     )  # include message category
             if testing:
-                # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
+                '''
+                return redirect(url_for(
+                    'sp_apis.profile_edit_get',
+                    id=id,
+                    n=str(uuid4()),
+                    ))
+                '''
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "username already exists"}), 400)
+            return make_response(jsonify({
+                "profile_edit": False,
+                "reason": "username already exists"
+                }), 400)
 
         existing_sp.username = username
 
@@ -183,10 +146,12 @@ def profile_edit_put(id):
         # If the user does not select a file, the browser submits an...
         # ...empty file without a filename ('').
         if username:
-            image_uri = current_app.config["SP_IMAGE_RPATH"] + username + '.jpg'
+            image_uri = current_app.config["SP_IMAGE_RPATH"] + username +\
+                    '.jpg'
         else:
             # New profile pic but old username
-            image_uri = current_app.config["SP_IMAGE_RPATH"] + old_username + '.jpg'
+            image_uri = current_app.config["SP_IMAGE_RPATH"] + old_username +\
+                    '.jpg'
         # todo: implement deleting image files...
         # ...redundant as a result of a change of usernames
     else:
@@ -194,28 +159,50 @@ def profile_edit_put(id):
 
     # Validate email
     if email:
-        stmt = db.select(ServiceProviders).where(ServiceProviders.email==email)
+        stmt = db.select(ServiceProviders).where(
+                ServiceProviders.email == email
+                )
         sp = db.session.scalars(stmt).first()
-        if not existing_sp.email==email and sp:
+        if not existing_sp.email == email and sp:
             # email already exists
             flash('email already exists. Please try another', 'email_exists')
             if testing:
-                # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
+                '''
+                return redirect(url_for(
+                    'sp_apis.profile_edit_get',
+                    id=id,
+                    n=str(uuid4()),
+                    ))
+                '''
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "email already exists"}), 400)
+            return make_response(jsonify({
+                "profile_edit": False,
+                "reason": "email already exists"
+                }), 400)
         existing_sp.email = email
 
     # Validate phone
     if phone:
-        stmt = db.select(ServiceProviders).where(ServiceProviders.phone==phone)
+        stmt = db.select(ServiceProviders).where(
+                ServiceProviders.phone == phone
+                )
         sp = db.session.scalars(stmt).first()
-        if not existing_sp.phone==phone and sp:
+        if not existing_sp.phone == phone and sp:
             # phone number already exists
             flash('phone already exists. Please try another', 'phone_exists')
             if testing:
-                # return redirect(url_for('sp_apis.profile_edit_get', id=id, n=str(uuid4())))
+                '''
+                return redirect(url_for(
+                    'sp_apis.profile_edit_get',
+                    id=id,
+                    n=str(uuid4()),
+                    ))
+                '''
                 pass
-            return make_response(jsonify({"profile_edit": False, "reason": "phone already in use"}), 400)
+            return make_response(jsonify({
+                "profile_edit": False,
+                "reason": "phone already in use"
+                }), 400)
         existing_sp.phone = phone
 
     # Update service provider record with validated data
@@ -275,7 +262,11 @@ if testing:
         from api.v1.views import Locations, db
         stmt = db.select(Locations)
         locations = db.session.scalars(stmt).all()
-        return render_template('sp_apis/signup.html', n=str(uuid4()), locations=locations)
+        return render_template(
+                'sp_apis/signup.html',
+                n=str(uuid4()),
+                locations=locations
+                )
 
 
 @sp_apis.route('/signup', methods=['POST'])
@@ -288,7 +279,7 @@ def signup_post():
     last_name = request.form.get('last_name')
     email = request.form.get('email')  # unique
     phone = request.form.get('phone')  # unique
-    username = request.form.get('username') # must be unique in storage
+    username = request.form.get('username')  # must be unique in storage
     password = request.form.get('password')
     location_id = request.form.get('location')
     whatsapp = request.form.get('whatsapp')
@@ -297,7 +288,9 @@ def signup_post():
             'profile_pic')  # file object representing image data
 
     # Validate username for SP table
-    stmt = db.select(ServiceProviders).where(ServiceProviders.username==username)
+    stmt = db.select(ServiceProviders).where(
+            ServiceProviders.username == username
+            )
     sp = db.session.scalars(stmt).first()
     if sp:
         # username already exists
@@ -306,12 +299,20 @@ def signup_post():
                 'username_exists'
                 )  # include message category
         if testing:
-            # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
+            '''
+            return redirect(url_for(
+                'sp_apis.signup_get',
+                id=str(uuid4()),
+                ))
+            '''
             pass
-        return make_response(jsonify({"signup": False, "reason": "username already exists"}), 400)
+        return make_response(jsonify({
+            "signup": False,
+            "reason": "username already exists"
+            }), 400)
 
     # Validate username for customers table
-    stmt = db.select(Customers).where(Customers.username==username)
+    stmt = db.select(Customers).where(Customers.username == username)
     cus = db.session.scalars(stmt).first()
     if cus:
         # username already exists in customers table
@@ -320,9 +321,17 @@ def signup_post():
                 'username_exists'
                 )  # include message category
         if testing:
-            # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
+            '''
+            return redirect(url_for(
+                'sp_apis.signup_get',
+                id=str(uuid4()),
+                ))
+            '''
             pass
-        return make_response(jsonify({"signup": False, "reason": "username already exists"}), 400)
+        return make_response(jsonify({
+            "signup": False,
+            "reason": "username already exists"
+            }), 400)
 
     # else set image identifier
     if image.filename:
@@ -333,26 +342,42 @@ def signup_post():
         image_uri = None
 
     # Validate email
-    stmt = db.select(ServiceProviders).where(ServiceProviders.email==email)
+    stmt = db.select(ServiceProviders).where(ServiceProviders.email == email)
     sp = db.session.scalars(stmt).first()
     if sp:
         # username already exists
         flash('email already exists. Please try another', 'email_exists')
         if testing:
-            # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
+            '''
+            return redirect(url_for(
+                'sp_apis.signup_get',
+                id=str(uuid4()),
+                ))
+            '''
             pass
-        return make_response(jsonify({"signup": False, "reason": "email already exists"}), 400)
+        return make_response(jsonify({
+            "signup": False,
+            "reason": "email already exists"
+            }), 400)
 
     # Validate phone
-    stmt = db.select(ServiceProviders).where(ServiceProviders.phone==phone)
+    stmt = db.select(ServiceProviders).where(ServiceProviders.phone == phone)
     sp = db.session.scalars(stmt).first()
     if sp:
         # phone number already exists
         flash('phone already exists. Please try another', 'phone_exists')
         if testing:
-            # return redirect(url_for('sp_apis.signup_get', id=str(uuid4())))
+            '''
+            return redirect(url_for(
+                'sp_apis.signup_get',
+                id=str(uuid4()),
+                ))
+            '''
             pass
-        return make_response(jsonify({"signup": False, "reason": "phone already in use"}), 400)
+        return make_response(jsonify({
+            "signup": False,
+            "reason": "phone already in use"
+            }), 400)
 
     # Persist validated data to database
     new_sp = ServiceProviders(
@@ -389,7 +414,7 @@ def static_get(id, uri):
     return redirect(url_for('static', filename=uri))
 
 
-################----JSON APIs----###############
+# ###############----JSON APIs----###############
 
 @sp_apis.route('/<sp_id>/services')
 @login_required
@@ -397,7 +422,9 @@ def service_multi_get(sp_id):
     ''' Returns the IDs of a service-provider's services.
     '''
     # Fetch service IDs
-    stmt = db.select(ServiceProviderServices.id).join(ServiceProviders).where(ServiceProviders.id==sp_id)
+    stmt = db.select(ServiceProviderServices.id).join(ServiceProviders).where(
+            ServiceProviders.id == sp_id
+            )
     ids_list = db.session.scalars(stmt).all()
     '''
     since only one column is selected, use scalars() to fetch first items
@@ -411,14 +438,40 @@ def service_one_get(sp_id, sps_id):
     ''' Returns details about a specific service-provider service.
     '''
     # Fetch service details
-    stmt = db.select(ServiceProviders.first_name, ServiceProviders.last_name, ServiceProviders.id, ServiceProviders.phone, ServiceProviders.whatsapp, ServiceProviders.location_id, Locations.name.label('loc_name'), ServiceCategories.name, ServiceCategories.id.label('sc_id'), ServiceProviderServices.image_uri, ServiceProviderServices.rating, ServiceProviderServices.service_description).select_from(ServiceProviderServices).join(ServiceCategories).join(ServiceProviders).join(Locations).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(
+            ServiceProviders.first_name,
+            ServiceProviders.last_name,
+            ServiceProviders.id,
+            ServiceProviders.phone,
+            ServiceProviders.whatsapp,
+            ServiceProviders.location_id,
+            Locations.name.label('loc_name'),
+            ServiceCategories.name,
+            ServiceCategories.id.label('sc_id'),
+            ServiceProviderServices.image_uri,
+            ServiceProviderServices.rating,
+            ServiceProviderServices.service_description).select_from(
+                    ServiceProviderServices).join(ServiceCategories).join(
+                    ServiceProviders).join(Locations).where(
+                    ServiceProviderServices.id == int(sps_id))
     details_row = db.session.execute(stmt).first()
     if not details_row:
         # No such service
-        return make_response(jsonify({"status": "error", "message": "invalid sps ID"}), 400)
+        return make_response(jsonify({
+            "status": "error",
+            "message": "invalid sps ID"
+            }), 400)
 
     # Fetch all reviews for the specified service
-    stmt = db.select(Reviews.id, Reviews.review_content, Reviews.upvotes, Reviews.updated_at, Customers.first_name, Customers.last_name).join(Customers).join(ServiceProviderServices).where(ServiceProviderServices.id==int(sps_id))
+    stmt = db.select(
+            Reviews.id,
+            Reviews.review_content,
+            Reviews.upvotes,
+            Reviews.updated_at,
+            Customers.first_name,
+            Customers.last_name).join(Customers).join(
+                    ServiceProviderServices).where(
+                    ServiceProviderServices.id == int(sps_id))
     reviews_rows_list = db.session.execute(stmt).all()
     ''' returns list of reviews details rows.'''
 
@@ -436,7 +489,20 @@ def service_one_get(sp_id, sps_id):
     loc_id = details_row.location_id
     loc_name = details_row.loc_name
 
-    json_data = dict(first_name=first_name, last_name=last_name, image_uri=image_uri, rating=rating, description=description, serviceProvider_id=sp_id, sp_phone=sp_phone, sp_whatsapp=sp_whatsapp, serviceCategory_name=sc_name, serviceCategory_id=sc_id, location_name=loc_name, location_id=loc_id)
+    json_data = dict(
+            first_name=first_name,
+            last_name=last_name,
+            image_uri=image_uri,
+            rating=rating,
+            description=description,
+            serviceProvider_id=sp_id,
+            sp_phone=sp_phone,
+            sp_whatsapp=sp_whatsapp,
+            serviceCategory_name=sc_name,
+            serviceCategory_id=sc_id,
+            location_name=loc_name,
+            location_id=loc_id
+            )
 
     # Prepare list of reviews and associated details
     reviews = []
@@ -447,7 +513,14 @@ def service_one_get(sp_id, sps_id):
         last_name = reviews_row.last_name
         review_id = reviews_row.id
         upvotes = reviews_row.upvotes
-        review_json = dict(review_id=review_id, content=content, customer_first_name=first_name, customer_last_name=last_name, customer_upvotes=upvotes, updated_at=updated_at)
+        review_json = dict(
+                review_id=review_id,
+                content=content,
+                customer_first_name=first_name,
+                customer_last_name=last_name,
+                customer_upvotes=upvotes,
+                updated_at=updated_at
+                )
         reviews.append(review_json)
 
     # Add reviews list to return data
@@ -467,7 +540,11 @@ def service_create_post(sp_id):
     image = request.files.get('profile_pic')
 
     # Create new service-provider service object
-    new_sps = ServiceProviderServices(service_description=service_description, serviceProvider_id=sp_id, serviceCategory_id=int(serviceCategory_id))
+    new_sps = ServiceProviderServices(
+            service_description=service_description,
+            serviceProvider_id=sp_id,
+            serviceCategory_id=int(serviceCategory_id)
+            )
     ''' defer saving image_uri until ID is available.'''
 
     # Commit to get ID before processing image
@@ -480,12 +557,14 @@ def service_create_post(sp_id):
     # Use the id to save the image and its URI
     if image.filename:
         # filename will be empty if no file selected
-        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) + '.jpg'
+        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) +\
+                '.jpg'
         new_sps.image_uri = image_uri
         # Persist to database
         db.session.add(new_sps)
         db.session.commit()
-        image.save(current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg')
+        image.save(
+                current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg')
 
     json_data = {"sps_id": new_id}
 
@@ -502,7 +581,11 @@ if testing:
         stmt = db.select(ServiceCategories)
         categories = db.session.scalars(stmt).all()
 
-        return render_template('sps_apis/service_create.html', categories=categories, n=str(uuid4()))
+        return render_template(
+                'sps_apis/service_create.html',
+                categories=categories,
+                n=str(uuid4()),
+                )
 
 
 @sp_apis.route('/<sp_id>/services/<int:sps_id>/edit', methods=['POST', 'PUT'])
@@ -516,7 +599,9 @@ def service_edit_put(sp_id, sps_id):
     image = request.files.get('profile_pic')
 
     # Retrieve existing service-provider service object
-    stmt = db.select(ServiceProviderServices).where(ServiceProviderServices.id==sps_id)
+    stmt = db.select(ServiceProviderServices).where(
+            ServiceProviderServices.id == sps_id,
+            )
     existing_sps = db.session.scalars(stmt).one()  # expecting only one entity
 
     if service_description:
@@ -527,9 +612,12 @@ def service_edit_put(sp_id, sps_id):
     # Use the id to save the image and its URI
     if image.filename:
         # new image; filename will be empty if not so
-        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) + '.jpg'
+        image_uri = current_app.config["SPS_IMAGE_RPATH"] + str(new_id) +\
+                '.jpg'
         existing_sps.image_uri = image_uri
-        image.save(current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg')
+        image.save(
+                current_app.config["SPS_IMAGE_PATH"] + str(new_id) + '.jpg'
+                )
 
     # Persist to database
     db.session.add(existing_sps)
@@ -550,4 +638,9 @@ if testing:
         stmt = db.select(ServiceCategories)
         categories = db.session.scalars(stmt).all()
 
-        return render_template('sp_apis/service_edit.html', categories=categories, sps_id=sps_id, n=str(uuid4()))
+        return render_template(
+                'sp_apis/service_edit.html',
+                categories=categories,
+                sps_id=sps_id,
+                n=str(uuid4()),
+                )
