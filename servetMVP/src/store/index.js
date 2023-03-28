@@ -14,6 +14,7 @@ const store = createStore({
         counties: [],
         csrfToken: '',
         isAuthorized: false,
+        loggedInUser: null,
         location: 'CBD, Nairobi', // default
     },
     getters: {
@@ -65,6 +66,10 @@ const store = createStore({
         },
         toggleIsAuthorized(state) {
             state.isAuthorized = true
+        },
+        setLoggedInUser(state, payload) {
+            console.log(payload) // should be an object: user_id and type(customer or provider for now)
+            state.loggedInUser = payload
         },
         async handleLogout(state) {
             let res;

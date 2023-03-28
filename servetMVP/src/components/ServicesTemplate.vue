@@ -1,7 +1,7 @@
 <template>
     <div class="w-full flex flex-col items-center">
         <!-- header (slogan & filter bar) -->
-        <div class="w-full flex items-center justify-between px-8 mb-8">
+        <div class="w-full flex flex-col space-y-4 items-center md:flex-row md:justify-between px-8 mb-8">
             <input v-if="isAuthorized"
                 class="w-full text-sm max-w-md text-center border-slate-300 rounded-md focus:ring-0 focus:border-slate-400"
                 type="text" placeholder="Search for service by provider username"
@@ -23,9 +23,9 @@
         <!-- services display -->
         <span v-if="!isAuthorized" class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular at {{ location.locale }}, {{ location.county }}</span>
-        <span v-else class="self-start text-slate-900 text-lg font-bold ml-4"
+        <span v-else class="md:self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
-        <div class="w-full flex items-center mt-8 flex-wrap px-8">
+        <div class="w-full flex items-center mt-8 flex-wrap px-8 sm:justify-center">
             <!-- <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService(2, csrfToken, '')" /> -->
             <ServiceCard v-for="service, idx in Object.values(getServices)" :key="idx" 
                 :service="service"

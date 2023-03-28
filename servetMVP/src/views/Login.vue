@@ -46,7 +46,7 @@ export default {
         this.getSession()
     },
     methods: {
-        ...mapMutations(['toggleIsLanding', 'setCsrfToken', 'toggleIsAuthorized']),
+        ...mapMutations(['toggleIsLanding', 'setCsrfToken', 'toggleIsAuthorized', 'setLoggedInUser']),
         handleSubmit() {
           console.log('isAuth: ', this.isAuthenticated, this.isAuthorized)
             if (!this.isAuthenticated) {
@@ -116,6 +116,9 @@ export default {
                     this.isAuthenticated = true;
                     // set global csrfToken
                     this.setCsrfToken(this.csrfToken)
+                    // set user_info (loggedInUser)
+                    let user={'user_id': data.user_id, 'user_type': data.user_type}
+                    this.setLoggedInUser(user)
                     this.toggleIsLanding()
                     // redirect to home page
                     this.$router.push({name: 'home'})
