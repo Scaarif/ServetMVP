@@ -153,7 +153,11 @@ def login_post():
         '''
         pass
 
-    return make_response(jsonify({"login": True}), 200)
+    return make_response(jsonify(dict(
+        login=True,
+        user_type=('SP' if sp else 'CUS'),
+        user_id=(sp.id if sp else cus.id),
+        )), 200)
 
 
 @default_apis.route('/services')
