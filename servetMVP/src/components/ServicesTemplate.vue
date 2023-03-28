@@ -2,7 +2,7 @@
     <div class="w-full flex flex-col items-center">
         <!-- header (slogan & filter bar) -->
         <div class="w-full flex items-center justify-between px-8 mb-8">
-            <input v-if="token"
+            <input v-if="isAuthorized"
                 class="w-full text-sm max-w-md text-center border-slate-300 rounded-md focus:ring-0 focus:border-slate-400"
                 type="text" placeholder="Search for service by provider username"
                 v-model="providerName" @keypress.enter="searchServices">
@@ -21,7 +21,7 @@
             </span>
         </div>
         <!-- services display -->
-        <span v-if="!token" class="self-start text-slate-900 text-lg font-bold ml-4"
+        <span v-if="!isAuthorized" class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular at {{ location.locale }}, {{ location.county }}</span>
         <span v-else class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
@@ -34,7 +34,7 @@
             see more ...
         </span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
-            <Service />
+            <Service :serviceDets="getService"/>
         </div>
     </div>
 </template>
@@ -56,7 +56,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['showService', 'token', 'services']),
+        ...mapState(['showService', 'services', 'isAuthorized']),
         ...mapGetters(['getService', 'getServices']),
     },
     components: {

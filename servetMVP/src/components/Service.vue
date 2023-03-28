@@ -28,8 +28,8 @@
                 <img src="../assets/scaarif_a_young_kenyan_tomboy_full-body_portrait_light_skinned__0a68fc1a-c258-4865-a6fb-33c81878f822.png" alt=""
                     class="w-16 h-16 rounded-full"
                 >
-                <span v-if="!isAuthorized" class="text-md capitalize py-2 cursor-pointer">jane doe</span>
-                <router-link v-else :to="{name: 'profile'}" class="text-md capitalize py-2 cursor-pointer hover:text-slate-600">jane doe</router-link>
+                <span v-if="!isAuthorized" class="text-md capitalize py-2 cursor-pointer">{{ serviceDets.first_name}} {{serviceDets.last_name }}</span>
+                <router-link v-else :to="{name: 'profile'}" class="text-md capitalize py-2 cursor-pointer hover:text-slate-600">{{ serviceDets.first_name}} {{serviceDets.last_name }}</router-link>
                 <router-link v-if="!isAuthorized" :to="{name: 'login'}"
                     class="text-md capitalize py-2 px-8 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D] cursor-pointer"
                 >contact service provider</router-link>
@@ -46,7 +46,7 @@
         <div class="self-start flex flex-col w-full mb-4">
             <span class="text-lg font-medium mb-2">Service Description</span>
             <span class="text-md px-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dignissim ligula dolor, eget mattis dolor ultricies elementum.
+                {{  serviceDets.description }}
             </span>
         </div>
         <!-- Call to action (if logged in): Review Service -->
@@ -80,7 +80,7 @@
             <!-- testimonials -->
             <div v-show="showTestimonials || !isAuthorized" class="flex flex-wrap items-center space-y-2 mb-4 px-4">
                 <!-- testimonial -->
-                <div class="flex flex-col space-y-4 p-4 border w-full mr-2 md:max-w-1/2 rounded-sm" v-for="name, idx in customers" :key="idx">
+                <div class="flex flex-col space-y-4 p-4 border w-full mr-2 md:max-w-1/2 rounded-sm" v-for="value, idx in Object.values(serviceDets.reviews)" :key="idx">
                     <div class="flex space-x-4 items-center">
                         <span class="text-md">Rating:</span>
                         <span class="flex">
@@ -93,9 +93,9 @@
                         </span>
                     </div>
                     <span class="text-md text-slate-700">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dignissim ligula dolor, eget mattis dolor ultricies elementum.
+                        {{ value.content }}
                     </span>
-                    <span class="self-end text-md font-medium text-slate-800">{{ name }}</span>
+                    <span class="self-end text-md font-medium text-slate-800 capitalize">{{ value.customer_first_name }} {{ value.customer_last_name }}</span>
                 </div>
                  <!-- see more -->
                  <div class="w-full flex flex-col">
@@ -122,7 +122,10 @@
 </template>
 <script>
 import { mapState, mapMutations, mapGetters } from 'vuex';
+import httClient from '../httpClient/index'
+import config from '../config/index'
 export default {
+    props:['serviceDets'],
     data() {
        return {
         rating: [1, 2, 3, 4],
@@ -136,8 +139,12 @@ export default {
         service: null,
        }
     },
+    created() {
+        console.log('service dets: ', this.serviceDets)
+        this.setData()
+    },
     computed: {
-        ...mapState(['showService', 'token', 'isAuthorized', 'location']),
+        ...mapState(['showService', 'isAuthorized', 'location', 'csrfToken']),
         ...mapGetters(['getService']),
     },
     methods: {
@@ -146,23 +153,27 @@ export default {
             // fold the testimonials if isAuthorized (user logged in), they can unfold it - or simply rate the service and move on...
             this.showTestimonials = !this.showTestimonials
         },
-        handleRateService() {
+        async handleRateService() {
             if (this.isAuthorized) {
                 console.log('submitting your review') // submit review (POST)
-                console.log(this.comment)
+                console.log(this.comment, this.csrfToken)
+                // actually post the comment
+                let url = config.CUSTOMERS + 'ebd14aaa-6b04-4d32-a6d7-251ff0ff9506' + '/reviews/create'
+                // console.log(url)
+                let data = {content: this.comment, 'upvotes': 3, 'total_votes': 5}
+                let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
+                console.log('posting review: ', res)
             }
             else
                 this.$router.push({name: 'login'}) // user not logged in, redirect to login page
         },
         toggleSelected(idx) {
             this.selected[idx] = !this.selected[idx]
-            this.setData()
+            // this.setData()
         },
         setData() {
-            this.service = this.getService
-            console.log('service: ', this.service)
-            let data = []
-            
+            this.details[0]['location'] = this.location[1] + ', ' + this.location[0]
+            this.details[1]['price'] = 'varies with the job'      
         },
     }
 }

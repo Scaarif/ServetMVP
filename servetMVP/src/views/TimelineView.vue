@@ -24,7 +24,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['token', 'activeUser', 'isAuthorized']),
+        ...mapState(['activeUser', 'isAuthorized']),
     },
     created() {
         this.checkIfLoggedIn()

@@ -6,7 +6,6 @@ const store = createStore({
         services,
     },
     state: {
-        token: false,
         isLanding: true,
         activeUser: '',
         isCustomer: true,
@@ -15,7 +14,7 @@ const store = createStore({
         counties: [],
         csrfToken: '',
         isAuthorized: false,
-        location: '',
+        location: 'CBD, Nairobi', // default
     },
     getters: {
 
@@ -55,9 +54,6 @@ const store = createStore({
             if (state.showService)
                 this.dispatch('fetchService', 2) // call the action (fetchService)
         },
-        toggleToken(state) {
-            state.token = !state.token
-        },
         // testing axios
         setCounties(state, counties) {
             state.counties.push(...counties)
@@ -66,6 +62,9 @@ const store = createStore({
         setCsrfToken(state, value) {
             state.csrfToken = value;
             state.isAuthorized =  true
+        },
+        toggleIsAuthorized(state) {
+            state.isAuthorized = true
         },
         async handleLogout(state) {
             let res;
@@ -83,6 +82,8 @@ const store = createStore({
                 console.log(message, data)
             // set isAuthorized to false
             state.isAuthorized = false
+            // remove auth from localStorage
+            localStorage.removeItem('authToken')
         },
         setSelectedLocation(state, value) {
             state.location = value

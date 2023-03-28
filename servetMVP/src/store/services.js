@@ -35,7 +35,7 @@ const actions = {
         let url = config.SERVICES + '/' + service_id
         // console.log(url)
         const res = await httpClient.loggedOutGet(url)
-        console.log(res)
+        console.log('service: ',res)
         // commit setService if res
         if (res.status === 200)
             commit('setService', res.data)

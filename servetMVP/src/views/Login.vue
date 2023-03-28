@@ -40,13 +40,13 @@ export default {
         }
     },
     computed: {
-        ...mapState(['token', 'isLanding', 'isAuthorized']),
+        ...mapState(['isLanding', 'isAuthorized']),
     },
     mounted() {
         this.getSession()
     },
     methods: {
-        ...mapMutations(['toggleToken', 'toggleIsLanding', 'setCsrfToken']),
+        ...mapMutations(['toggleIsLanding', 'setCsrfToken', 'toggleIsAuthorized']),
         handleSubmit() {
           console.log('isAuth: ', this.isAuthenticated, this.isAuthorized)
             if (!this.isAuthenticated) {
@@ -55,9 +55,9 @@ export default {
               this.login(JSON.stringify(data))
             }
             else {
-                // set token to true
-                this.toggleToken()
                 this.toggleIsLanding() // make it false so the navbar shows
+                if (!this.isAuthorized)
+                    this.toggleIsAuthorized()
                 // redirect to home page
                 this.$router.push({name: 'home'})
             }
@@ -71,7 +71,7 @@ export default {
                             console.log(data);
                             if (data.login == true) {
                                 this.isAuthenticated = true;
-                                this.setCsrfToken(this.csrfToken)
+                                // this.setCsrfToken(this.csrfToken)
 
                             } else {
                                 this.isAuthenticated = false;
@@ -88,6 +88,8 @@ export default {
                     })
                     .then((res) => {
                     this.csrfToken = res.headers.get(["X-CSRFToken"]);
+                    // set global csrfToken
+                    this.setCsrfToken(this.csrfToken)
                     // console.log(csrfToken);
                     })
                     .catch((err) => {
@@ -97,7 +99,7 @@ export default {
         },
         login(data) {
           console.log(data)
-            fetch("http://localhost:5000/api/v1/customers/login", {
+            fetch("http://localhost:5000/api/v1/login", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -113,10 +115,12 @@ export default {
                 if (data.login == true) {
                     this.isAuthenticated = true;
                     // set global csrfToken
-                    this.setCsrfToken(this.csrfToken)
+                    // this.setCsrfToken(this.csrfToken)
                     this.toggleIsLanding()
                     // redirect to home page
                     this.$router.push({name: 'home'})
+                    // set authToken in localStorage
+                    localStorage.setItem('authToken', true)
                 } else {
                     this.errorMsg = data.message
                     console.log('errorMsg!')

@@ -338,16 +338,16 @@ def signup_post():
         return make_response(jsonify({"signup": False,  "message": 'email already exists'}), 400)
 
     # # Validate phone
-    # stmt = db.select(Customers).where(Customers.phone==phone)
-    # cus = db.session.scalars(stmt).first()
-    # if cus:
-    #     # phone number already exists
-    #     flash('phone already exists. Please try another', 'phone_exists')
-    #     if testing:
-    #         # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
-    #         pass
-    #     return make_response(jsonify({"signup": False, "message": 'phone already exists'}), 400)
-        return make_response(jsonify({"signup": False, "reason": "email already exists"}), 400)
+    stmt = db.select(Customers).where(Customers.phone==phone)
+    cus = db.session.scalars(stmt).first()
+    if cus:
+        # phone number already exists
+        flash('phone already exists. Please try another', 'phone_exists')
+        if testing:
+            # return redirect(url_for('cus_apis.signup_get', id=str(uuid4())))
+            pass
+        return make_response(jsonify({"signup": False, "message": 'phone already exists'}), 400)
+        # return make_response(jsonify({"signup": False, "reason": "email already exists"}), 400)
 
     # Validate phone
     stmt = db.select(Customers).where(Customers.phone==phone)
@@ -421,9 +421,17 @@ def review_create_post(cus_id):
     sps_id = request.args.get('sps')
 
     # Retrieve the content and rating
-    content = request.form.get('review_content')
-    upvotes = request.form.get('upvotes')  # required if content?
-    total_votes = request.form.get('total_votes')  # make default?
+    # content = request.form.get('review_content')
+    # upvotes = request.form.get('upvotes')  # required if content?
+    # total_votes = request.form.get('total_votes')  # make default?
+
+    if not request.json:
+        print('review data missing')
+    data = request.get_json()
+    print('data: ', data)
+    content = data.get('review_content')
+    upvotes = data.get('upvotes')  # required if content?
+    total_votes = data.get('total_votes')  # make default?
 
     # Persist the data
     new_rev = Reviews(review_content=content, upvotes=int(upvotes), total_votes=int(total_votes), serviceProviderService_id=int(sps_id), customer_id=cus_id)
