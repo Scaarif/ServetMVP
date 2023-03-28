@@ -242,3 +242,80 @@ def service_one_get(sps_id):
     json_data.update({"reviews": reviews})
 
     return jsonify(json_data)
+
+
+@default_apis.route('/countries')
+def countries():
+    ''' Returns info on all countries recorded in the database.
+    '''
+    # Retrieve all countries
+    stmt = db.select(Countries)
+    countries = db.session.scalars(stmt).all()
+
+    countries_list = []
+    for country in countries:
+        country_json = dict(id=country.id, name=country.name)
+        countries_list.append(country_json)
+
+    return jsonify(countries_list)
+
+
+@default_apis.route('/countries/<int:country_id>/states')
+def country_states(country_id):
+    ''' Returns all states/counties in the specified country.
+    '''
+    # Retrieve the country object
+    country = db.session.get(Countries, country_id)
+    # Retrieve all country states
+    stmt = db.select(States).where(States.country_id==country_id)
+    states = db.session.scalars(stmt).all()
+
+    if country:
+        json_data = dict(country_name=country.name, country_id=country_id)
+    else:
+        return make_response(jsonify({"status": "error", "reason": "invalid country ID"}), 400)
+
+    # Compose States objects
+    states_list = []
+    for state in states:
+        state_json = dict(id=state.id, name=state.name)
+        states_list.append(state_json)
+
+    json_data.update(states=states_list)
+
+    return jsonify(json_data)
+
+
+@default_apis.route(
+        '/countries/<int:country_id>/states/<int:state_id>/locations')
+def country_state_locations(country_id, state_id):
+    ''' Returns all locations in the specified country and state/county.
+    '''
+    # Retrieve country
+    country = db.session.get(Countries, country_id)
+    # Fetch state
+    state = db.session.get(States, state_id)
+
+    # Validate country and state IDs
+    if not country:
+        return make_response(jsonify({"status": "error", "reason": "invalid country ID"}), 400)
+    if not state:
+        return make_response(jsonify({"status": "error", "reason": "invalid state ID"}), 400)
+    if not state.country_id==country.id:
+        return make_response(jsonify({"status": "error", "reason": "not a state in country"}), 400)
+
+    json_data = dict(country_name=country.name, country_id=country.id, state_name=state.name, state_id=state.id)
+
+    # Retrieve all relevant locations
+    stmt = db.select(Locations).where(Locations.state_id==state_id)
+    locations = db.session.scalars(stmt).all()
+
+    # Compose Locations
+    locations_list = []
+    for location in locations:
+        location_json = dict(id=location.id, name=location.name)
+        locations_list.append(location_json)
+
+    json_data.update(locations=locations_list)
+
+    return jsonify(json_data)
