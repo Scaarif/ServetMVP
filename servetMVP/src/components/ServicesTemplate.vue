@@ -37,7 +37,7 @@
             see more ...
         </span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
-            <Service :serviceDets="getService || service"/>
+            <Service :serviceDets="getService || service" :id="service.sps_id"/>
         </div>
     </div>
 </template>

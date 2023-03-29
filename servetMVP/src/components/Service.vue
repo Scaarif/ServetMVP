@@ -126,7 +126,7 @@ import { mapState, mapMutations, mapGetters } from 'vuex';
 import httClient from '../httpClient/index'
 import config from '../config/index'
 export default {
-    props:['serviceDets'],
+    props:['serviceDets', 'id'],
     data() {
        return {
         rating: [1, 2, 3, 4],
@@ -135,7 +135,7 @@ export default {
         showTestimonials: false,
         customers: ['Lucy Johns', 'Bradley G'],
         comment: '',
-        stars: '',
+        stars: 0,
         selected: [false, false, false, false, false],
         service: null,
         postedRating: '',
@@ -165,7 +165,7 @@ export default {
                 // actually post the comment
                 let url = config.CUSTOMERS + 'ebd14aaa-6b04-4d32-a6d7-251ff0ff9506' + '/reviews/create'
                 // console.log(url)
-                let data = {content: this.comment, 'upvotes': 3, 'total_votes': 5, 's_id': 2}
+                let data = {content: this.comment, 'upvotes': this.stars, 'total_votes': 5, 's_id': this.id}
                 // let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
                 fetch(url, {
                 method: "POST",
@@ -193,6 +193,12 @@ export default {
         },
         toggleSelected(idx) {
             this.selected[idx] = !this.selected[idx]
+            // console.log('toggling')
+            if (this.selected[idx])
+                this.stars += 1
+            else
+                this.stars -= 1
+            console.log('stars: ', this.stars)
             // this.setData()
         },
         setData() {
