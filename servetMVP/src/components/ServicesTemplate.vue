@@ -108,7 +108,7 @@ export default {
             if (this.s_category !== 'select service category')
                 queryStr = '?country=' + this.country + '&service_category=' + this.s_category
             else
-                queryStr = '?country=' + this.country
+                queryStr = '?country=' + this.country + '&service_category=2' 
             queryStr += '&state=' + this.state + '&location=' + this.location
             this.fetchServices(queryStr)
         },

@@ -1,16 +1,16 @@
 <template>
     <div class="flex flex-col items-center w-full h-full">
        <div class="flex flex-col items-center space-y-2 py-4 space">
-            <span class="text-[40px] font-medium max-w-xl w-full text-center">Welcome to Servet, the market place for services</span>
+            <span class="text-[26px] md:text-[40px] font-medium max-w-xl w-full text-center">Welcome to Servet, the market place for services</span>
             <span class="text-md max-w-md text-center">Browse for the service you need and get connected to the provider instantly</span>
        </div>
-       <div class="w-full px-32 flex items-center justify-between mt-32 mb-16">
-            <span class="text-lg py-2 border-b border-transparent transition-all hover:border-slate-900 cursor-pointer">
+       <div class="w-full flex flex-col items-center justify-center space-y-2 md:space-y-4 lg:space-y-0 lg:flex-row lg:px-32 lg:justify-between mt-32 mb-16">
+            <span class="text-md md:text-lg py-2 border-b border-transparent transition-all hover:border-slate-900 cursor-pointer">
                 New to the site? Take an interactive tour
             </span>
-            <span class="text-lg text-slate-700">or</span>
-            <span class="text-lg">Choose your location to start
-                <select class="w-[10rem] ring-0 border-slate-300 rounded focus:ring-0 focus:border-slate-400"
+            <span class="text-md md:text-lg text-slate-700">or</span>
+            <span class="text-md md:text-lg text-center">Choose your location to start
+                <select class="w-[10rem] ring-0 bg-gray-50 border-slate-300 rounded focus:ring-0 focus:border-slate-400"
                     v-model="location"
                     @change="setLocation"
                     v-if="location === 'Country'"
@@ -23,14 +23,14 @@
                 <!-- select county/state -->
                 <select name="" id="" v-if="selectedLocation && region === 'County'"
                     v-model="region" @change="setRegion"
-                    class="w-[10rem] border-slate-300 rounded focus:border-slate-400 focus:ring-0 overflow-hidden"
+                    class="w-[10rem] border-slate-300 bg-gray-50 rounded focus:border-slate-400 focus:ring-0 overflow-hidden"
                     >
                     <option value="County">County</option>
                     <option v-for="region, idx in Object.values(regions)[0]" :key="idx" :value=region>{{ region.name }}</option>
                 </select>
                 <!-- select subcounty/locale -->
                 <select name="" id="" v-if="selectedState" v-model="locale" @change="setLocale"
-                    class="w-[10rem] border-slate-300 rounded focus:border-slate-400 focus:ring-0"
+                    class="w-[10rem] border-slate-300 bg-gray-50 rounded focus:border-slate-400 focus:ring-0"
                     >
                     <option value="Sub County">Sub County</option>
                     <!-- <option v-for="locale, idx in selectedState.sub_counties" :key="idx" :value=locale>{{ locale }}</option> -->
@@ -38,9 +38,9 @@
                 </select>
             </span>
        </div>
-       <div class="self-end mr-64 text-slate-700 mb-16">optionally</div>
-       <router-link :to="{name: 'login'}" class="self-end mr-48 mb-32 bg-NormalBage px-16
-            py-2 font-medium transition-all hover:bg-ActiveBage">Login</router-link>
+       <div class="text-center lg:self-end lg:mr-64 text-slate-700 mb-16">optionally</div>
+       <router-link :to="{name: 'login'}" class="text-center lg:self-end lg:mr-48 mb-32 bg-NormalBage px-16
+            py-2 md:px-20 font-medium transition-all hover:bg-ActiveBage">Login</router-link>
     </div>
 </template>
 <script>

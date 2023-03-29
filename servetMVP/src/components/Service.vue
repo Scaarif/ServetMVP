@@ -4,9 +4,9 @@
         <span class="text-[24px] text-slate-900 font-medium text-center mb-2">{{ serviceDets.serviceCategory_name }} Service</span>
         <span class="border border-slate-700 w-full"></span>
         <!-- Service Details Body -->
-        <div class="flex justify-between items-center w-full px-4 py-2">
-            <div class="w-1/3 flex flex-col space-y-2">
-                <span class="text-lg font-medium mb-4">Service Details</span>
+        <div class="flex flex-col-reverse space-y-2 justify-center pt-8 md:pt-2 md:space-y-0 md:flex-row md:justify-between items-center w-full px-4 py-2">
+            <div class="w-full md:w-1/3 flex flex-col space-y-2">
+                <span class="text-lg font-medium mb-4 text-center md:text-start">Service Details</span>
                 <div class="flex space-x-4 items-center" v-for="value, idx in details" :key="idx">
                     <span class="w-1/3 text-md capitalize">{{ Object.keys(value)[0] }}:</span>
                     <span class="text-md capitalize">{{ Object.values(value)[0] }}</span>
@@ -23,7 +23,7 @@
                     </span>
                 </div>
             </div>
-            <div class="flex flex-col space-y-2 items-center">
+            <div class="flex flex-col space-y-2 items-center pb-4">
                 <span class="text-lg font-medium mb-4">Service Provider Details</span>
                 <img src="../assets/scaarif_a_young_kenyan_tomboy_full-body_portrait_light_skinned__0a68fc1a-c258-4865-a6fb-33c81878f822.png" alt=""
                     class="w-16 h-16 rounded-full"
@@ -44,7 +44,7 @@
         </div>
         <!-- Service Description -->
         <div class="self-start flex flex-col w-full mb-4">
-            <span class="text-lg font-medium mb-2">Service Description</span>
+            <span class="text-lg font-medium mb-2 text-center md:text-start">Service Description</span>
             <span class="text-md px-4">
                 {{  serviceDets.description }}
             </span>
@@ -60,19 +60,19 @@
                     </svg>
                 </span>
             </div>
-            <div class="self-start flex space-x-2 items-center pb-8">
+            <div class="self-start flex flex-col space-y-2 md:flex-row md:space-y-0 space-x-2 items-center pb-8">
                 <textarea class="self-start ml-4 rounded-sm border-slate-300 focus:ring-0 focus:border-slate-400 bg-gray-100 text-slate-700"
                     name="comment" id="" cols="60" rows="4" v-model="comment" :class="error && 'highlight'">
                 </textarea>
-                <button class=" self-end text-md capitalize py-2 px-12 bg-[#F3ECD1] rounded-sm
-                    cursor-pointer -ml-80 transition-all hover:bg-[#E9D89D]"
+                <button class="self-start md:self-end text-md capitalize py-2 px-12 bg-[#F3ECD1] rounded-sm
+                    cursor-pointer md:-ml-80 transition-all hover:bg-[#E9D89D]"
                 >Submit Review</button>
             </div>         
         </form>
         <!-- Customer Testimonials -->
         <div class="self-start flex flex-col w-full relative">
-            <span class="text-lg font-medium mb-4">Customer Testimonials</span>
-            <span class="absolute top-1 left-48" @click="toggleShowTestimonials">
+            <span class="text-lg font-medium mb-4 text-center md:text-start">Customer Testimonials</span>
+            <span class="absolute top-1 left-64 md:left-48" @click="toggleShowTestimonials">
                 <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18.5 9L12.5 15L6.5 9" stroke="black" stroke-width="2"/>
                 </svg>
@@ -108,13 +108,13 @@
             </div>
         </div>
         <!-- Call to action (rate the service) -->
-        <div class="w-full flex justify-between items-center mt-8">
-            <span v-if="!isAuthorized" class="text-md capitalize py-2 px-12 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D]
+        <div class="w-full flex flex-col md:flex-row space-y-4 md:space-y-0 md:justify-between items-center mt-8">
+            <span v-if="!isAuthorized" class="text-md capitalize py-2 w-full md:w-fit text-center md:px-12 bg-[#F3ECD1] transition-all hover:bg-[#E9D89D]
                 cursor-pointer"
                 @click="handleRateService"
             >Rate the service</span>
             <span v-else class=""></span>
-            <span class="text-md capitalize py-2 px-12 border rounded-sm transition-all hover:bg-[#F3ECD1]
+            <span class="text-md capitalize py-2 w-full text-center md:w-fit md:px-12 border rounded-sm transition-all hover:bg-[#F3ECD1]
                 cursor-pointer"
                 @click="toggleShowService"
             >Go back</span>
