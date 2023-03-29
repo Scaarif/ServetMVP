@@ -432,17 +432,73 @@ def static_get(id, uri):
 @sp_apis.route('/<sp_id>/services')
 @login_required
 def service_multi_get(sp_id):
-    ''' Returns the IDs of a service-provider's services.
+    ''' Returns summary details of a service-provider's services.
     '''
-    # Fetch service IDs
-    stmt = db.select(ServiceProviderServices.id).join(ServiceProviders).where(
-            ServiceProviders.id == sp_id
-            )
-    ids_list = db.session.scalars(stmt).all()
+    # Retrieve data on the service provider
+    sp = db.session.get(ServiceProviders, sp_id)
+
+    if sp:
+        sp_location = db.session.get(Locations, sp.location_id)
+        json_data = dict(
+                username=sp.username,
+                id=sp.id,
+                location_name=sp_location.name,
+                location_id=sp_location.id,
+                )
+    else:
+        return jsonify(dict(
+            status=400,
+            message="invalid service provider ID"
+            )), 400
+
+    # Retrieve services details
+    stmt = db.select(
+            ServiceCategories.id.label('sc_id'),
+            ServiceCategories.name.label('sc_name'),
+            ServiceProviderServices.image_uri,
+            ServiceProviderServices.rating,
+            ServiceProviderServices.service_description,
+            ServiceProviderServices.id.label('sps_id')
+            ).select_from(ServiceProviderServices).join(
+                    ServiceCategories,
+                    ).join(ServiceProviders).join(Locations).join(
+                            States).join(Countries).where(
+                            ServiceProviders.id == sp_id,
+                            )
+
+    rows = db.session.execute(stmt).all()
     '''
-    since only one column is selected, use scalars() to fetch first items
+    - returns a list of Row objects representing the result set
+    - since columns were selected, each row (a Python named tuple)
+      will contain the column attributes requested
+    - as in a named tuple, these attributes can be
+      accessed using their column/attribute name e.g. row.name
     '''
-    return jsonify(ids_list)
+
+    services_list = []
+    for row in rows:
+        # Prepare the data in json_serializable forms
+        image_uri = row.image_uri
+        rating = float(row.rating)  # for serializability
+        description = row.service_description
+        sps_id = row.sps_id
+        sc_name = row.sc_name
+        sc_id = row.sc_id
+
+        # A dictionary representing a single unit of data
+        service_data = dict(
+                image_uri=image_uri,
+                rating=rating,
+                description=description,
+                sps_id=sps_id,
+                serviceCategory_name=sc_name,
+                serviceCategory_id=sc_id,
+                )
+        services_list.append(service_data)
+
+    json_data.update(services=services_list)
+
+    return jsonify(json_data)
 
 
 @sp_apis.route('/<sp_id>/services/<sps_id>')
