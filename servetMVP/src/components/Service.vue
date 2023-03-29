@@ -171,6 +171,10 @@ export default {
                     alert("You can't rate yourself!")
                     return
                 }
+                if (this.loggedInUser.user_type === 'SP') {
+                    alert("A provider can't currently rate a service - working on it!")
+                    return
+                }
                 // actually post the comment
                 let url = config.CUSTOMERS + this.loggedInUser.user_id + '/reviews/create'
                 // console.log(url)

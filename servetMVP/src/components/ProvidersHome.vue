@@ -46,10 +46,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="i in (1, 4)" :key="i">
+                    <tr v-for="service in services.services" :key="service.sps_id">
                         <td class="border pl-4 py-1">Some Service</td>
-                        <td class="border pl-4 py-1">{{ i + 1 }}</td>
-                        <td class="border pl-4 py-1">{{ i }}</td>
+                        <td class="border pl-4 py-1">{{ service.rating }}</td>
+                        <td class="border pl-4 py-1">{{ 2 }}</td>
                     </tr>
                 </tbody>
             </table>

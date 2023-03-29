@@ -37,7 +37,7 @@
             see more ...
         </span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
-            <Service :serviceDets="getService || d_service" :id="currentS_id"/>
+            <Service :serviceDets="getService || d_service" :id="currentService_id"/>
         </div>
     </div>
 </template>
@@ -63,7 +63,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['showService', 'services', 'isAuthorized', 'csrfToken']),
+        ...mapState(['showService', 'services', 'isAuthorized', 'csrfToken', 'currentService_id']),
         ...mapGetters(['getService', 'getServices']),
     },
     components: {
