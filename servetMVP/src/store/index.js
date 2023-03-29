@@ -11,6 +11,7 @@ const store = createStore({
         isCustomer: true,
         isAdmin: false, // assuming that this' the only way an institution could be signed in
         showService: false,
+        currentService_id: '',
         counties: [],
         csrfToken: '',
         isAuthorized: false,
@@ -53,6 +54,7 @@ const store = createStore({
         toggleShowService(state, service_id, csrf='', provider_id) {
             // pass in the service's id to use to fetch the {id}'s details
             state.showService = !state.showService
+            state.currentService_id = service_id
             if (state.showService)
                 this.dispatch('fetchService', service_id, csrf='', provider_id) // call the action (fetchService)
         },

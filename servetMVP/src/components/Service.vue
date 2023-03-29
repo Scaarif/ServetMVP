@@ -62,7 +62,7 @@
             </div>
             <div class="self-start flex space-x-2 items-center pb-8">
                 <textarea class="self-start ml-4 rounded-sm border-slate-300 focus:ring-0 focus:border-slate-400 bg-gray-100 text-slate-700"
-                    name="comment" id="" cols="60" rows="4" v-model="comment">
+                    name="comment" id="" cols="60" rows="4" v-model="comment" :class="error && 'highlight'">
                 </textarea>
                 <button class=" self-end text-md capitalize py-2 px-12 bg-[#F3ECD1] rounded-sm
                     cursor-pointer -ml-80 transition-all hover:bg-[#E9D89D]"
@@ -142,6 +142,7 @@ export default {
         postedReview: {'content': this.comment, 'rating': null},
         slice: 2,
         avgRating: '',
+        error: '',
        }
     },
     created() {
@@ -161,11 +162,16 @@ export default {
         async handleRateService() {
             if (this.isAuthorized) {
                 console.log('submitting your review') // submit review (POST)
-                console.log(this.comment, this.csrfToken)
+                // console.log(this.comment, this.csrfToken)
+                if (!this.comment) {
+                    this.error = true
+                    return
+                }
                 // actually post the comment
                 let url = config.CUSTOMERS + 'ebd14aaa-6b04-4d32-a6d7-251ff0ff9506' + '/reviews/create'
                 // console.log(url)
-                let data = {content: this.comment, 'upvotes': this.stars, 'total_votes': 5, 's_id': this.id}
+                let data = {'review_content': this.comment, 'upvotes': this.stars, 'total_votes': 5, 's_id': this.id}
+                console.log('data -> ', data)
                 // let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
                 fetch(url, {
                 method: "POST",

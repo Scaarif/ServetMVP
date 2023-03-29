@@ -150,8 +150,3 @@ export default {
     
 }
 </script>
-<style>
-.highlight {
-    border: 1px solid rgb(237, 24, 24);
-}
-</style>

@@ -37,7 +37,7 @@
             see more ...
         </span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
-            <Service :serviceDets="getService || service" :id="service.sps_id"/>
+            <Service :serviceDets="getService || d_service" :id="currentService_id"/>
         </div>
     </div>
 </template>
@@ -59,11 +59,11 @@ export default {
             location: {'county': 'Nairobi', 'locale': 'CBD'},
             dummy_services: ['some service', 'some', 'test service', 'test wrapping', 'another', 'see'],
             // services: '',
-            service: {'description': 'test description', 'first_name': 'test', 'last_name': 'testLast', 'rating': 2, 'reviews': [{'content': 'test review', 'customer_first_name': 'test', 'customer_last_name':'test'}]}
+            d_service: {'description': 'test description', 'first_name': 'test', 'last_name': 'testLast', 'rating': 2, 'reviews': [{'content': 'test review', 'customer_first_name': 'test', 'customer_last_name':'test'}]}
         }
     },
     computed: {
-        ...mapState(['showService', 'services', 'isAuthorized', 'csrfToken']),
+        ...mapState(['showService', 'services', 'isAuthorized', 'csrfToken', 'currentService_id']),
         ...mapGetters(['getService', 'getServices']),
     },
     components: {
