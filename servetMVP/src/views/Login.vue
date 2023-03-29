@@ -122,7 +122,7 @@ export default {
                     let user={'user_id': data.user_id, 'user_type': data.user_type}
                     this.setLoggedInUser(user)
                     this.toggleIsLanding()
-                    // check if services have been fetched, fetch if not (e.g when a user chooses to login from lansing page)
+                    // check if services have been fetched, fetch if not (e.g when a user chooses to login from landing page)
                     if (!this.servicesLoaded) {
                         // I'm thinking use localStorage to store a user's prev search parameters (country, location, service_categories) - key: customer_id
                         let country_id = 1 // Kenya (2 = Nigeria)

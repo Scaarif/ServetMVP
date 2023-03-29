@@ -19,7 +19,9 @@ const store = createStore({
         isAuthorized: false,
         loggedInUser: null,
         location: ['Nairobi', 'CBD'], // default
-        locations: null,
+        locations: {'locations': []},
+        states: {'states': []},
+        countries: {'nigeria': 2, 'kenya': 1},
         categories: null,
 
         provider_shopping: false,
@@ -34,12 +36,26 @@ const store = createStore({
             if (res.data.length && res.status === 200)
                 commit('setCategories', res.data)
         },
-        async fetchLocations({commit}, country_id=1, state_id=5) {
-            // default = kenya, nairobi
+        async fetchLocations({commit}, payload) {
+            // default = kenya(1), nairobi(5)
+            console.log('state_id: ', payload[1])
+            let country_id = payload[0]
+            let state_id = payload[1]
             let url = config.DEFAULT + '/countries/' + country_id + '/states/' + state_id + '/locations'
             const res = await httpClient.loggedOutGet(url)
-            console.log('locations: ', res.data)
+            // console.log('locations: ', res)
             // commit 'setLocations' if successfully
+            if (res.status === 200)
+                commit('setLocations', res.data)
+        },
+        async fetchStates({commit}, country_id=1) {
+            // default = kenya
+            let url = config.DEFAULT + '/countries/' + country_id + '/states'
+            const res = await httpClient.loggedOutGet(url)
+            console.log('states: ', res.data)
+            // commit 'setStates' if successfully
+            if (res.status === 200)
+                commit('setStates', res.data)
         }
     },
     mutations: {
@@ -124,6 +140,11 @@ const store = createStore({
         },
         setLocations(state, payload) {
             state.locations = payload
+            console.log('locations: ', state.locations)
+        },
+        setStates(state, payload) {
+            state.states = payload
+            console.log('states: ', state.states)
         }
     }
 })

@@ -10,7 +10,7 @@
         <!-- Service Details -->
         <div class="flex flex-col items-center space-y-4">
             <span class="text-md font-medium p-1 border-b border-slate-800 text-slate-900 capitalize">{{ service.serviceCategory_name }}</span>
-            <span class="text-sm text-slate-800 px-4">
+            <span class="text-sm text-slate-800 px-4 inline-block border-b h-12">
                {{ service.description }}
             </span>
             <!-- Rating, Location & Pricing -->
