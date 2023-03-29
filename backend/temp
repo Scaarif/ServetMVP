@@ -1,5 +1,68 @@
-    if testing:
-        # return redirect(nextp or url_for('sp_apis.profile' if sp else 'cus_apis.profile', id=sp.id of sp else cus.id))
-        pass
+    # Use filter parameters to fetch summary services data
+    if not location_id:
+        if not state_id:
+            # use country id to filter
+            stmt = db.select(
+                    ServiceProviders.first_name,
+                    ServiceProviders.last_name,
+                    ServiceProviders.id.label('sp_id'),
+                    ServiceProviders.location_id,
+                    Locations.name.label('loc_name'),
+                    ServiceCategories.id.label('sc_id'),
+                    ServiceCategories.name.label('sc_name'),
+                    ServiceProviderServices.image_uri,
+                    ServiceProviderServices.rating,
+                    ServiceProviderServices.service_description,
+                    ServiceProviderServices.id.label('sps_id')
+                    ).select_from(ServiceProviderServices).join(
+                            ServiceCategories,
+                            ).join(ServiceProviders).join(Locations).join(
+                                    States).join(Countries).where(
+                                            Countries.id == int(country_id),
+                                            ServiceCategories.id == int(sc_id)
+                                            )
+            rows_list = db.session.execute(stmt).all()
+            '''
+            - returns a list of Row objects representing the result set
+            - since columns were selected, each row (a Python named tuple) in
+              the list will contain the column attributes requested
+            - as in a named tuple, these attributes can be
+              accessed using their column/attribute name e.g. row[0].name
+            '''
+        rows_list = db.session.execute(stmt).all()
 
-    return make_response(jsonify({"login": True}), 200)
+    json_list = []
+
+    for row in rows_list:
+        # Prepare the data in json_serializable forms
+        first_name = row.first_name
+        last_name = row.last_name
+        image_uri = row.image_uri
+        rating = float(row.rating)  # for serializability
+        description = row.service_description
+        sps_id = row.sps_id
+        sp_id = row.sp_id
+        sc_name = row.sc_name
+        sc_id = row.sc_id
+        loc_name = row.loc_name
+        loc_id = row.location_id
+
+        # A dictionary representing a single unit of data
+        json_data = dict(
+                first_name=first_name,
+                last_name=last_name,
+                image_uri=image_uri,
+                rating=rating,
+                description=description,
+                sps_id=sps_id,
+                sp_id=sp_id,
+                serviceCategory_name=sc_name,
+                serviceCategory_id=sc_id,
+                location_name=loc_name,
+                location_id=loc_id
+                )
+
+        # Append to list
+        json_list.append(json_data)
+
+    return jsonify(json_list)
