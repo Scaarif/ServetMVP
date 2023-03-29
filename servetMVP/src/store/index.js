@@ -16,8 +16,10 @@ const store = createStore({
         csrfToken: '',
         isAuthorized: false,
         loggedInUser: null,
-        location: 'CBD, Nairobi', // default
+        location: ['Nairobi', 'CBD'], // default
         categories: null,
+
+        provider_shopping: false,
     },
     getters: {
 
@@ -99,7 +101,11 @@ const store = createStore({
         },
         setCategories(state, payload) {
             state.categories = payload // should be a list (array) of objects (id & name)
-            console.log('state.categories: ', state.categories)
+            // console.log('state.categories: ', state.categories, state.categories[0].id)
+        },
+        toggleProviderShopping(state) {
+            state.provider_shopping = !state.provider_shopping
+            console.log('provider_shopping: ', state.provider_shopping)
         }
     }
 })

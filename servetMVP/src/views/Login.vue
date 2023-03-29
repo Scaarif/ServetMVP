@@ -27,7 +27,7 @@
     </div>
 </template>
 <script>
-import { mapMutations, mapState } from 'vuex';
+import { mapGetters, mapMutations, mapActions, mapState } from 'vuex';
 export default {
     data() {
         return {
@@ -41,12 +41,14 @@ export default {
     },
     computed: {
         ...mapState(['isLanding', 'isAuthorized']),
+        ...mapGetters(['servicesLoaded']),
     },
     mounted() {
         this.getSession()
     },
     methods: {
         ...mapMutations(['toggleIsLanding', 'setCsrfToken', 'toggleIsAuthorized', 'setLoggedInUser']),
+        ...mapActions(['fetchServices']),
         handleSubmit() {
           console.log('isAuth: ', this.isAuthenticated, this.isAuthorized)
             if (!this.isAuthenticated) {
@@ -120,6 +122,14 @@ export default {
                     let user={'user_id': data.user_id, 'user_type': data.user_type}
                     this.setLoggedInUser(user)
                     this.toggleIsLanding()
+                    // check if services have been fetched, fetch if not (e.g when a user chooses to login from lansing page)
+                    if (!this.servicesLoaded) {
+                        // I'm thinking use localStorage to store a user's prev search parameters (country, location, service_categories) - key: customer_id
+                        let country_id = 1 // Kenya (2 = Nigeria)
+                        const queryStr = '?country=' + country_id + '&service_category=2'
+                        this.fetchServices(queryStr)
+                    }   
+                    console.log('isLoaded: ', this.servicesLoaded)
                     // redirect to home page
                     this.$router.push({name: 'home'})
                     // set authToken in localStorage

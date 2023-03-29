@@ -24,7 +24,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['activeUser', 'isAuthorized', 'loggedInUser']),
+        ...mapState(['activeUser', 'isAuthorized', 'loggedInUser', 'provider_shopping']),
     },
     created() {
         this.checkIfLoggedIn()
