@@ -1,18 +1,4 @@
-Implemented API to return service categories.
+SP services API now returns summary info like default
 
-Modified: GET /api/v1/services
-- include location name and ID for each service
-- include service category name and ID
-
-Modified: GET /api/v1/services/<service_id>
-- include upvotes in each service review
-- include location name and ID for each service
-- include service category name and ID
-
-Modified: GET /api/v1/serviceProviders/<sp_id>/services/<service_id>
-- include upvotes in each service review
-- include location name and ID for each service
-- include service category name and ID
-
-New API: GET /api/v1/serviceCategories
-- returns all available service category names and IDs
+Modified: GET /api/v1/serviceProviders/<sp_id>/services
+- now returns summary info on a service provider services instead of just their IDs
