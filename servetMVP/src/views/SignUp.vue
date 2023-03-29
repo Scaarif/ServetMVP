@@ -73,12 +73,12 @@ export default {
             user: 'customer',
             signUpUser: '',
             showSelect: true,
-            fullname: 'starah mei',
-            email: 'starah@mei',
+            fullname: 'farahh Alachi',
+            email: 'farah@alachi',
             password: 'test',
-            phone: '07xx xxxxxx',
-            whatsapp: '07xx xxxxxxx',
-            location: 1,
+            phone: '07xx xxxx11',
+            whatsapp: '07xx xxxxx11',
+            location: 6, // kasarani
             csrfToken: '',
             isAuthenticated: false,
         }

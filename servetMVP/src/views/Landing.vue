@@ -62,12 +62,16 @@ export default {
             locale: 'Sub County',
         }
     },
+    created() {
+        // fetch locations
+        this.fetchLocations()
+    },
     computed: {
         ...mapState(['isLanding'])
     }, 
     methods: {
         ...mapMutations(['toggleIsLanding', 'setCounties', 'setSelectedLocation']),
-        ...mapActions(['fetchServices']),
+        ...mapActions(['fetchServices', 'fetchLocations']),
         setLocation() {
             if (this.location !== 'Country') {
                 this.selectedLocation = this.location

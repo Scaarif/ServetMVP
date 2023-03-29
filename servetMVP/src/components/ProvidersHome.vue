@@ -94,7 +94,7 @@ export default {
         this.loadMyServices()
     },
     computed: {
-        ...mapState(['csrfToken', 'provider_shopping']),
+        ...mapState(['csrfToken', 'provider_shopping', 'loggedInUser']),
     },
     methods: {
         ...mapMutations(['toggleProviderShopping']),
@@ -110,7 +110,7 @@ export default {
             console.log(this.serviceId)
         },
         loadMyServices() {
-            let provider_id = '40338897-3dfe-4cb6-8931-fdb6057a2187'
+            let provider_id = this.loggedInUser.user_id
             let url = 'http://localhost:5000/api/v1/serviceProviders/' + provider_id + '/services'
             fetch(url, {
                 method: "GET",

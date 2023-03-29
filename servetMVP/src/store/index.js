@@ -19,6 +19,7 @@ const store = createStore({
         isAuthorized: false,
         loggedInUser: null,
         location: ['Nairobi', 'CBD'], // default
+        locations: null,
         categories: null,
 
         provider_shopping: false,
@@ -33,7 +34,13 @@ const store = createStore({
             if (res.data.length && res.status === 200)
                 commit('setCategories', res.data)
         },
-
+        async fetchLocations({commit}, country_id=1, state_id=5) {
+            // default = kenya, nairobi
+            let url = config.DEFAULT + '/countries/' + country_id + '/states/' + state_id + '/locations'
+            const res = await httpClient.loggedOutGet(url)
+            console.log('locations: ', res.data)
+            // commit 'setLocations' if successfully
+        }
     },
     mutations: {
         setActiveUser(state, value) {
@@ -114,6 +121,9 @@ const store = createStore({
         toggleProviderShopping(state) {
             state.provider_shopping = !state.provider_shopping
             console.log('provider_shopping: ', state.provider_shopping)
+        },
+        setLocations(state, payload) {
+            state.locations = payload
         }
     }
 })

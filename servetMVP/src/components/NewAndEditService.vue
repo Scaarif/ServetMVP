@@ -37,8 +37,8 @@
              <!-- service description -->
              <div class="flex space-x-2 w-full items-center">
                 <span class="w-1/3 text-md capitalize">description</span>
-                <textarea class="border rounded-sm w-full border-slate-300 ring-0 focus:ring-0 focus:border-slate-400 text-md
-                    capitalize bg-gray-100 py-2" type="text" :value="description" :class="error && 'highlight'"></textarea> 
+                <input class="border h-16 rounded-sm w-full border-slate-300 ring-0 focus:ring-0 focus:border-slate-400 text-md
+                    capitalize bg-gray-100 py-2 text-slate-600" type="text" v-model="description" :class="error && 'highlight'"> 
             </div>
             <div class="flex space-x-2 w-full items-center pt-16">
                 <div class="flex justify-between w-full items-center">
@@ -67,7 +67,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['csrfToken', 'categories'])
+        ...mapState(['csrfToken', 'categories', 'loggedInUser'])
     },
     created() {
         this.getCategories() // fetch service categories & set default category
@@ -76,7 +76,7 @@ export default {
         }
         else {
             this.category = this.service.serviceCategory_id
-            this.description = this.service.service_description
+            this.description = this.service.description
         }
     },
     methods: {
@@ -105,7 +105,7 @@ export default {
             data['service_category'] = this.category
 
             if (this.do === 'save'){
-                let provider_id = '40338897-3dfe-4cb6-8931-fdb6057a2187'
+                let provider_id = this.loggedInUser.user_id
                 let url = "http://localhost:5000/api/v1/serviceProviders/" + provider_id + "/services/"
                 url += this.id ? this.id + '/edit' : 'create'
                 console.log(url)
