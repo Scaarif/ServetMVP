@@ -11,10 +11,15 @@ const store = createStore({
         isCustomer: true,
         isAdmin: false, // assuming that this' the only way an institution could be signed in
         showService: false,
+        currentService_id: '',
         counties: [],
         csrfToken: '',
         isAuthorized: false,
-        location: 'CBD, Nairobi', // default
+        loggedInUser: null,
+        location: ['Nairobi', 'CBD'], // default
+        categories: null,
+
+        provider_shopping: false,
     },
     getters: {
 
@@ -51,6 +56,7 @@ const store = createStore({
         toggleShowService(state, service_id, csrf='', provider_id) {
             // pass in the service's id to use to fetch the {id}'s details
             state.showService = !state.showService
+            state.currentService_id = service_id
             if (state.showService)
                 this.dispatch('fetchService', service_id, csrf='', provider_id) // call the action (fetchService)
         },
@@ -65,6 +71,10 @@ const store = createStore({
         },
         toggleIsAuthorized(state) {
             state.isAuthorized = true
+        },
+        setLoggedInUser(state, payload) {
+            console.log(payload) // should be an object: user_id and type(customer or provider for now)
+            state.loggedInUser = payload
         },
         async handleLogout(state) {
             let res;
@@ -88,6 +98,14 @@ const store = createStore({
         setSelectedLocation(state, value) {
             state.location = value
             console.log(state.location)
+        },
+        setCategories(state, payload) {
+            state.categories = payload // should be a list (array) of objects (id & name)
+            // console.log('state.categories: ', state.categories, state.categories[0].id)
+        },
+        toggleProviderShopping(state) {
+            state.provider_shopping = !state.provider_shopping
+            console.log('provider_shopping: ', state.provider_shopping)
         }
     }
 })

@@ -10,7 +10,7 @@
                     </svg>
                 </span>
                 <span class="absolute right-0 px-8 py-2 rounded-sm text-sm font-medium bg-[#F3ECD1]
-                    transition-all hover:bg-[#E9D89D] cursor-pointer capitalize" @click="setActiveUser('customer')"
+                    transition-all hover:bg-[#E9D89D] cursor-pointer capitalize" @click="toggleProviderShopping"
                 >See all Services</span>
             </div>
             <!-- the services -->
@@ -61,13 +61,17 @@
                <AnalyticsCopy />
             </div>
        </div>
+       <!-- All services page (with all capabilities, similar to a customer - they too can shop/browse services) -->
+       <AllServicesAlt v-if="provider_shopping"/>
     </div>
 </template>
 <script>
 import NewAndEditService from './NewAndEditService.vue'
 import AnalyticsCopy from './Analytics copy.vue'
+import AllServicesAlt from './AllServicesAlt.vue'
 
 import { mapMutations, mapState } from 'vuex'
+
 
 export default {
     data() {
@@ -81,16 +85,17 @@ export default {
     components: {
         NewAndEditService,
         AnalyticsCopy,
+        AllServicesAlt,
     },
     created() {
         console.log('loading my services')
         this.loadMyServices()
     },
     computed: {
-        ...mapState(['csrfToken']),
+        ...mapState(['csrfToken', 'provider_shopping']),
     },
     methods: {
-        ...mapMutations(['setActiveUser']),
+        ...mapMutations(['toggleProviderShopping']),
         toggleshowPending() {
             this.showPending = !this.showPending
         },

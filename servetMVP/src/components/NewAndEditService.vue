@@ -16,10 +16,11 @@
             <div class="flex space-x-2 w-full items-center">
                 <span class="w-1/3 text-md capitalize">service category</span>
                 <select class="border rounded-sm w-full border-slate-300 ring-0 focus:ring-0 focus:border-slate-400 text-md
-                    capitalize bg-gray-100">
-                    <option value="cleaning" class="bg-gray-50">cleaning</option>
-                    <option value="some option" class="bg-gray-50">some other option</option>
-                    <option value="day help" class="bg-gray-50">day help</option>
+                    capitalize bg-gray-100"
+                    v-model="category"
+                    @change="setCategory"
+                >
+                    <option v-for="category in categories" :key="category.id" :value="category.id" class="bg-gray-50">{{ category.name }}</option>
                 </select>   
             </div>
             <!-- service location -->
@@ -35,8 +36,8 @@
              <!-- service description -->
              <div class="flex space-x-2 w-full items-center">
                 <span class="w-1/3 text-md capitalize">description</span>
-                <input class="border rounded-sm w-full border-slate-300 ring-0 focus:ring-0 focus:border-slate-400 text-md
-                    capitalize bg-gray-100 py-2" type="text" v-model="description">  
+                <textarea class="border rounded-sm w-full border-slate-300 ring-0 focus:ring-0 focus:border-slate-400 text-md
+                    capitalize bg-gray-100 py-2" type="text" v-model="description" :class="error && 'highlight'"></textarea> 
             </div>
             <div class="flex space-x-2 w-full items-center pt-16">
                 <div class="flex justify-between w-full items-center">
@@ -61,12 +62,16 @@ export default {
             serviceName: 'some service',
             description: '',
             category: 2, //hair dressing
+            error: '',
         }
     },
     computed: {
-        ...mapState(['csrfToken'])
+        ...mapState(['csrfToken', 'categories'])
     },
     methods: {
+        setCategory(){
+            console.log('selected category: ', this.category)
+        },
         setDo(val) {
             this.do = val
             console.log(this.do)
@@ -76,7 +81,13 @@ export default {
             // reset/clear serviceId field
             this.setServiceId('')
             // wait a second then (return to home page) - How?
-            this.toggle()
+            if (!this.id && !this.description && this.do === 'save') {
+                this.error = true
+                console.log('service description missing')
+                return;
+            } else {
+                this.toggle()
+            }
             console.log(this.description, this.csrfToken)
             let data = {'service_description': this.description};
             data['service_category'] = this.category

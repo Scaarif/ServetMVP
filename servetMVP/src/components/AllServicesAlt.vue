@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full flex flex-col items-center">
+    <div class="absolute bg-gray-50 top-0 min-h-screen h-full w-full flex flex-col items-center z-10 pb-32 pt-8 pr-8 shadow-lg">
         <!-- header (slogan & filter bar) -->
         <div class="w-full flex flex-col space-y-4 items-center md:flex-row md:justify-between px-8 mb-8">
             <input v-if="isAuthorized"
@@ -31,11 +31,16 @@
                 :service="service"
                 @click="toggleShowService(service.sps_id, csrfToken, '')" />
         </div>
+        
         <!-- see more -->
         <span v-if="getServices.length > 6" class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
             mr-8 transition-all hover:border-slate-800 cursor-pointer" @click="loadMore">
             see more ...
         </span>
+        <!-- hide services (go back to provider's timeline) -->
+        <span class="mt-8 px-8 py-2 rounded-sm text-sm font-medium bg-[#F3ECD1]
+            transition-all hover:bg-[#E9D89D] cursor-pointer capitalize" @click="toggleProviderShopping"
+        >Hide all Services</span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
             <Service :serviceDets="getService || d_service" :id="currentService_id"/>
         </div>
@@ -74,7 +79,7 @@ export default {
         console.log('load categories: ', this.getCategories())
     },
     methods: {
-        ...mapMutations(['toggleShowService', 'setCategories']),
+        ...mapMutations(['toggleShowService', 'setCategories', 'toggleProviderShopping']),
         // ...mapActions(['fetchServices']),
         setFilterMetrics() {
             this.searchMetrics = this.metrics

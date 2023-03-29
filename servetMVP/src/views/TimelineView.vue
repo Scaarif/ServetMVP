@@ -1,7 +1,7 @@
 <template>
-    <div class="w-full flex flex-col items-center">
-        <ServicesTemplate v-if="activeUser === 'customer' || !activeUser"/>
-        <ProvidersHome v-if="activeUser === 'provider'"/>
+    <div class="">
+        <ServicesTemplate v-if="activeUser === 'customer' || (!activeUser && !loggedInUser) || loggedInUser.user_type === 'CUS'"/>
+        <ProvidersHome v-if="activeUser === 'provider' || loggedInUser.user_type === 'SP'"/>
         <AdminHome v-if="activeUser === 'admin'"/>
     </div>
 </template>
@@ -24,7 +24,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['activeUser', 'isAuthorized']),
+        ...mapState(['activeUser', 'isAuthorized', 'loggedInUser', 'provider_shopping']),
     },
     created() {
         this.checkIfLoggedIn()
