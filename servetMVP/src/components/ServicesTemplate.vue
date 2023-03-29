@@ -37,7 +37,7 @@
             see more ...
         </span>
         <div v-if="showService" class="absolute top-0 z-5 w-full bg-gray-50">
-            <Service :serviceDets="getService || d_service" :id="currentService_id"/>
+            <Service :serviceDets="getService || d_service" :id="currentS_id"/>
         </div>
     </div>
 </template>
@@ -63,7 +63,7 @@ export default {
         }
     },
     computed: {
-        ...mapState(['showService', 'services', 'isAuthorized', 'csrfToken', 'currentService_id']),
+        ...mapState(['showService', 'services', 'isAuthorized', 'csrfToken']),
         ...mapGetters(['getService', 'getServices']),
     },
     components: {
@@ -71,10 +71,11 @@ export default {
         Service,
     },
     created() {
-        console.log('load categories: ', this.getCategories())
+        this.getCategories() // fetch service categories
     },
     methods: {
         ...mapMutations(['toggleShowService', 'setCategories']),
+        ...mapActions(['getCategories']),
         // ...mapActions(['fetchServices']),
         setFilterMetrics() {
             this.searchMetrics = this.metrics
@@ -87,12 +88,12 @@ export default {
             // console.log('loaded services: ', this.services.services[0])
             console.log('loaded services: ', this.getServices)
         },
-        async getCategories() {
-            const res = await httpClient.loggedOutGet(config.DEFAULT + '/serviceCategories')
-            // console.log(res.data)
-            if (res.data.length && res.status === 200)
-                this.setCategories(res.data)
-        },
+        // async getCategories() {
+        //     const res = await httpClient.loggedOutGet(config.DEFAULT + '/serviceCategories')
+        //     // console.log(res.data)
+        //     if (res.data.length && res.status === 200)
+        //         this.setCategories(res.data)
+        // },
     }
 }
 </script>

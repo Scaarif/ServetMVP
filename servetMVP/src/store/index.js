@@ -1,5 +1,7 @@
 import { createStore } from 'vuex'
 import services from './services'
+import httpClient from '../httpClient'
+import config from '../config'
 
 const store = createStore({
     modules: {
@@ -25,6 +27,12 @@ const store = createStore({
 
     },
     actions: {
+        async getCategories({commit}) {
+            const res = await httpClient.loggedOutGet(config.DEFAULT + '/serviceCategories')
+            // console.log(res.data)
+            if (res.data.length && res.status === 200)
+                commit('setCategories', res.data)
+        },
 
     },
     mutations: {
@@ -101,7 +109,7 @@ const store = createStore({
         },
         setCategories(state, payload) {
             state.categories = payload // should be a list (array) of objects (id & name)
-            // console.log('state.categories: ', state.categories, state.categories[0].id)
+            console.log('state.categories: ', state.categories, state.categories[0].id)
         },
         toggleProviderShopping(state) {
             state.provider_shopping = !state.provider_shopping

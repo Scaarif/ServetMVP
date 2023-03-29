@@ -16,12 +16,12 @@
             <!-- the services -->
             <div v-show="showPending" class="flex flex-wrap">
                 <!-- a service -->
-                <div v-for="service, idx in services" :key="idx"
+                <div v-for="service in services.services" :key="service.sps_id"
                     class="w-full md:w-1/2 flex items-center justify-between p-4 mb-2 mr-2 border rounded-sm bg-gray-100">
-                    <span class="text-md font-medium">Some Service</span>
+                    <span class="text-md font-medium">{{ service.serviceCategory_name }}</span>
                     <div class="flex items-center">
                         <span class="text-sm px-3 py-1 border border-[#F3ECD1] bg-[#F3ECD1] cursor-pointer transition-all
-                            hover:bg-[#E9D89D] capitalize" @click="toggleShowModal(), setServiceId(4)">edit</span>
+                            hover:bg-[#E9D89D] capitalize" @click="toggleShowModal(), setServiceId(service.sps_id), setEditService(service)">edit</span>
                         <span class="text-sm border-y border-r border-[#F3ECD1] px-2 py-1 cursor-pointer transition-all
                             hover:bg-[#E9D89D] capitalize">delete</span>
                     </div>
@@ -32,7 +32,8 @@
             </div>
        </div>
        <!-- Service Modification & Creation Modal -->
-       <NewAndEditService v-if="showModifyServiceModal" :toggle="toggleShowModal" :id="serviceId" :setServiceId="setServiceId"/>
+       <NewAndEditService v-if="showModifyServiceModal" :toggle="toggleShowModal" :id="serviceId"
+        :setServiceId="setServiceId" :service="editService"/>
        <!-- Analytics (table) -->
        <div class="flex flex-col space-y-2 p-4 pb-6 border rounded">
             <span class="text-lg font-medium mb-4">Analytics</span>
@@ -80,6 +81,7 @@ export default {
             services: ['some service', 'test service'],
             showModifyServiceModal: false,
             serviceId: '',
+            editService: null,
         }
     },
     components: {
@@ -123,12 +125,16 @@ export default {
                 .then((res) => res.json())
                 .then((data) => {
                     console.log('my services: ', data);
+                    this.services = data
                     // set services to the fetched data
                 })
                 .catch((err) => {
                     console.log('error: ', err);
                     // res = err
                 });
+        },
+        setEditService(service) {
+            this.editService = service
         }
     }
 }

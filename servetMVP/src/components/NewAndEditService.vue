@@ -1,5 +1,5 @@
 <template>
-    <div class="absolute -top-4 bg-gray-50 h-full w-full flex flex-col space-y-16 p-4 border">
+    <div class="absolute -top-4 bg-gray-50 h-full w-full flex flex-col space-y-16 p-4 z-10">
         <span class="self-end mr-8 px-8 py-2 rounded-sm text-sm font-medium bg-[#F3ECD1]
             transition-all hover:bg-[#E9D89D] cursor-pointer capitalize" @click="toggle"
         >Go back</span>
@@ -8,7 +8,7 @@
             class="w-full flex flex-col space-y-2 border self-center md:max-w-xl flex px-4 py-32 rounded">
             <div class="flex flex-col pb-16 items-center">
                 <span v-if="id" class="border-b border-slate-600 py-2 px-8 text-lg font-medium capitalize"
-                >Edit {{ serviceName }}</span>
+                >Edit {{ service.serviceCategory_name }}</span>
                 <span v-else @click="checkServiceId" class="border-b border-slate-600 py-2 px-8 text-lg font-medium capitalize"
                 >Create a new service</span>
             </div>
@@ -20,7 +20,8 @@
                     v-model="category"
                     @change="setCategory"
                 >
-                    <option v-for="category in categories" :key="category.id" :value="category.id" class="bg-gray-50">{{ category.name }}</option>
+                    <option v-for="category in categories" :key="category.id" :value="category.id" class="bg-gray-50"
+                    >{{ category.name }}</option>
                 </select>   
             </div>
             <!-- service location -->
@@ -37,7 +38,7 @@
              <div class="flex space-x-2 w-full items-center">
                 <span class="w-1/3 text-md capitalize">description</span>
                 <textarea class="border rounded-sm w-full border-slate-300 ring-0 focus:ring-0 focus:border-slate-400 text-md
-                    capitalize bg-gray-100 py-2" type="text" v-model="description" :class="error && 'highlight'"></textarea> 
+                    capitalize bg-gray-100 py-2" type="text" :value="description" :class="error && 'highlight'"></textarea> 
             </div>
             <div class="flex space-x-2 w-full items-center pt-16">
                 <div class="flex justify-between w-full items-center">
@@ -52,23 +53,34 @@
     </div>
 </template>
 <script>
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
-    props: ['toggle', 'id', 'setServiceId'],
+    props: ['toggle', 'id', 'setServiceId', 'service'],
     data() {
         return {
             do:'',
-            serviceName: 'some service',
+            // serviceName: 'some service',
             description: '',
-            category: 2, //hair dressing
+            category: '',
             error: '',
         }
     },
     computed: {
         ...mapState(['csrfToken', 'categories'])
     },
+    created() {
+        this.getCategories() // fetch service categories & set default category
+        if (!this.id) {
+            this.category = this.categories[0].id
+        }
+        else {
+            this.category = this.service.serviceCategory_id
+            this.description = this.service.service_description
+        }
+    },
     methods: {
+        ...mapActions(['getCategories']),
         setCategory(){
             console.log('selected category: ', this.category)
         },
