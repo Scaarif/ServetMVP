@@ -1,12 +1,12 @@
 <template>
     <div class="flex flex-col items-center justify-center min-h-screen h-full bg-gray-50">
-        <form @submit.prevent="handleSubmit" class="flex flex-col items-center space-y-2 pb-32 pt-16 px-16 border
-            rounded-md shadow-sm">
+        <form @submit.prevent="handleSubmit" class="flex flex-col items-center space-y-2 pb-32 pt-16 md:px-16 md:border
+            md:rounded-md md:shadow-sm">
             <span class="pb-16 text-lg">Welcome to <b>Servet</b></span>
             <!-- select user type -->
-            <div class="md:self-end flex items-center space-x-2 mb-16 pl-2 rounded-sm">
+            <div class="w-full md:w-fit md:self-end flex items-center space-x-2 mb-16 md:pl-2 rounded-sm">
                <!-- <span class="text-lg font-medium"> Sign Up as a</span> -->
-               <select class="text-sm bg-slate-50 ring-0 border-slate-300 rounded focus:border-slate-400 focus:ring-0"
+               <select class="text-sm bg-slate-50 ring-0 border-slate-300 rounded focus:border-slate-400 focus:ring-0 w-full"
                     v-model="user"
                     @change="setUser"
                >

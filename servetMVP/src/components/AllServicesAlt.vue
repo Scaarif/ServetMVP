@@ -1,5 +1,6 @@
 <template>
-    <div class="absolute bg-gray-50 top-0 min-h-screen h-full w-full flex flex-col items-center z-10 pb-32 pt-8 pr-8 shadow-lg">
+    <div class="absolute bg-gray-50 top-0 -left-2 md:left-4 min-h-screen h-full w-full flex flex-col
+        items-center z-10 pb-32 pt-8 pr-8 md:shadow-lg">
         <!-- header (slogan & filter bar) -->
         <div class="w-full flex flex-col space-y-2 items-center md:flex-row md:justify-between md:space-y-0 px-8 mb-8">
             <span class="max-w-sm w-full capitalize">
@@ -41,7 +42,7 @@
         <!-- services display -->
         <span v-if="!isAuthorized" class="self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular at {{ d_location.locale }}, {{ d_location.county }}</span>
-        <span v-else class="md:self-start text-slate-900 text-lg font-bold ml-4"
+        <span v-else class="text-center md:self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
         <div class="w-full flex items-center mt-8 flex-wrap px-8 sm:justify-center">
             <!-- <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService(2, csrfToken, '')" /> -->

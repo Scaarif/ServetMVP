@@ -1,7 +1,7 @@
 <template>
-    <div class="w-full flex flex-col space-y-4 p-4 pb-16">
+    <div class="w-full flex flex-col space-y-4 p-4 pb-16 pr-8">
        <!-- Provider services (folded up) -->
-       <div class="w-full flex flex-col space-y-2 border p-4 rounded">
+       <div class="w-full flex flex-col space-y-8 md:space-y-2 border-t md:border p-4 rounded">
             <div class="flex space-x-2 items-center relative mb-4">
                 <span class="text-lg font-medium">My Services</span>
                 <span class="absolute top-1 left-28" @click="toggleshowPending">
@@ -9,7 +9,7 @@
                         <path d="M18.5 9L12.5 15L6.5 9" stroke="black" stroke-width="2"/>
                     </svg>
                 </span>
-                <span class="absolute right-0 px-8 py-2 rounded-sm text-sm font-medium bg-[#F3ECD1]
+                <span class="absolute right-0 px-4 md:px-8 py-2 rounded-sm text-sm font-medium bg-[#F3ECD1]
                     transition-all hover:bg-[#E9D89D] cursor-pointer capitalize" @click="toggleProviderShopping"
                 >See all Services</span>
             </div>
@@ -35,7 +35,7 @@
        <NewAndEditService v-if="showModifyServiceModal" :toggle="toggleShowModal" :id="serviceId"
         :setServiceId="setServiceId" :service="editService"/>
        <!-- Analytics (table) -->
-       <div class="flex flex-col space-y-2 p-4 pb-6 border rounded">
+       <div class="flex flex-col space-y-2 p-4 pb-6 border-y md:border rounded">
             <span class="text-lg font-medium mb-4">Analytics</span>
             <table class="md:max-w-lg w-full">
                 <thead class="bg-gray-100">
@@ -58,8 +58,8 @@
        <div class="flex flex-col space-y-2 border p-4 pb-6 rounded">
             <span class="text-lg font-medium mb-4">Comparative graphs</span>
             <div class="flex flex-col border py-12 px-4 bg-gray-100">
-                <span class="w-1/2 text-sm text-slate-600">This' the comparative graph section (not sure yet how to do it - maybe canva? Is it that time now?)</span>
-               <AnalyticsCopy />
+                <span class="md:w-1/2 text-sm text-slate-600">This' the comparative graph section (Is it that time now?)</span>
+               <AnalyticsCopy class="overflow-scroll"/>
             </div>
        </div>
        <!-- All services page (with all capabilities, similar to a customer - they too can shop/browse services) -->
