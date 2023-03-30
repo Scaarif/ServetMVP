@@ -21,7 +21,9 @@
                 <input class="md:min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
                     focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50"
                     :type="Object.keys(value)[0].includes('password') ? 'password' : 'text'"
-                    :placeholder="Object.values(value)[0]" required>
+                    :placeholder="Object.values(value)[0]" required :name="Object.values(value)[0]"
+                    :ref="Object.values(value)[0]" :class="error && 'highlight'"  
+                >
             </div>
             <div class="w-full flex flex-col items-center md:flex-row md:space-x-4">
                 <span class="md:min-w-sm w-full text-md capitalize">email address:<b>*</b></span>
@@ -35,7 +37,9 @@
                     <span class="md:min-w-sm w-full text-md capitalize">{{ Object.keys(value)[0] }}:<b>*</b></span>
                     <input class="md:min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
                         focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50" type="text"
-                        :placeholder="Object.values(value)[0]" required>
+                        :placeholder="Object.values(value)[0]" required
+                        :ref="Object.values(value)[0]" :class="error && 'highlight'"
+                    >
                 </div>
             </div>
             <div class="w-full md:self-end md:w-fit flex flex-col items-center">
@@ -53,36 +57,33 @@
     </div>
 </template>
 <script>
+import { ref } from 'vue'
 export default {
     data() {
         return {
             // field and its placeholder value
             fields: [
-                {'full name': 'your full name'},
-                {'username': 'preferred username'},
-                {'phone number': 'your phone number'},
-                {'password': 'set a password'},
+                {'full name': 'full name'},
+                {'username': 'username'},
+                {'phone number': 'phone'},
+                {'password': 'password'},
                 {'confirm password': 'confirm password'},
             ],
             providerFields: [
-                {'service category': 'your service category'},
-                {'service description': 'your service description'},
-                {'location': 'your location'},
-                {'whats app number': 'your whats app number'},
-                {'social media links': 'your social media links'},
-                {'profile photo': 'upload profile photo'},
+                // {'service category': 'category'},
+                // {'service description': 'description'},
+                {'location': 'location'},
+                {'whats app number': 'whats app'},
+                // {'social media links': 'social media'},
+                {'profile photo': 'photo'},
             ],
             user: 'customer',
             signUpUser: '',
             showSelect: true,
-            fullname: 'farahh Alachi',
-            email: 'farah@alachi',
-            password: 'test',
-            phone: '07xx xxxx11',
-            whatsapp: '07xx xxxxx11',
-            location: 6, // kasarani
+            email: '',
             csrfToken: '',
             isAuthenticated: false,
+            error: false,
         }
     },
     mounted() {
@@ -95,19 +96,45 @@ export default {
         },
         handleSubmit() {
             // handle data submission (POST)
+            let toSet = {};
+            let set = Object.values(this.fields)
+            if (this.signUpUser === 'provider')
+                set.push(...Object.values(this.providerFields))
+            set.map(val => {
+                let field = Object.values(val)[0]
+                toSet[field] = this.$refs[field][0].value
+                // validate values (input)
+                if (field === 'full name' && !toSet[field].split(' ')[1])
+                    this.error = true
+                if (field === 'confirm password' && !(toSet['password'] === toSet[field]))
+                    this.error = true
+                // console.log(field, ': ', toSet[field])
+            })
+            console.log('toSet: ', toSet)
+            if (this.error)
+                return
+            // console.log(this.$refs['full name'][0].value, this.$refs['username'][0].value)
             let data = {}
-            data['first_name'] = this.fullname.split(' ')[0]
-            data['username'] = this.fullname.split(' ')[1]
-            data['last_name'] = this.fullname.split(' ')[1]
+            data['first_name'] = toSet['full name'].split(' ')[0]
+            data['username'] = toSet.username
+            data['last_name'] = toSet['full name'].split(' ')[1]
             data['email'] = this.email
-            data['password'] = this.password
-            data['phone'] = this.phone
+            data['password'] = toSet.password
+            data['phone'] = toSet.phone
             data['csrf_token'] = this.csrfToken
+
+            // data['first_name'] = this.fullname.split(' ')[0]
+            // data['username'] = this.fullname.split(' ')[1]
+            // data['last_name'] = this.fullname.split(' ')[1]
+            // data['email'] = this.email
+            // data['password'] = this.password
+            // data['phone'] = this.phone
+            // data['csrf_token'] = this.csrfToken
 
             if (this.signUpUser === 'provider'){
                 // console.log('signing up as provider')
-                data['whatsapp'] = this.whatsapp
-                data['location'] = this.location
+                data['whatsapp'] = toSet['whats app']
+                data['location'] = toSet.location
             }
             this.signup(JSON.stringify(data))
         },
@@ -169,6 +196,9 @@ export default {
                 .catch((err) => {
                 console.log(err);
                 });
+        },
+        printValue(val){
+            console.log(val+': ' + this.$refs[val][0].value)
         },
     }
 }
