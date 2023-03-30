@@ -12,7 +12,7 @@ from flask_login import (
 from api.v1.views import (
         db, ServiceProviders, ServiceCategories,
         ServiceProviderServices, Countries, States, Locations,
-        Reviews, Customers, is_safe_url, db
+        Reviews, Customers, is_safe_url, store
         )
 from werkzeug.security import check_password_hash
 from uuid import uuid4
@@ -70,13 +70,14 @@ if testing:
 
 
 if testing:
-    @default_apis.route('/login')
+    @default_apis.route('/login/get')
     def login_get():
         ''' Return the login form view.'''
         return render_template('login.html')
 
 
 @default_apis.route('/login', methods=['POST'])
+@store.csrf.exempt
 def login_post():
     ''' Authenticate posted login information for both customers and SPs.
     '''
@@ -84,6 +85,16 @@ def login_post():
     username = request.form.get('username')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
+
+    '''
+    # testing
+    data = request.get_json(silent=True)
+    username = data.get('username')
+    password = data.get('password')
+    remember = True if data.get('remember') else False
+    '''
+
+    print('############-->', username, password, remember)
 
     # Verify that service provider is registered
     stmt = db.select(
@@ -128,6 +139,8 @@ def login_post():
     # User exists and is authenticated
     session['account_type'] = 'service_provider' if sp else 'customer'
     login_user((sp if sp else cus), remember=remember)  # log into session
+    session['csrf_token'] = generate_csrf()
+    print(f'############-->{session["csrf_token"]}')
 
     # flash('Logged in successfully.')
 

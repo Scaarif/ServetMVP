@@ -24,6 +24,14 @@ from models import populate_db
 testing = getenv('testing', '')
 
 
+class Store:
+    ''' Store for global objects.
+    '''
+    pass
+
+store = Store()
+
+
 def create_app():
     ''' Implements the app factory pattern of creating application object.
     '''
@@ -87,6 +95,7 @@ def create_app():
 
     # Protect against Cross Site Request Forgery
     csrf = CSRFProtect(app)
+    store.csrf = csrf  # save for access in other modules
 
     # Define error handler for CSRF token validation error
     @app.errorhandler(CSRFError)
