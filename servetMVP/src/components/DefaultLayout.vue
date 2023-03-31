@@ -1,7 +1,8 @@
 <template>
-    <div class="bg-gray-50 min-h-screen relative">
-        <Navbar v-if="!isLanding"/>
-        <main class="mx-4 top-16 relative flex flex-col items-center">
+    <div class="bg-gray-50 min-h-screen h-full relative text-slate-800">
+        <Navbar v-if="isAuthorized"/>
+        <!-- <main class="mx-4 top-16 relative flex flex-col items-center w-full"> -->
+        <main class="mx-4 top-16 relative flex flex-col w-full">
             <router-view />
         </main>
     </div>
@@ -18,16 +19,14 @@ export default {
     },
     data() {
         return {
-            showNotifications: true,
+          
         }
     },
     computed: {
-        ...mapState(['isLanding'])
+        ...mapState(['isAuthorized'])
     },
     methods: {
-        toggleShowNotifications() {
-            this.showNotifications = !this.showNotifications
-        }
+        
     }
 }
 </script>

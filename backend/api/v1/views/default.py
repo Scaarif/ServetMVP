@@ -82,17 +82,17 @@ def login_post():
     ''' Authenticate posted login information for both customers and SPs.
     '''
     # Retrieve provided login information
+    '''
     username = request.form.get('username')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
-
     '''
+
     # testing
     data = request.get_json(silent=True)
     username = data.get('username')
     password = data.get('password')
     remember = True if data.get('remember') else False
-    '''
 
     print('############-->', username, password, remember)
 

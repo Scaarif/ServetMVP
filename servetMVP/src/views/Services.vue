@@ -1,13 +1,15 @@
 <template>
     <div class="">
-        <ServicesTemplate />
+        <ServicesTemplate v-if="servicesLoaded"/>
+        <Loading v-else/>
     </div>
 </template>
 <script>
 import ServicesTemplate from '../components/ServicesTemplate.vue';
+import Loading from '../components/Loading.vue'
 
 
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapGetters } from 'vuex';
 
 export default {
     data() {
@@ -16,9 +18,11 @@ export default {
     },
     computed: {
         ...mapState(['showService']),
+        ...mapGetters(['servicesLoaded']),
     },
     components: {
-        ServicesTemplate
+        ServicesTemplate,
+        Loading,
     },
     methods: {
         ...mapMutations(['toggleShowService']),
