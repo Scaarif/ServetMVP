@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 ''' Initialization for the application package.'''
-from flask import Flask, session, request
+from flask import Flask, session, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from os import getenv, path
 from secrets import token_hex
 from urllib.parse import urlparse, urljoin
+from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
 
 # Create the SQLAlchemy extension
 db = SQLAlchemy()
@@ -21,6 +22,14 @@ from models.state import States
 from models import populate_db
 
 testing = getenv('testing', '')
+
+
+class Store:
+    ''' Store for global objects.
+    '''
+    pass
+
+store = Store()
 
 
 def create_app():
@@ -45,11 +54,10 @@ def create_app():
     host = getenv('SERVET_HOST')
     port = getenv('SERVET_PORT')
     dbase = getenv('SERVET_DB')
-    popdb = getenv('p', 'no')
 
     # Set necessary app configurations
     app.config["SQLALCHEMY_DATABASE_URI"] =\
-            f'mysql+mysqldb://{user}:{pwd}@{host}/{dbase}'  # engine conn. str
+        f'mysql+mysqldb://{user}:{pwd}@{host}/{dbase}'  # engine conn. str
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
             "pool_pre_ping": True,
             }  # passed to sqlalchemy.create_engine()
@@ -66,8 +74,10 @@ def create_app():
             app.static_folder, 'service_provider_services/images/'
             )
     app.config["SPS_IMAGE_RPATH"] =\
-            'static/service_provider_services/images/'
+        'static/service_provider_services/images/'
     app.config["EXPLAIN_TEMPLATE_LOADING"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["DEBUG"] = True
 
     # Init app with extension; ensure all app configs have been set already!
     db.init_app(app)
@@ -83,9 +93,24 @@ def create_app():
         login_manager.login_view = 'LOGIN_URL'
     login_manager.init_app(app)
 
+    # Protect against Cross Site Request Forgery
+    csrf = CSRFProtect(app)
+    store.csrf = csrf  # save for access in other modules
+
+    # Define error handler for CSRF token validation error
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        ''' Send JSON data describing error.
+        '''
+        return make_response(jsonify({
+            "status": "error",
+            "message": e.description
+            }), 400)
+
     @login_manager.user_loader
     def load_user(user_id):
-        ''' Retrieves and returns a specific customer object for the login manager
+        ''' Retrieves and returns a specific
+        customer object for the login manager.
         '''
         with app.app_context():
             '''
@@ -105,11 +130,6 @@ def create_app():
     with app.app_context():
         db.create_all(bind_key=None)  # use default engine (URI above) as bind
 
-    '''
-    if popdb == 'yes':
-        populate_db()
-    '''
-
     # Import and register blueprints
     from api.v1.views.customers import cus_apis
     from api.v1.views.service_providers import sp_apis
@@ -126,17 +146,7 @@ def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
-            ref_url.netloc == test_url.netloc
-
-
-
-
-
-
-
-
-
-
+        ref_url.netloc == test_url.netloc
 
 
 '''

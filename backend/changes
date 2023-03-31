@@ -1,4 +1,9 @@
-SP services API now returns summary info like default
+Adjustments to service filtering and login.
 
-Modified: GET /api/v1/serviceProviders/<sp_id>/services
-- now returns summary info on a service provider services instead of just their IDs
+Modified: GET /api/v1/services
+- serviceCategory field no longer required
+
+Modified: POST /api/v1/login
+- API now exempted from CSRF protection as is idempotent
+- CSRF token now generated and saved in session['csrf_token']
+- CSRF token returned under the response header `X-CSRFToken`

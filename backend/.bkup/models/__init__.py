@@ -52,11 +52,26 @@ def populate_db():
         db.session.commit()
 
     # Create two service providers
-    sp1 = ServiceProviders(first_name='Rahab', last_name='Mary', phone='+254703891377', whatsapp='+254703891377', email='rahabmagiri@gmail.com', username='scaarif', password='pwd1')
+    sp1 = ServiceProviders(
+            first_name='Rahab',
+            last_name='Mary',
+            phone='+254703891377',
+            whatsapp='+254703891377',
+            email='rahabmagiri@gmail.com',
+            username='scaarif',
+            password='pwd1'
+            )
     sp1.image_uri = path.join(app.config["SP_IMAGE_RPATH"], 'sp1.jpg')
     sp1.location = lo4
-    #sp1.service_categories.append(
-    sp2 = ServiceProviders(first_name='Greenbel', last_name='Eleghasim', phone='+2348103665556', whatsapp='+2348103665556', email='obisann@gmail.com', username='coldplayz', password='pwd2')
+    sp2 = ServiceProviders(
+            first_name='Greenbel',
+            last_name='Eleghasim',
+            phone='+2348103665556',
+            whatsapp='+2348103665556',
+            email='obisann@gmail.com',
+            username='coldplayz',
+            password='pwd2'
+            )
     sp2.image_uri = path.join(app.config["SP_IMAGE_RPATH"], 'sp2.jpg')
     sp2.location = lo1
     # perhaps id is needed by ServiceProviderServices
@@ -65,13 +80,17 @@ def populate_db():
         db.session.commit()
 
     # Create three service-provider services
-    sps1 = ServiceProviderServices(service_description='I offer affordable and high-quality hair-dressing services')
+    sps1 = ServiceProviderServices(service_description='I offer affordable\
+            and high-quality hair-dressing services')
     sps1.service_category = sc2
     sps1.service_provider = sp1
-    sps2 = ServiceProviderServices(service_description='If there is one professional you need for your plumbing jobs, it is me!')
+    sps2 = ServiceProviderServices(service_description='If there is one\
+            professional you need for your plumbing jobs, it is me!')
     sps2.service_category = sc1
     sps2.service_provider = sp2
-    sps3 = ServiceProviderServices(service_description='5-star dry-cleaning and laundry services.')
+    sps3 = ServiceProviderServices(
+            service_description='5-star dry-cleaning and laundry services.',
+            )
     sps3.service_category = sc3
     sps3.service_provider = sp2
     with app.app_context():
@@ -81,12 +100,25 @@ def populate_db():
     # Create reviews
 
     # Create two customers
-    cus1 = Customers(first_name='customer', last_name='one', email='customerone@gmail.com', username='c1', password='c1pwd', image_uri='c1.jpg')
-    cus2 = Customers(first_name='customer', last_name='two', email='customertwo@gmail.com', username='c2', password='c2pwd', image_uri='c2.jpg')
+    cus1 = Customers(
+            first_name='customer',
+            last_name='one',
+            email='customerone@gmail.com',
+            username='c1',
+            password='c1pwd',
+            image_uri='c1.jpg',
+            )
+    cus2 = Customers(
+            first_name='customer',
+            last_name='two',
+            email='customertwo@gmail.com',
+            username='c2',
+            password='c2pwd',
+            image_uri='c2.jpg',
+            )
     with app.app_context():
         db.session.add_all([cus1, cus2])
         db.session.commit()
-
 
     # Create four reviews
     rev1 = Reviews(upvotes=3, total_votes=5)

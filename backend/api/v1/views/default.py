@@ -82,19 +82,19 @@ def login_post():
     ''' Authenticate posted login information for both customers and SPs.
     '''
     # Retrieve provided login information
-    '''
     username = request.form.get('username')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
-    '''
 
-    # testing
+    '''
+    # testing with JSON data
     data = request.get_json(silent=True)
     username = data.get('username')
     password = data.get('password')
     remember = True if data.get('remember') else False
+    '''
 
-    print('############-->', username, password, remember)
+    # print('############-->', username, password, remember)
 
     # Verify that service provider is registered
     stmt = db.select(
@@ -140,9 +140,7 @@ def login_post():
     session['account_type'] = 'service_provider' if sp else 'customer'
     login_user((sp if sp else cus), remember=remember)  # log into session
     session['csrf_token'] = generate_csrf()
-    print(f'############-->{session["csrf_token"]}')
-
-    # flash('Logged in successfully.')
+    # print(f'############-->{session["csrf_token"]}')
 
     # Retrieve next URL, if available
     nextp = request.args.get('next')
@@ -166,11 +164,14 @@ def login_post():
         '''
         pass
 
-    return make_response(jsonify(dict(
+    response =  make_response(jsonify(dict(
         login=True,
         user_type=('SP' if sp else 'CUS'),
         user_id=(sp.id if sp else cus.id),
         )), 200)
+    response.headers.set("X-CSRFToken", token)
+
+    return respnse
 
 
 @default_apis.route('/services')
@@ -180,44 +181,113 @@ def service_multi_post():
         The selected services match the filters in the query string.
     '''
     # Retrieve query arguments
-    country_id = request.args.get('country')  # required
+    country_id = int(request.args.get('country'))  # required
     state_id = request.args.get('state')
     location_id = request.args.get('location')
-    sc_id = request.args.get('service_category')  # required
+    sc_id = request.args.get('service_category')  # required; not anymore
 
     # Use filter parameters to fetch summary services data
     if not location_id:
         if not state_id:
             # use country id to filter
-            stmt = db.select(
-                    ServiceProviders.first_name,
-                    ServiceProviders.last_name,
-                    ServiceProviders.id.label('sp_id'),
-                    ServiceProviders.location_id,
-                    Locations.name.label('loc_name'),
-                    ServiceCategories.id.label('sc_id'),
-                    ServiceCategories.name.label('sc_name'),
-                    ServiceProviderServices.image_uri,
-                    ServiceProviderServices.rating,
-                    ServiceProviderServices.service_description,
-                    ServiceProviderServices.id.label('sps_id')
-                    ).select_from(ServiceProviderServices).join(
-                            ServiceCategories,
-                            ).join(ServiceProviders).join(Locations).join(
-                                    States).join(Countries).where(
-                                            Countries.id == int(country_id),
-                                            ServiceCategories.id == int(sc_id)
-                                            )
-            rows_list = db.session.execute(stmt).all()
-            '''
-            - returns a list of Row objects representing the result set
-            - since columns were selected, each row (a Python named tuple) in
-              the list will contain the column attributes requested
-            - as in a named tuple, these attributes can be
-              accessed using their column/attribute name e.g. row[0].name
-            '''
+            if not sc_id:
+                stmt = db.select(
+                        ServiceProviders.first_name,
+                        ServiceProviders.last_name,
+                        ServiceProviders.id.label('sp_id'),
+                        ServiceProviders.location_id,
+                        Locations.name.label('loc_name'),
+                        ServiceCategories.id.label('sc_id'),
+                        ServiceCategories.name.label('sc_name'),
+                        ServiceProviderServices.image_uri,
+                        ServiceProviderServices.rating,
+                        ServiceProviderServices.service_description,
+                        ServiceProviderServices.id.label('sps_id')
+                        ).select_from(ServiceProviderServices).join(
+                                ServiceCategories,
+                                ).join(ServiceProviders).join(Locations).join(
+                                        States).join(Countries).where(
+                                                Countries.id == (country_id),
+                                                )
+                rows_list = db.session.execute(stmt).all()
+                '''
+                - returns a list of Row objects representing the result set
+                - since columns were selected, each row (a Python named tuple)
+                  in the list will contain the column attributes requested
+                - as in a named tuple, these attributes can be
+                  accessed using their column/attribute name e.g. row[0].name
+                '''
+            else:
+                # SC ID provided
+                sc_id = int(sc_id)
+                stmt = db.select(
+                        ServiceProviders.first_name,
+                        ServiceProviders.last_name,
+                        ServiceProviders.id.label('sp_id'),
+                        ServiceProviders.location_id,
+                        Locations.name.label('loc_name'),
+                        ServiceCategories.id.label('sc_id'),
+                        ServiceCategories.name.label('sc_name'),
+                        ServiceProviderServices.image_uri,
+                        ServiceProviderServices.rating,
+                        ServiceProviderServices.service_description,
+                        ServiceProviderServices.id.label('sps_id')
+                        ).select_from(ServiceProviderServices).join(
+                                ServiceCategories,
+                                ).join(ServiceProviders).join(Locations).join(
+                                        States).join(Countries).where(
+                                                Countries.id == country_id,
+                                                ServiceCategories.id == sc_id,
+                                                )
+                rows_list = db.session.execute(stmt).all()
         else:
             # use state id to filter
+            if not sc_id:
+                stmt = db.select(
+                        ServiceProviders.first_name,
+                        ServiceProviders.last_name,
+                        ServiceProviders.id.label('sp_id'),
+                        ServiceProviders.location_id,
+                        Locations.name.label('loc_name'),
+                        ServiceCategories.id.label('sc_id'),
+                        ServiceCategories.name.label('sc_name'),
+                        ServiceProviderServices.image_uri,
+                        ServiceProviderServices.rating,
+                        ServiceProviderServices.service_description,
+                        ServiceProviderServices.id.label('sps_id')).select_from(
+                                ServiceProviderServices).join(
+                                        ServiceCategories).join(
+                                                ServiceProviders).join(
+                                                Locations).join(States).where(
+                                                States.id == int(state_id),
+                                                )
+                rows_list = db.session.execute(stmt).all()
+            else:
+                # SC ID provided
+                sc_id = int(sc_id)
+                stmt = db.select(
+                        ServiceProviders.first_name,
+                        ServiceProviders.last_name,
+                        ServiceProviders.id.label('sp_id'),
+                        ServiceProviders.location_id,
+                        Locations.name.label('loc_name'),
+                        ServiceCategories.id.label('sc_id'),
+                        ServiceCategories.name.label('sc_name'),
+                        ServiceProviderServices.image_uri,
+                        ServiceProviderServices.rating,
+                        ServiceProviderServices.service_description,
+                        ServiceProviderServices.id.label('sps_id')
+                        ).select_from(ServiceProviderServices).join(
+                                ServiceCategories,
+                                ).join(ServiceProviders).join(Locations).join(
+                                        States).where(
+                                                States.id == state_id,
+                                                ServiceCategories.id == sc_id,
+                                                )
+                rows_list = db.session.execute(stmt).all()
+    else:
+        # use location id to filter
+        if not sc_id:
             stmt = db.select(
                     ServiceProviders.first_name,
                     ServiceProviders.last_name,
@@ -231,33 +301,33 @@ def service_multi_post():
                     ServiceProviderServices.service_description,
                     ServiceProviderServices.id.label('sps_id')).select_from(
                             ServiceProviderServices).join(
-                                    ServiceCategories).join(
-                                            ServiceProviders).join(
-                                            Locations).join(States).where(
-                                            States.id == int(state_id),
-                                            ServiceCategories.id == int(sc_id)
-                                            )
+                            ServiceCategories).join(
+                            ServiceProviders).join(Locations).where(
+                            Locations.id == int(location_id),
+                            )
             rows_list = db.session.execute(stmt).all()
-    else:
-        # use location id to filter
-        stmt = db.select(
-                ServiceProviders.first_name,
-                ServiceProviders.last_name,
-                ServiceProviders.id.label('sp_id'),
-                ServiceProviders.location_id,
-                Locations.name.label('loc_name'),
-                ServiceCategories.id.label('sc_id'),
-                ServiceCategories.name.label('sc_name'),
-                ServiceProviderServices.image_uri,
-                ServiceProviderServices.rating,
-                ServiceProviderServices.service_description,
-                ServiceProviderServices.id.label('sps_id')).select_from(
-                        ServiceProviderServices).join(ServiceCategories).join(
-                        ServiceProviders).join(Locations).where(
-                        Locations.id == int(location_id),
-                        ServiceCategories.id == int(sc_id)
-                        )
-        rows_list = db.session.execute(stmt).all()
+        else:
+            # sc_id is provided
+            sc_id = int(sc_id)
+            stmt = db.select(
+                    ServiceProviders.first_name,
+                    ServiceProviders.last_name,
+                    ServiceProviders.id.label('sp_id'),
+                    ServiceProviders.location_id,
+                    Locations.name.label('loc_name'),
+                    ServiceCategories.id.label('sc_id'),
+                    ServiceCategories.name.label('sc_name'),
+                    ServiceProviderServices.image_uri,
+                    ServiceProviderServices.rating,
+                    ServiceProviderServices.service_description,
+                    ServiceProviderServices.id.label('sps_id')).select_from(
+                            ServiceProviderServices).join(
+                            ServiceCategories).join(
+                            ServiceProviders).join(Locations).where(
+                            Locations.id == int(location_id),
+                            ServiceCategories.id == sc_id,
+                            )
+            rows_list = db.session.execute(stmt).all()
 
     json_list = []
 

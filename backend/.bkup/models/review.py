@@ -13,7 +13,7 @@ class Reviews(db.Model):
 
     # auto_increment implemented implicitly for integer ids
     id = db.mapped_column(db.Integer, primary_key=True)
-    review_content = db.mapped_column(db.Text())
+    review_content = db.mapped_column(db.Text(500))
     upvotes = db.mapped_column(db.Integer, default=0)
     total_votes = db.mapped_column(db.Integer, default=0)
     created_at = db.mapped_column(db.DateTime)
@@ -28,7 +28,6 @@ class Reviews(db.Model):
             db.ForeignKey("customers.id"), nullable=False)
 
     # Relationships
-
 
     def __init__(self, *args, **kwargs):
         self.created_at = datetime.utcnow()
