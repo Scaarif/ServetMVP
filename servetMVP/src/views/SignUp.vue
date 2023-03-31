@@ -108,7 +108,6 @@ export default {
                     this.error = true
                 if (field === 'confirm password' && !(toSet['password'] === toSet[field]))
                     this.error = true
-                // console.log(field, ': ', toSet[field])
             })
             console.log('toSet: ', toSet)
             if (this.error)
