@@ -1,0 +1,70 @@
+body {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    /* border: 1px solid green; */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2rem;
+    margin-inline: 5rem;
+    font-size: 20px;
+    padding: 1rem;
+}
+header .logo {
+    text-transform: uppercase;
+}
+header .nav {
+    /* display: inline-block; */
+    /* border: 1px solid green; */
+}
+.nav a {
+    display: inline-block;
+    text-decoration: none;
+    padding-inline: .5rem;
+    color: black;
+}
+.nav a:hover {
+    color: gray;
+    text-decoration: underline;
+}
+.hero {
+    /* border: 1px solid red; */
+    overflow: hidden;
+    height: 120vh;
+
+    margin: 5rem;
+    /* margin-top: 10rem; */
+}
+.hero .img {
+    height: 70%;
+    /* border-bottom: 1px solid blue; */
+    width: 100%;
+    background-image: url(./imgs/services.png);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.hero div:nth-child(2) {
+    border: 1px solid blue;
+    padding-top: 2rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.hero div:nth-child(2) h1 {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 40px;
+    line-height: 4rem;
+}
+.hero div:nth-child(2) p {
+    text-align: center;
+}
+.hero div:nth-child(2) button {
+    
+}

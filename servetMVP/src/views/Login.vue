@@ -53,9 +53,13 @@ export default {
         handleSubmit() {
           console.log('isAuth: ', this.isAuthenticated, this.isAuthorized)
             if (!this.isAuthenticated) {
-              let data = {username: this.userName}
-              data['password'] = this.password
-              this.login(JSON.stringify(data))
+                const data = new FormData()
+            //   let data = {username: this.userName}
+              data.append('username', this.userName)
+              data.append('password', this.password)
+            //   data['password'] = this.password
+            //   this.login(JSON.stringify(data))
+              this.login(data)
             }
             else {
                 this.toggleIsLanding() // make it false so the navbar shows
@@ -106,7 +110,7 @@ export default {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
-                    "Content-Type": "application/json",
+                    // "Content-Type": "application/json",
                     "X-CSRFToken": this.csrfToken
                 },
                 credentials: "include",
