@@ -17,10 +17,6 @@ header {
 header .logo {
     text-transform: uppercase;
 }
-header .nav {
-    /* display: inline-block; */
-    /* border: 1px solid green; */
-}
 .nav a {
     display: inline-block;
     text-decoration: none;
@@ -45,9 +41,9 @@ header .nav {
     height: 60%;
     /* border-bottom: 1px solid blue; */
     width: 100%;
-    background-image: url(./imgs/chomlea.jpg);
-    background-position: cover;
-    /* background-repeat: no-repeat; */
+    background-image: url(./imgs/a_salon.png);
+    background-position: center;
+    background-repeat: no-repeat;
 }
 .hero div:nth-child(2) {
     /* border: 1px solid blue; */
@@ -110,13 +106,13 @@ header .nav {
     text-align: center;
     padding-block: 1rem;
 }
-.features div:first-child .img {
+.features .browse .img {
     background-image: url('./imgs/browse.png');
 }
-.features div:nth-child(2) .img {
+.features .rate .img {
     background-image: url('./imgs/rate.png');
 }
-.features div:last-child .img {
+.features .post .img {
     background-image: url('./imgs/create.png');
 }
 .features h2 {
