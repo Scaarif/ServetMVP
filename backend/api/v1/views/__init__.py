@@ -29,6 +29,7 @@ class Store:
     '''
     pass
 
+
 store = Store()
 
 

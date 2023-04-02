@@ -12,7 +12,7 @@ from flask_login import (
 from api.v1.views import (
         db, ServiceProviders, ServiceCategories,
         ServiceProviderServices, Countries, States, Locations,
-        Reviews, Customers
+        Reviews, Customers, store
         )
 from werkzeug.security import check_password_hash
 from uuid import uuid4
@@ -46,6 +46,7 @@ if testing:
 
 
 @cus_apis.route('/<id>/profile/edit', methods=['POST', 'PUT'])
+@login_required
 def profile_edit_put(id):
     ''' Processes form data to update a customer's record.
     '''
@@ -234,6 +235,7 @@ if testing:
 
 
 @cus_apis.route('/signup', methods=['POST'])
+@store.csrf.exempt
 def signup_post():
     ''' Process customer registration.
     '''
@@ -377,6 +379,7 @@ def static_get(id, uri):
 
 if testing:
     @cus_apis.route('/<cus_id>/reviews')
+    @login_required
     def review_create_get(cus_id):
         ''' Returns a form for creating a review for a particular service.
 
@@ -400,6 +403,7 @@ if testing:
 
 
 @cus_apis.route('/<cus_id>/reviews/create', methods=['POST'])
+@login_required
 def review_create_post(cus_id):
     ''' Process form data to create a customer's review for a service.
 
@@ -455,6 +459,7 @@ def review_create_post(cus_id):
 
 if testing:
     @cus_apis.route('/<cus_id>/reviews/<int:rev_id>/get')
+    @login_required
     def review_edit_get(cus_id, rev_id):
         ''' Returns a form for editing a review for a particular service.
 
@@ -481,7 +486,9 @@ if testing:
                 )
 
 
-@cus_apis.route('/<cus_id>/reviews/<int:rev_id>/edit', methods=['POST', 'PUT'])
+@cus_apis.route(
+        '/<cus_id>/reviews/<int:rev_id>/edit', methods=['POST', 'PUT'])
+@login_required
 def review_edit_put(cus_id, rev_id):
     ''' Process form data to update a customer's review for a service.
 

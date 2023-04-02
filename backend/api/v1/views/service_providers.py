@@ -12,7 +12,7 @@ from flask_login import (
 from api.v1.views import (
         db, ServiceProviders, ServiceCategories,
         ServiceProviderServices, Countries, States, Locations,
-        Reviews, Customers
+        Reviews, Customers, store
         )
 from werkzeug.security import check_password_hash
 from uuid import uuid4
@@ -66,6 +66,7 @@ if testing:
 
 
 @sp_apis.route('/<id>/profile/edit', methods=['POST', 'PUT'])
+@login_required
 def profile_edit_put(id):
     ''' Processes form data to update a service provider's record.
     '''
@@ -270,6 +271,7 @@ if testing:
 
 
 @sp_apis.route('/signup', methods=['POST'])
+@store.csrf.exempt
 def signup_post():
     ''' Process service provider registration.
     '''
@@ -489,6 +491,7 @@ def service_multi_get(sp_id):
 
 
 @sp_apis.route('/<sp_id>/services/<sps_id>')
+@login_required
 def service_one_get(sp_id, sps_id):
     ''' Returns details about a specific service-provider service.
     '''

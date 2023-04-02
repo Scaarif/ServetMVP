@@ -3,7 +3,7 @@
 from flask import (
         request, render_template, redirect,
         url_for, flash, abort, session, Blueprint,
-        current_app, make_response, jsonify
+        current_app, make_response, jsonify, g
         )
 # from models import db, Customers, is_safe_url
 from flask_login import (
@@ -23,14 +23,15 @@ from flask_wtf.csrf import generate_csrf
 default_apis = Blueprint('default_apis', __name__, url_prefix='/api/v1')
 
 testing = getenv('testing', '')
+# token = generate_csrf()
 
 
 @default_apis.route("/getcsrf", methods=["GET"])
 def get_csrf():
-    token = generate_csrf()
-
-    # see if it solves frontend issue
-    # session['csrf_token'] = token
+    token = generate_csrf(token_key='csrf_token')
+    # print('##########t-->', token)
+    # print('##########s-->', session['csrf_token'])
+    # print('##########g-->', g.csrf_token)
 
     response = jsonify({"detail": "CSRF cookie set"})
     response.headers.set("X-CSRFToken", token)
@@ -139,8 +140,11 @@ def login_post():
     # User exists and is authenticated
     session['account_type'] = 'service_provider' if sp else 'customer'
     login_user((sp if sp else cus), remember=remember)  # log into session
-    session['csrf_token'] = generate_csrf()
-    # print(f'############-->{session["csrf_token"]}')
+    if not testing:
+        token = generate_csrf(token_key='csrf_token')
+        # session['csrf_token'] = token  # should be set automatically above
+    # print(f'############s-->{session["csrf_token"]}')
+    # print(f'############gc-->{generate_csrf()}')
 
     # Retrieve next URL, if available
     nextp = request.args.get('next')
@@ -164,14 +168,16 @@ def login_post():
         '''
         pass
 
-    response =  make_response(jsonify(dict(
+    response = make_response(jsonify(dict(
         login=True,
         user_type=('SP' if sp else 'CUS'),
         user_id=(sp.id if sp else cus.id),
         )), 200)
-    response.headers.set("X-CSRFToken", token)
 
-    return respnse
+    if not testing:
+        response.headers.set("X-CSRFToken", token)
+
+    return response
 
 
 @default_apis.route('/services')
@@ -254,7 +260,8 @@ def service_multi_post():
                         ServiceProviderServices.image_uri,
                         ServiceProviderServices.rating,
                         ServiceProviderServices.service_description,
-                        ServiceProviderServices.id.label('sps_id')).select_from(
+                        ServiceProviderServices.id.label(
+                            'sps_id')).select_from(
                                 ServiceProviderServices).join(
                                         ServiceCategories).join(
                                                 ServiceProviders).join(
