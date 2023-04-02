@@ -171,6 +171,9 @@ footer{
     text-align: center;
     gap: 3rem;
 }
-.about .devs div {
-    /* border: 1px solid green; */
+.about .devs div a{
+    text-decoration: none;
+}
+.about .devs div a:hover {
+    color: gray;
 }
