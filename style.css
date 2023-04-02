@@ -5,17 +5,23 @@ body {
 }
 
 header {
-    /* border: 1px solid green; */
+    position: fixed;
+    background: #ffff;
+    width: 100%;
+    top: 0;
+    /* border: 1px solid red; */
+}
+header >div {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 2rem;
-    margin-inline: 5rem;
-    font-size: 20px;
     padding: 1rem;
+    padding-inline: 5rem;
+    font-size: 20px;
 }
 header .logo {
     text-transform: uppercase;
+    cursor: pointer;
 }
 .nav a {
     display: inline-block;
@@ -28,6 +34,9 @@ header .logo {
 .nav a:hover {
     color: gray;
     /* text-decoration: underline; */
+}
+main {
+    margin-top: 10rem;
 }
 .hero {
     /* border: 1px solid red; */
@@ -117,8 +126,17 @@ header .logo {
 }
 .features h2 {
     text-transform: capitalize;
+    margin-block: 2rem;
+    /* border: 1px solid green; */
 }
-.features h2:hover {
+.features h2 a {
+    border: 1px solid gray;
+    padding-inline: 2rem;
+    padding-block: .5rem;
+    text-decoration: none;
+    color: black;
+}
+.features h2 a:hover {
     color: gray;
     cursor: pointer;
 }
