@@ -182,7 +182,7 @@ export default {
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
                     // "Content-Type": "application/json",
-                    "X-CSRFToken": this.csrfToken
+                    // "X-CSRFToken": this.csrfToken
                 },
                 credentials: "include",
                 // body: JSON.stringify({ username: this.userName, password: this.password }),
