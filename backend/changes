@@ -1,4 +1,0 @@
-SP services API now returns summary info like default
-
-Modified: GET /api/v1/serviceProviders/<sp_id>/services
-- now returns summary info on a service provider services instead of just their IDs
