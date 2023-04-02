@@ -191,9 +191,10 @@ export default {
                 .then((res) => res.json())
                 .then((data) => {
                 console.log(data);
-                // if (data.login == true) {
-                //     isAuthenticated = true;
-                // }
+                // NOTE: if signup is successful, redirect to login!
+                if (data.signup == true) {
+                    this.$router.push({name: 'login'})
+                }
                 }
                 )
                 .catch((err) => {
