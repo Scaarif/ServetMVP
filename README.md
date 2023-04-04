@@ -1,7 +1,7 @@
 # Servet
 ### The market place for services
 
-![image](https://ibb.co/yFrwGx4) 
+![services_page](https://ibb.co/yFrwGx4) 
 
 Servet is a web application built by [Rahab](https://www.linkedin.com/in/mary-rahab/) and [Greenbel](https://www.linkedin.com/in/greenbele/) for service providers and seekers to connect. The idea behind its conception was that seekers of handy services such as hairdressing, plumbing, electrical and related services be able to quickly browse through services in the category they seek and available in their neighborhood and get the provider's contact, all in a few clicks. The end product is [Servet](https://github.io/Scaarif/ServetMVP/).
 
