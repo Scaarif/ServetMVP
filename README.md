@@ -9,6 +9,26 @@ You can read more about **Servet**: the inspiration, challenges, lessons, hacks 
 - [Frontend - Rahab](https:rahab_blog)
 - [Backend - Greenbel](https:greenbel_blog)
 
+## Story behind the Application
+Just incase you don't have the time to go through the reflections, this is the short of the story behind the application.
+
+You don’t realize how hard it can be to find a plumber, especially in estates and gated communities until 
+you need one and suddenly, the seemingly just a call away plumber is calls to friends, family and 
+strangers further away. Too much of a stretch? Ok, remember last time – You finally managed to leave your 
+computer desk and decided to cook but all your knives were so blunt they were smashing the tomatoes 
+instead of cutting them. How long did it take you to find the ‘knives’ guy, again? We’ve all been there, 
+requiring a certain services - say, that of a plumber, or electrician – and that’s always when it dawns on 
+us just what a nightmare we are in for - and for good reasons:
+- We don’t know who to contact for the service.
+- We know who to contact, but then the professional is not available for one reason or other – and the frustration begins!
+
+The project is intended to solve this problem by connecting customers to a wider array of 
+service providers, improving their odds of getting the services they need, when they need it and with ease.
+While this project will connect customers to service providers, it will not [completely] solve the problem of ensuring that a required service is always available, and always delivered to the customer’s satisfaction.
+
+**Note:** The application was developed in fulfillment of the [ALX Software Engineering](https://www.alxafrica.com/software-engineering/) programme end of foundations portfolio project requirement.
+
+
 ## Project installation
 To be able to run and test the project yourself, clone the repository and run the following commands:
 - ### Backend (Flask app)
