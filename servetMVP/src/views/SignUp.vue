@@ -36,7 +36,7 @@
                     class="w-full flex items-center flex-col md:flex-row md:space-x-4 relative">
                     <span class="md:min-w-sm w-full text-md capitalize">{{ Object.keys(value)[0] }}:<b>*</b></span>
                     <input class="md:min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
-                        focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50" type="text"
+                        focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50" :type="Object.keys(value)[0] === 'profile photo' ? 'file' : 'text'"
                         :placeholder="Object.values(value)[0]" required
                         :ref="Object.values(value)[0]" :class="error && 'highlight'"
                     >
@@ -108,35 +108,38 @@ export default {
                     this.error = true
                 if (field === 'confirm password' && !(toSet['password'] === toSet[field]))
                     this.error = true
-                // console.log(field, ': ', toSet[field])
             })
             console.log('toSet: ', toSet)
             if (this.error)
                 return
             // console.log(this.$refs['full name'][0].value, this.$refs['username'][0].value)
-            let data = {}
-            data['first_name'] = toSet['full name'].split(' ')[0]
-            data['username'] = toSet.username
-            data['last_name'] = toSet['full name'].split(' ')[1]
-            data['email'] = this.email
-            data['password'] = toSet.password
-            data['phone'] = toSet.phone
-            data['csrf_token'] = this.csrfToken
+            // let data = {}
+            let data = new FormData()
+            data.append('first_name', toSet['full name'].split(' ')[0])
+            data.append('username', toSet.username)
+            data.append('last_name', toSet['full name'].split(' ')[1])
+            data.append('email', this.email)
+            data.append('password', toSet.password)
+            data.append('phone', toSet.phone)
+            data.append('profile_pic', toSet.photo)
+            data.append('csrf_token', this.csrfToken)
 
-            // data['first_name'] = this.fullname.split(' ')[0]
-            // data['username'] = this.fullname.split(' ')[1]
-            // data['last_name'] = this.fullname.split(' ')[1]
+            // data['first_name'] = toSet['full name'].split(' ')[0]
+            // data['username'] = toSet.username
+            // data['last_name'] = toSet['full name'].split(' ')[1]
             // data['email'] = this.email
-            // data['password'] = this.password
-            // data['phone'] = this.phone
+            // data['password'] = toSet.password
+            // data['phone'] = toSet.phone
             // data['csrf_token'] = this.csrfToken
 
             if (this.signUpUser === 'provider'){
                 // console.log('signing up as provider')
-                data['whatsapp'] = toSet['whats app']
-                data['location'] = toSet.location
+                data.append('whatsapp', toSet['whats app'])
+                data.append('location', toSet.location)
+                // data.append('profile_pic', toSet.photo)
             }
-            this.signup(JSON.stringify(data))
+            // this.signup(JSON.stringify(data))
+            this.signup(data)
         },
         getSession() {
             fetch("http://localhost:5000/api/v1/getsession", {
@@ -170,7 +173,7 @@ export default {
 
         },
         signup(data) {
-            console.log(data)
+            console.log(data.entries())
             let url = 'http://localhost:5000/api/v1'
             url += this.signUpUser === 'provider' ? '/serviceProviders/signup' : '/customers/signup'
             // console.log('signup url: ', url)
@@ -178,8 +181,8 @@ export default {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": this.csrfToken
+                    // "Content-Type": "application/json",
+                    // "X-CSRFToken": this.csrfToken
                 },
                 credentials: "include",
                 // body: JSON.stringify({ username: this.userName, password: this.password }),
@@ -188,9 +191,10 @@ export default {
                 .then((res) => res.json())
                 .then((data) => {
                 console.log(data);
-                // if (data.login == true) {
-                //     isAuthenticated = true;
-                // }
+                // NOTE: if signup is successful, redirect to login!
+                if (data.signup == true) {
+                    this.$router.push({name: 'login'})
+                }
                 }
                 )
                 .catch((err) => {

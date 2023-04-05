@@ -2,40 +2,40 @@
     <div class="loading">
         <span></span>
     </div>
-  </template>
+</template>
   
-  <script>
+<script>
   export default {
   }
-  </script>
+</script>
   
-  <style lang="scss">
+<style lang="scss">
   .loading {
-      top:-64px;
-      left: 0;
-      z-index: 101;
-      height: 100vh;
-      width: 100%;
-      background-color: rgba(0,0,0,0.05);
-      position: absolute;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      @keyframes spin {
-          to {
-              transform: rotateZ(360deg);
-          }
-      }
-      span {
-          display: block;
-          width: 60px;
-          height: 60px;
-          margin: 0 auto;
-          border: 3px solid transparent;
-          border-top-color: #fff;
-          border-bottom-color: #fff;
-          border-radius: 50%;
-          animation: spin ease 1000ms infinite;
-      }
+    top:-64px;
+    left: 0;
+    z-index: 101;
+    height: 100vh;
+    width: 100%;
+    background-color: rgba(0,0,0,0.05);
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  </style>
+  @keyframes spin {
+    to {
+        transform: rotateZ(360deg);
+    }
+  }
+  .loading span {
+      display: block;
+      width: 60px;
+      height: 60px;
+      margin: 0 auto;
+      border: 3px solid transparent;
+      border-top-color: #fff;
+      border-bottom-color: #fff;
+      border-radius: 50%;
+      animation: spin ease 1000ms infinite;
+  }
+</style>

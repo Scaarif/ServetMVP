@@ -33,7 +33,7 @@
        </div>
        <!-- Service Modification & Creation Modal -->
        <NewAndEditService v-if="showModifyServiceModal" :toggle="toggleShowModal" :id="serviceId"
-        :setServiceId="setServiceId" :service="editService"/>
+        :setServiceId="setServiceId" :service="editService" :reload="loadMyServices"/>
        <!-- Analytics (table) -->
        <div class="flex flex-col space-y-2 p-4 pb-6 border-y md:border rounded">
             <span class="text-lg font-medium mb-4">Analytics</span>
@@ -82,6 +82,7 @@ export default {
             showModifyServiceModal: false,
             serviceId: '',
             editService: null,
+            serviceAdded: false,
         }
     },
     components: {
@@ -92,6 +93,15 @@ export default {
     created() {
         console.log('loading my services')
         this.loadMyServices()
+    },
+    updated() {
+        if (this.serviceAdded){
+            this.loadMyServices()
+            this.toggleServiceAdded() // set back to false
+            console.log('services reloaded')
+        } else {
+            console.log('no reload: ', this.serviceAdded)
+        }
     },
     computed: {
         ...mapState(['csrfToken', 'provider_shopping', 'loggedInUser']),
@@ -135,6 +145,10 @@ export default {
         },
         setEditService(service) {
             this.editService = service
+        },
+        toggleServiceAdded() {
+            this.serviceAdded = !this.serviceAdded
+            console.log('toogle')
         }
     }
 }

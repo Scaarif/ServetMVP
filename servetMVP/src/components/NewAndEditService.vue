@@ -56,7 +56,7 @@
 import { mapActions, mapState } from 'vuex'
 
 export default {
-    props: ['toggle', 'id', 'setServiceId', 'service'],
+    props: ['toggle', 'id', 'setServiceId', 'service', 'reload'],
     data() {
         return {
             do:'',
@@ -122,6 +122,11 @@ export default {
                 .then((res) => res.json())
                 .then((data) => {
                 console.log('created a post: ', data);
+                // re-load myServices if serviceAdded & toggle that state back to false:
+                if (!this.id) {
+                    this.reload() // new service created
+                    console.log('serviceAdded')
+                }
                 })
                 .catch((err) => {
                 console.log('error: ', err);
