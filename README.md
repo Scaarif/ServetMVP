@@ -32,17 +32,17 @@ While this project will connect customers to service providers, it will not [com
 ## Project installation
 To be able to run and test the project yourself, clone the repository and run the following commands:
 - ### Backend (Flask app)
-To run the Flask app, you'll need to have the following dependencies:
-* Python v3.8.2
-* pip
-  To install:
-  ```sh
-  sudo apt-get install pip
-  ```
-* SQLAlchemy v2.0.1
-  ```sh
-  pip install SQLAlchemy==2.0.1
-  ```
+  To run the Flask app, you'll need to have the following dependencies:
+  * Python v3.8.2
+  * pip
+    To install:
+    ```sh
+    sudo apt-get install pip
+    ```
+  * SQLAlchemy v2.0.1
+    ```sh
+    pip install SQLAlchemy==2.0.1
+    ```
 * Flask v2.2.2
   ```sh
   pip install Flask==2.2.2
