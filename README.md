@@ -76,3 +76,4 @@ While [Rahab](https://github.com/scaarif) worked on most of the frontend (_Vue a
 
 ## Licensing
 This project is licensed under the MIT License - see the [LICENSE](https://licence_link) file for details.
+
