@@ -34,7 +34,7 @@ To be able to run and test the project yourself, clone the repository and run th
 - ### Backend (Flask app)
   To run the Flask app, you'll need to have the following dependencies:
   * Python v3.8.2
-  * pip
+  * Pip
     To install:
     ```sh
     sudo apt-get install pip
@@ -43,10 +43,31 @@ To be able to run and test the project yourself, clone the repository and run th
     ```sh
     pip install SQLAlchemy==2.0.1
     ```
-* Flask v2.2.2
+  * Flask v2.2.2
+    ```sh
+    pip install Flask==2.2.2
+    ```
+  * Flask-SQLAlchemy v3.0.3
+    ```sh
+    pip install Flask-SQLAlchemy==3.0.3
+    ```
+  * Flask-Login v0.6.2
+    ```sh
+    pip install Flask-Login==0.6.2
+    ```
+  * Flask-Cors v3.0.10
+    ```sh
+    pip install Flask-Cors==3.0.10
+    ```
+  * Flask-WTF v1.0.1
+    ```sh
+    pip install Flask-WTF==1.0.1
+    ```
+  Once the dependencies are installed, `cd` into the directory of the cloned repository, and then `cd` into the `backend/` directory and run:
   ```sh
-  pip install Flask==2.2.2
+  python3 -m api.v1.views.application
   ```
+  You can then use the service at localhost:5000
 
 - ### Frontend (Vue app)
 From inside the just cloned repository, ensure you have _node_ and _npm_ installed then:
