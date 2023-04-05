@@ -36,7 +36,7 @@ To be able to run and test the project yourself, clone the repository and run th
   * MySQL (prefarably version 8.0, but version 5.7 should work as well)<br>
     On installation success:
     * create a database and user for the application
-    * set the following environment variables: `SERVET_USER`, `SERVET_PWD`, `SERVET_HOST`, `SERVET_DB` for the database user, user password, host, and name respectively.
+    * set the following environment variables: `SERVET_USER`, `SERVET_PWD`, `SERVET_HOST`, and `SERVET_DB` for the database user, user password, host, and name respectively.
   * Python v3.8.2
   * Pip<br>
     To install:
