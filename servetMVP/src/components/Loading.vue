@@ -9,7 +9,7 @@
   }
 </script>
   
-<style lang="scss">
+<style>
   .loading {
     top:-64px;
     left: 0;
