@@ -1,4 +1,4 @@
-const ENDPOINT = 'http://localhost:5000/api/v1'
+const ENDPOINT = 'http://whosadevnow.tech/api/v1'
 
 // export the endpoints (eg SERVICES, LOGIN, etc)
 export default {

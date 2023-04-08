@@ -70,7 +70,7 @@ export default {
             }
         },
         getSession() {
-            fetch("http://localhost:5000/api/v1/getsession", {
+            fetch("http://whosadevnow.tech/api/v1/getsession", {
                             credentials: "include",
                             })
                             .then((res) => res.json())
@@ -90,7 +90,7 @@ export default {
                             });
         },
         csrf() {
-            fetch("http://localhost:5000/api/v1/getcsrf", {
+            fetch("http://whosadevnow.tech/api/v1/getcsrf", {
                     credentials: "include",
                     })
                     .then((res) => {
@@ -106,7 +106,7 @@ export default {
         },
         login(data) {
           console.log(data)
-            fetch("http://localhost:5000/api/v1/login", {
+            fetch("http://whosadevnow.tech/api/v1/login", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -149,7 +149,7 @@ export default {
                 });
         },
         logout() {
-            fetch("http://localhost:5000/api/logout", {
+            fetch("http://whosadevnow.tech/api/logout", {
                 credentials: "include",
                 })
                 .then(() => {
