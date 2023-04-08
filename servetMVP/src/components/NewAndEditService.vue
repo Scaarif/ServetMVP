@@ -106,7 +106,7 @@ export default {
 
             if (this.do === 'save'){
                 let provider_id = this.loggedInUser.user_id
-                let url = "http://whosadevnow.tech/api/v1/serviceProviders/" + provider_id + "/services/"
+                let url = "http://web-01.whosadevnow.tech/api/v1/serviceProviders/" + provider_id + "/services/"
                 url += this.id ? this.id + '/edit' : 'create'
                 console.log(url)
                 fetch(url, {

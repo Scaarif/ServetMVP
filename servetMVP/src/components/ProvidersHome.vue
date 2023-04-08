@@ -121,7 +121,7 @@ export default {
         },
         loadMyServices() {
             let provider_id = this.loggedInUser.user_id
-            let url = 'http://whosadevnow.tech/api/v1/serviceProviders/' + provider_id + '/services'
+            let url = 'http://web-01.whosadevnow.tech/api/v1/serviceProviders/' + provider_id + '/services'
             fetch(url, {
                 method: "GET",
                 headers: {
