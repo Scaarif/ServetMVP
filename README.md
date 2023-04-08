@@ -1,7 +1,7 @@
 # Servet
 ### The market place for services
 
-![image](https://ibb.co/yFrwGx4) 
+![services_page](https://ibb.co/yFrwGx4) 
 
 Servet is a web application built by [Rahab](https://www.linkedin.com/in/mary-rahab/) and [Greenbel](https://www.linkedin.com/in/greenbele/) for service providers and seekers to connect. The idea behind its conception was that seekers of handy services such as hairdressing, plumbing, electrical and related services be able to quickly browse through services in the category they seek and available in their neighborhood and get the provider's contact, all in a few clicks. The end product is [Servet](https://github.io/Scaarif/ServetMVP/).
 
@@ -32,7 +32,46 @@ While this project will connect customers to service providers, it will not [com
 ## Project installation
 To be able to run and test the project yourself, clone the repository and run the following commands:
 - ### Backend (Flask app)
-[~~To be added~~]
+  To run the Flask app, you'll need to have the following dependencies:
+  * MySQL (prefarably version 8.0, but version 5.7 should work as well)<br>
+    On installation success:
+    * create a database and user for the application
+    * set the following environment variables: `SERVET_USER`, `SERVET_PWD`, `SERVET_HOST`, and `SERVET_DB` for the database user, user password, host, and name respectively.
+  * Python v3.8.2
+  * Pip<br>
+    To install:
+    ```sh
+    sudo apt-get install pip
+    ```
+  * SQLAlchemy v2.0.1
+    ```sh
+    pip install SQLAlchemy==2.0.1
+    ```
+  * Flask v2.2.2
+    ```sh
+    pip install Flask==2.2.2
+    ```
+  * Flask-SQLAlchemy v3.0.3
+    ```sh
+    pip install Flask-SQLAlchemy==3.0.3
+    ```
+  * Flask-Login v0.6.2
+    ```sh
+    pip install Flask-Login==0.6.2
+    ```
+  * Flask-Cors v3.0.10
+    ```sh
+    pip install Flask-Cors==3.0.10
+    ```
+  * Flask-WTF v1.0.1
+    ```sh
+    pip install Flask-WTF==1.0.1
+    ```
+  Once the dependencies are installed, `cd` into the directory of the cloned repository, and then `cd` into the `backend/` directory and run:
+  ```sh
+  python3 -m api.v1.views.application
+  ```
+  You can then use the service at localhost:5000
 
 - ### Frontend (Vue app)
 From inside the just cloned repository, ensure you have _node_ and _npm_ installed then:
@@ -76,3 +115,4 @@ While [Rahab](https://github.com/scaarif) worked on most of the frontend (_Vue a
 
 ## Licensing
 This project is licensed under the MIT License - see the [LICENSE](https://licence_link) file for details.
+
