@@ -130,7 +130,9 @@ export default {
             await this.fetchServices(queryStr)
             if (Object.values(this.getServices).length > 0) {
                 this.fetched = true
-                console.log('fetched services: ', this.getServices)
+                console.log('fetched services: ', this.getServices, ' for the location: ', state_name, ' at ', location_name)
+            } else {
+                console.log('no services based on metrics')
             }
             
         },

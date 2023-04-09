@@ -122,7 +122,7 @@
     </div>
 </template>
 <script>
-import { mapState, mapMutations, mapGetters } from 'vuex';
+import { mapState, mapMutations, mapGetters, mapActions } from 'vuex';
 import httClient from '../httpClient/index'
 import config from '../config/index'
 export default {
@@ -155,6 +155,7 @@ export default {
     },
     methods: {
         ...mapMutations(['toggleShowService']),
+        ...mapActions(['fetchService']),
         toggleShowTestimonials() {
             // fold the testimonials if isAuthorized (user logged in), they can unfold it - or simply rate the service and move on...
             this.showTestimonials = !this.showTestimonials
@@ -195,7 +196,12 @@ export default {
                 .then((data) => {
                     console.log('review posted (rating):', data);
                     this.postedRating = data.rating
-                    console.log(this.postedRating)
+                    // clear review field:
+                    this.stars = 0
+                    this.comment = ''
+                    // refetch the service
+                    this.fetchService(this.id)
+                    alert(`Your review\'s been posted! You gave them ${this.stars} stars.`)
                 })
                 .catch((err) => {
                 console.log('error: ', err);
