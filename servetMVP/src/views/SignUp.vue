@@ -35,8 +35,12 @@
                 <div v-for="value, idx in providerFields" :key="idx" 
                     class="w-full flex items-center flex-col md:flex-row md:space-x-4 relative">
                     <span class="md:min-w-sm w-full text-md capitalize">{{ Object.keys(value)[0] }}:<b>*</b></span>
-                    <input class="md:min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
-                        focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50" type="text"
+                    <select v-if="Object.keys(value)[0] === 'location'" class="md:min-w-[468px] w-full border border-slate-400
+                        rounded-sm bg-gray-100 focus:ring-0 focus:border-slate-600 text-center" v-model="location">
+                        <option v-for="loc, i in locations.locations" :key="i" :value="loc.id">{{ loc.name }}</option>
+                    </select>
+                    <input v-else class="md:min-w-[468px] w-full border border-slate-400 rounded-sm bg-gray-100
+                        focus:ring-0 focus:border-slate-600 text-center valid:bg-blue-50" :type="Object.values(value)[0] !== 'photo' ? 'text' : 'file'"
                         :placeholder="Object.values(value)[0]" required
                         :ref="Object.values(value)[0]" :class="error && 'highlight'"
                     >
@@ -58,6 +62,7 @@
 </template>
 <script>
 import { ref } from 'vue'
+import { mapState } from 'vuex'
 export default {
     data() {
         return {
@@ -81,6 +86,7 @@ export default {
             signUpUser: '',
             showSelect: true,
             email: '',
+            location: '',
             csrfToken: '',
             isAuthenticated: false,
             error: false,
@@ -88,6 +94,9 @@ export default {
     },
     mounted() {
         this.getSession()
+    },
+    computed: {
+        ...mapState(['locations']),
     },
     methods: {
         setUser() {
@@ -102,7 +111,10 @@ export default {
                 set.push(...Object.values(this.providerFields))
             set.map(val => {
                 let field = Object.values(val)[0]
-                toSet[field] = this.$refs[field][0].value
+                if (field !== 'location') 
+                    toSet[field] = this.$refs[field][0].value
+                else
+                    toSet[field] = this.location // read value directly as v-modeled
                 // validate values (input)
                 if (field === 'full name' && !toSet[field].split(' ')[1])
                     this.error = true
@@ -134,6 +146,7 @@ export default {
                 // console.log('signing up as provider')
                 data['whatsapp'] = toSet['whats app']
                 data['location'] = toSet.location
+                data['photo'] = toSet.photo
             }
             this.signup(JSON.stringify(data))
         },
@@ -187,9 +200,10 @@ export default {
                 .then((res) => res.json())
                 .then((data) => {
                 console.log(data);
-                // if (data.login == true) {
-                //     isAuthenticated = true;
-                // }
+                if (data.signup == true) {
+                    // redirect to login
+                    this.$router.push({name: 'login'})
+                }
                 }
                 )
                 .catch((err) => {

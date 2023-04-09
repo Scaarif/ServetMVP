@@ -50,7 +50,7 @@
                 @click="toggleShowService(service.sps_id, csrfToken, '')" />
         </div>
         <div class="w-full flex items-center mt-8 flex-wrap px-8 sm:justify-center" v-else>
-            <span>We have no {{ categories.filter((cat) => cat.id === s_category).name }} services registered from this location</span>
+            <span>We have no services registered from this location</span>
         </div>
         <!-- see more -->
         <span v-if="getServices.length > 6" class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16

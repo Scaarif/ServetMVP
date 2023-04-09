@@ -28,10 +28,10 @@
             <div class="flex space-x-2 w-full items-center">
                 <span class="w-1/3 text-md capitalize">service location</span>
                 <select class="border rounded-sm w-full border-slate-300 ring-0 focus:ring-0 focus:border-slate-400 text-md
-                    capitalize bg-gray-100">
+                    capitalize bg-gray-100" v-model="location">
                     <!-- location data for selection options -->
-                    <option value="Nairobi" class="bg-gray-50">Nairobi</option>
-                    <option value="Lagos" class="bg-gray-50">Lagos</option>
+                    <option v-for="loc, i in locations.locations" :key="i" :value="loc.id" class="bg-gray-50">{{ loc.name }}</option>
+                    <!-- <option value="Lagos" class="bg-gray-50">Lagos</option> -->
                 </select>   
             </div>
              <!-- service description -->
@@ -64,10 +64,11 @@ export default {
             description: '',
             category: '',
             error: '',
+            location:'',
         }
     },
     computed: {
-        ...mapState(['csrfToken', 'categories', 'loggedInUser'])
+        ...mapState(['csrfToken', 'categories', 'loggedInUser', 'locations'])
     },
     created() {
         this.getCategories() // fetch service categories & set default category
@@ -78,9 +79,12 @@ export default {
             this.category = this.service.serviceCategory_id
             this.description = this.service.description
         }
+        if (!this.locations)
+            this.fetchLocations([1, 5]) // kenya and nairobi
     },
     methods: {
         ...mapActions(['getCategories']),
+        ...mapActions(['fetchLocations']),
         setCategory(){
             console.log('selected category: ', this.category)
         },
@@ -103,6 +107,7 @@ export default {
             console.log(this.description, this.csrfToken)
             let data = {'service_description': this.description};
             data['service_category'] = this.category
+            data['location'] = this.location
 
             if (this.do === 'save'){
                 let provider_id = this.loggedInUser.user_id
