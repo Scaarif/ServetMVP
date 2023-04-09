@@ -21,9 +21,9 @@
                    
                 </select> 
                 <!-- select county/state -->
-                <select name="" id="" v-if="selectedLocation && region === 'County'"
+                <select name="" id="counties" v-if="selectedLocation && region === 'County'"
                     v-model="region" @change="setRegion"
-                    class="w-[10rem] border-slate-300 bg-gray-50 rounded focus:border-slate-400 focus:ring-0 overflow-hidden"
+                    class="w-[10rem] border-slate-300 bg-gray-50 rounded focus:border-slate-400 focus:ring-0"
                     >
                     <option value="County">County</option>
                     <option v-for="region, idx in Object.values(regions)[0]" :key="idx" :value=region>{{ region.name }}</option>

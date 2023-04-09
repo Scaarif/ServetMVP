@@ -71,7 +71,8 @@ const mutations = {
     // set services value (based on location and category) -> we need an API that doesn't require category
     setServices(state, payload) {
         // extend the services array with response
-        state.services.push(...payload)
+        // state.services.push(...payload)
+        state.services = payload
         console.log('state.services: ', state.services, 'keys: ', Object.keys(state.services))
     },
     setService(state, payload) {

@@ -43,11 +43,14 @@
         >Most popular at {{ d_location.locale }}, {{ d_location.county }}</span>
         <span v-else class="md:self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
-        <div class="w-full flex items-center mt-8 flex-wrap px-8 sm:justify-center">
+        <div class="w-full flex items-center mt-8 flex-wrap px-8 sm:justify-center" v-if="fetched">
             <!-- <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService(2, csrfToken, '')" /> -->
             <ServiceCard v-for="service, idx in Object.values(getServices)" :key="idx" 
                 :service="service"
                 @click="toggleShowService(service.sps_id, csrfToken, '')" />
+        </div>
+        <div class="w-full flex items-center mt-8 flex-wrap px-8 sm:justify-center" v-else>
+            <span>We have no {{ categories.filter((cat) => cat.id === s_category).name }} services registered from this location</span>
         </div>
         <!-- see more -->
         <span v-if="getServices.length > 6" class="self-end text-slate-900 text-md border-b border-transparent p-2 mb-16
@@ -79,7 +82,8 @@ export default {
             d_location: {'county': 'Nairobi', 'locale': 'CBD'},
             dummy_services: ['some service', 'some', 'test service', 'test wrapping', 'another', 'see'],
             // services: '',
-            d_service: {'description': 'test description', 'first_name': 'test', 'last_name': 'testLast', 'rating': 2, 'reviews': [{'content': 'test review', 'customer_first_name': 'test', 'customer_last_name':'test'}]}
+            d_service: {'description': 'test description', 'first_name': 'test', 'last_name': 'testLast', 'rating': 2, 'reviews': [{'content': 'test review', 'customer_first_name': 'test', 'customer_last_name':'test'}]},
+            fetched: false,
         }
     },
     computed: {
@@ -92,10 +96,17 @@ export default {
     },
     created() {
         this.getCategories() // fetch service categories
+        if (Object.values(this.getServices).length > 0)
+            this.fetched = true
+    },
+    updated(){
+        if (this.fetched) {
+            console.log('fetched: ', this.fetched)
+        }
     },
     methods: {
-        ...mapMutations(['toggleShowService', 'setCategories']),
-        ...mapActions(['getCategories', 'fetchLocations', 'fetchStates', 'fetchServices']),
+        ...mapMutations(['toggleShowService', 'setCategories', 'setSelectedLocation']),
+        ...mapActions(['getCategories', 'fetchLocations', 'fetchStates', 'fetchServices',]),
         setStates() {
            this.fetchStates(this.country)
         },
@@ -103,14 +114,25 @@ export default {
             console.log('state_id: ', this.state)
             this.fetchLocations([this.country, this.state])
         },
-        setServices() {
+        async setServices() {
+            this.fetched = false; // start off as false
             let queryStr;
             if (this.s_category !== 'select service category')
                 queryStr = '?country=' + this.country + '&service_category=' + this.s_category
             else
                 queryStr = '?country=' + this.country + '&service_category=2' 
             queryStr += '&state=' + this.state + '&location=' + this.location
-            this.fetchServices(queryStr)
+            // set the location to this selected:
+            let state_name = Object.values(this.states.states.filter((state) => state.id === this.state))[0].name
+            let location_name = Object.values(this.locations.locations.filter((loc) => loc.id === this.location))[0].name
+            // console.log('current state: ', state_name, '& location: ', location_name)
+            this.setSelectedLocation([state_name, location_name])
+            await this.fetchServices(queryStr)
+            if (Object.values(this.getServices).length > 0) {
+                this.fetched = true
+                console.log('fetched services: ', this.getServices)
+            }
+            
         },
         loadMore() {
             // console.log('loaded services: ', this.services.services[0])
