@@ -109,7 +109,7 @@ const store = createStore({
         },
         async handleLogout(state) {
             let res;
-            let url = state.activeUser === 'provider' ? 'http://localhost:5000/api/v1/serviceProviders/logout' : 'http://localhost:5000/api/v1/customers/logout'
+            let url = state.activeUser === 'provider' ? 'http://web-01.whosadevnow.tech/api/v1/serviceProviders/logout' : 'http://web-01.whosadevnow.tech/api/v1/customers/logout'
             res = await fetch(url, {
                     headers: {
                         'Accept': 'application/json, text/javascript, */*; q=0.01',

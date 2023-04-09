@@ -151,7 +151,7 @@ export default {
             this.signup(JSON.stringify(data))
         },
         getSession() {
-            fetch("http://localhost:5000/api/v1/getsession", {
+            fetch("http://web-01.whosadevnow.tech/api/v1/getsession", {
                             credentials: "include",
                             })
                             .then((res) => res.json())
@@ -169,7 +169,7 @@ export default {
                             });
         },
         csrf() {
-            fetch("http://localhost:5000/api/v1/getcsrf", {
+            fetch("http://web-01.whosadevnow.tech/api/v1/getcsrf", {
                     credentials: "include",
                     })
                     .then((res) => {
@@ -183,7 +183,7 @@ export default {
         },
         signup(data) {
             console.log(data)
-            let url = 'http://localhost:5000/api/v1'
+            let url = 'http://web-01.whosadevnow.tech/api/v1'
             url += this.signUpUser === 'provider' ? '/serviceProviders/signup' : '/customers/signup'
             // console.log('signup url: ', url)
             fetch(url, {

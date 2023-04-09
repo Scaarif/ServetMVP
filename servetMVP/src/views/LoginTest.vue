@@ -72,7 +72,7 @@ export default {
 
         },
         getSession() {
-            fetch("http://localhost:5000/api/getsession", {
+            fetch("http://web-01.whosadevnow.tech/api/getsession", {
                             credentials: "include",
                             })
                             .then((res) => res.json())
@@ -91,15 +91,15 @@ export default {
         },
         csrf() {
         // async getCSRF() {
-            // let res = await fetch('http://localhost:5000/api/v1/getcsrf')
+            // let res = await fetch('http://web-01.whosadevnow.tech/api/v1/getcsrf')
             // // const data = await res.json()
             // console.log('csrf: ', res.headers.get('x-csrftoken'))
             // this.csrf = res.headers.get('x-csrftoken')
-            // // let ses = await fetch('http://localhost:5000/api/v1/getsession')
+            // // let ses = await fetch('http://web-01.whosadevnow.tech/api/v1/getsession')
             // // let sesdata = await ses.json()
             // // console.log('session: ', sesdata)
 
-            fetch("http://localhost:5000/api/getcsrf", {
+            fetch("http://web-01.whosadevnow.tech/api/getcsrf", {
                     credentials: "include",
                     })
                     .then((res) => {
@@ -115,7 +115,7 @@ export default {
         //     await this.getCSRF()
         //     // console.log('this: ', this.csrf)
         //     data.append('csrf_token', this.csrf)
-        //     let res = await fetch('http://localhost:5000/api/v1/customers/login', {
+        //     let res = await fetch('http://web-01.whosadevnow.tech/api/v1/customers/login', {
         //         method: 'POST',
         //         headers: {'X-CSRFToken': this.csrf},
         //         body: data,
@@ -125,7 +125,7 @@ export default {
         //     console.log('login res:', result)
         // }
         login() {
-            fetch("http://localhost:5000/api/login", {
+            fetch("http://web-01.whosadevnow.tech/api/login", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -147,7 +147,7 @@ export default {
                 });
         },
         whoami() {
-            fetch("http://localhost:5000/api/data", {
+            fetch("http://web-01.whosadevnow.tech/api/data", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -166,7 +166,7 @@ export default {
         },
 
         logout() {
-            fetch("http://localhost:5000/api/logout", {
+            fetch("http://web-01.whosadevnow.tech/api/logout", {
                 credentials: "include",
                 })
                 .then(() => {
