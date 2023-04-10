@@ -127,7 +127,7 @@ export default {
                     if (!this.servicesLoaded) {
                         // I'm thinking use localStorage to store a user's prev search parameters (country, location, service_categories) - key: customer_id
                         let country_id = 1 // Kenya (2 = Nigeria)
-                        const queryStr = '?country=' + country_id + '&service_category=2'
+                        const queryStr = '?country=' + country_id + '&service_category=1'
                         this.fetchServices(queryStr)
                     }   
                     console.log('isLoaded: ', this.servicesLoaded)
