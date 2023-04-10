@@ -110,7 +110,7 @@ export default {
             console.log(this.locale)
             // fetch services based on location (& currently, service_category)
             const country_id = this.selectedLocation === 'kenya' ? '1' : '2'
-            const queryStr = '?country=' + country_id + '&service_category=2'
+            const queryStr = '?country=' + country_id + '&service_category=1'
             // const queryStr = '?country=' + '2' + '&service_category=1'
             // console.log(queryStr)
             this.fetchServices(queryStr)
