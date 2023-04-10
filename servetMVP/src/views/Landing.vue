@@ -64,7 +64,7 @@ export default {
     },
     created() {
         // fetch locations
-        this.fetchLocations([1, 5])
+        this.fetchLocations([1, 1])
     },
     computed: {
         ...mapState(['isLanding'])

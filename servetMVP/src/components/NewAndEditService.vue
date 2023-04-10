@@ -80,7 +80,7 @@ export default {
             this.description = this.service.description
         }
         if (!this.locations)
-            this.fetchLocations([1, 5]) // kenya and nairobi
+            this.fetchLocations([1, 1]) // kenya and nairobi
     },
     methods: {
         ...mapActions(['getCategories']),
