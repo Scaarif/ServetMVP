@@ -98,7 +98,7 @@
                     <span class="self-end text-md font-medium text-slate-800 capitalize">{{ value.customer_first_name }} {{ value.customer_last_name }}</span>
                 </div>
                  <!-- see more -->
-                 <div class="w-full flex flex-col">
+                 <div class="w-full flex flex-col" v-if="serviceDets.reviews.length > 2">
                     <span class="self-end text-slate-600 text-md font-medium border-b border-transparent p-2
                         mr-4 transition-all hover:border-slate-800 cursor-pointer"
                         @click="toggleShowAll">

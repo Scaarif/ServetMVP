@@ -26,7 +26,7 @@ const actions = {
         const res = await httpClient.loggedOutGet(config.SERVICES + payload)
         console.log(res.data)
         // commit setServices if res is successful
-        if (res.data && res.data.length && res.status === 200)
+        if (res.status === 200)
             commit('setServices', res.data)
         commit('setLoaded', true)
     },
