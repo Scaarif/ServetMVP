@@ -99,7 +99,7 @@
                 </div>
                  <!-- see more -->
                  <div class="w-full flex flex-col">
-                    <span class="self-end text-slate-600 text-md font-medium border-b border-transparent p-2
+                    <span v-if="serviceDets.reviews.length > 2" class="self-end text-slate-600 text-md font-medium border-b border-transparent p-2
                         mr-4 transition-all hover:border-slate-800 cursor-pointer"
                         @click="toggleShowAll">
                         {{ slice === 2 ? 'see more ...' : 'show less ...' }}
@@ -181,7 +181,7 @@ export default {
                 // console.log(url)
                 let data = {'review_content': this.comment, 'upvotes': this.stars, 'total_votes': 5, 's_id': this.id}
                 console.log('data -> ', data)
-                // let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
+                let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
                 fetch(url, {
                 method: "POST",
                 headers: {
@@ -201,7 +201,7 @@ export default {
                     this.comment = ''
                     // refetch the service
                     this.fetchService(this.id)
-                    alert(`Your review\'s been posted! You gave them ${this.stars} stars.`)
+                    alert("Your review\'s been posted!")
                 })
                 .catch((err) => {
                 console.log('error: ', err);

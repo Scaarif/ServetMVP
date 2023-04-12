@@ -43,7 +43,7 @@
         >Most popular at {{ d_location.locale }}, {{ d_location.county }}</span>
         <span v-else class="md:self-start text-slate-900 text-lg font-bold ml-4"
         >Most popular in relation to your previous searches</span>
-        <div class="w-full flex items-center mt-8 flex-wrap px-8 sm:justify-center" v-if="fetched">
+        <div class="w-full flex items-center mt-8 flex-wrap px-8 sm:justify-center" v-if="getServices.length">
             <!-- <ServiceCard v-for="service, idx in dummy_services" :key="idx" @click="toggleShowService(2, csrfToken, '')" /> -->
             <ServiceCard v-for="service, idx in Object.values(getServices)" :key="idx" 
                 :service="service"
@@ -100,9 +100,9 @@ export default {
             this.fetched = true
     },
     updated(){
-        if (this.fetched) {
-            console.log('fetched: ', this.fetched)
-        }
+        // if (this.fetched) {
+        //      console.log('fetched: ', this.getServices)
+        // }
     },
     methods: {
         ...mapMutations(['toggleShowService', 'setCategories', 'setSelectedLocation']),
@@ -130,7 +130,7 @@ export default {
             await this.fetchServices(queryStr)
             if (Object.values(this.getServices).length > 0) {
                 this.fetched = true
-                console.log('fetched services: ', this.getServices, ' for the location: ', state_name, ' at ', location_name)
+                // console.log('fetched services: ', this.getServices, ' for the location: ', state_name, ' at ', location_name)
             } else {
                 console.log('no services based on metrics')
             }

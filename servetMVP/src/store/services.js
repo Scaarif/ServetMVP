@@ -24,9 +24,10 @@ const actions = {
     // get services based on location and category: returns [description, provider(first & last) name, image_uri, rating(num), service_id(sps_id)])
     async fetchServices({commit}, payload) {
         const res = await httpClient.loggedOutGet(config.SERVICES + payload)
-        console.log(res.data)
-        // commit setServices if res is successful
-        if (res.data && res.data.length && res.status === 200)
+        console.log(res)
+        // commit setServices if res is successful - seems I'm only setting state if there's data in the res
+        // if (res.data && res.data.length && res.status === 200)
+        if (res.status === 200)
             commit('setServices', res.data)
         commit('setLoaded', true)
     },
