@@ -79,7 +79,7 @@ const mutations = {
     setService(state, payload) {
         // set service to response value (from API call)
         state.service = payload
-        // console.log('state.service: ',state.service)
+        console.log('state.service: ',state.service)
     },
     setLoaded(state, loaded) {
         state.loaded = loaded

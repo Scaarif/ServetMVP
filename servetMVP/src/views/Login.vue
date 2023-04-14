@@ -136,8 +136,9 @@ export default {
                     // set authToken in localStorage
                     localStorage.setItem('authToken', true)
                 } else {
-                    this.errorMsg = data.message
-                    console.log('errorMsg!')
+                    this.errorMsg = data.reason
+                    alert(this.errorMsg)
+                    // console.log('errorMsg: ', this.errorMsg)
                 }
                 })
                 .catch((err) => {

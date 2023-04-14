@@ -80,7 +80,7 @@
             <!-- testimonials -->
             <div v-show="showTestimonials" class="flex flex-wrap items-center space-y-2 mb-4 px-4">
                 <!-- testimonial -->
-                <div class="flex flex-col space-y-4 p-4 border w-full mr-2 md:max-w-1/2 rounded-sm" v-for="value, idx in Object.values(serviceDets.reviews).slice(0, slice)" :key="idx">
+                <div class="flex flex-col space-y-4 p-4 border w-full mr-2 md:max-w-1/2 rounded-sm" v-for="value, idx in Object.values(serviceDets.reviews.reverse()).slice(0, slice)" :key="idx">
                     <div class="flex space-x-4 items-center">
                         <span class="text-md">Rating:</span>
                         <span class="flex">
@@ -154,7 +154,7 @@ export default {
         ...mapGetters(['getService']),
     },
     methods: {
-        ...mapMutations(['toggleShowService']),
+        ...mapMutations(['toggleShowService', 'setService']),
         ...mapActions(['fetchService']),
         toggleShowTestimonials() {
             // fold the testimonials if isAuthorized (user logged in), they can unfold it - or simply rate the service and move on...
@@ -179,9 +179,9 @@ export default {
                 // actually post the comment
                 let url = config.CUSTOMERS + this.loggedInUser.user_id + '/reviews/create'
                 // console.log(url)
-                let data = {'review_content': this.comment, 'upvotes': this.stars, 'total_votes': 5, 's_id': this.id}
-                console.log('data -> ', data)
-                let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
+                let r_data = {'review_content': this.comment, 'upvotes': this.stars, 'total_votes': 5, 's_id': this.id}
+                console.log('data -> ', r_data)
+                // let res = await httClient.postWithToken(url, JSON.stringify(data), this.csrfToken)
                 fetch(url, {
                 method: "POST",
                 headers: {
@@ -190,7 +190,7 @@ export default {
                     "X-CSRFToken": this.csrfToken
                 },
                 credentials: "include",
-                body: JSON.stringify(data),
+                body: JSON.stringify(r_data),
                 })
                 .then((res) => res.json())
                 .then((data) => {
@@ -201,6 +201,9 @@ export default {
                     this.comment = ''
                     // refetch the service
                     this.fetchService(this.id)
+                    // let service = this.getService.reviews.unshift(r_data)
+                    // this.setService(service)
+                    console.log(this.getService.reviews)
                     alert("Your review\'s been posted!")
                 })
                 .catch((err) => {

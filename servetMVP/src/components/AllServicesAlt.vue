@@ -97,6 +97,7 @@ export default {
     },
     created() {
         this.getCategories() // fetch service categories
+        console.log('created')
     },
     methods: {
         ...mapMutations(['toggleShowService', 'setCategories', 'toggleProviderShopping']),

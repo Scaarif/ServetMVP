@@ -53,10 +53,10 @@
     </div>
 </template>
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
-    props: ['toggle', 'id', 'setServiceId', 'service'],
+    props: ['toggle', 'id', 'setServiceId', 'service', 'toggleUpdated'],
     data() {
         return {
             do:'',
@@ -83,8 +83,8 @@ export default {
             this.fetchLocations([1, 5]) // kenya and nairobi
     },
     methods: {
-        ...mapActions(['getCategories']),
-        ...mapActions(['fetchLocations']),
+        ...mapActions(['getCategories', 'fetchLocations']),
+        ...mapMutations(['setService']),
         setCategory(){
             console.log('selected category: ', this.category)
         },
@@ -105,9 +105,9 @@ export default {
                 this.toggle()
             }
             console.log(this.description, this.csrfToken)
-            let data = {'service_description': this.description};
-            data['service_category'] = this.category
-            data['location'] = this.location
+            let s_data = {'service_description': this.description};
+            s_data['service_category'] = this.category
+            s_data['location'] = this.location
 
             if (this.do === 'save'){
                 let provider_id = this.loggedInUser.user_id
@@ -122,11 +122,15 @@ export default {
                     "X-CSRFToken": this.csrfToken
                 },
                 credentials: "include",
-                body: JSON.stringify(data),
+                body: JSON.stringify(s_data),
                 })
                 .then((res) => res.json())
                 .then((data) => {
                 console.log('created a post: ', data);
+                // update service if its an edit and add the service to services if its a create request
+                if (this.id)
+                    this.setService(s_data)
+                this.toggleUpdated() // update updated (prop)   
                 })
                 .catch((err) => {
                 console.log('error: ', err);
